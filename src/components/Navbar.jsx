@@ -26,14 +26,14 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
 
   const navLinks = [
     { name: 'Home', href: '#home' },
-    { name: 'IT Services & AMC', href: '#services-it' },
-    { name: 'Solar Energy', href: '#services-solar' },
-    { name: 'Solar Calculator', href: '#solar-calculator' },
+    { name: 'IT Services', href: '#services-it' },
+    { name: 'Solar EPC', href: '#services-solar' },
+    { name: 'Calculator', href: '#solar-calculator' },
     { name: 'Products', href: '#products' },
     { name: 'Clientele', href: '#clientele' },
-    { name: 'B2B Platforms', href: '#b2b-platforms' },
+    { name: 'B2B Hub', href: '#b2b-platforms' },
     { name: 'Hall of Fame', href: '#gallery' },
-    { name: '100 KM Coverage', href: '#service-area' },
+    { name: '100 KM Area', href: '#service-area' },
     { name: 'Contact', href: '#contact' },
   ];
 
@@ -106,36 +106,36 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
       {/* Main Navigation Bar */}
       <nav className={`transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/95 dark:bg-slate-950/95 dark:border-b dark:border-slate-800 backdrop-blur-md shadow-md py-3' 
-          : 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm py-4 shadow-sm'
+          ? 'bg-white/95 dark:bg-slate-950/95 dark:border-b dark:border-slate-800 backdrop-blur-md shadow-md py-2' 
+          : 'bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm py-2.5 shadow-sm'
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
           {/* Brand Logo */}
-          <a href="#home" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-blue to-emerald-600 p-0.5 shadow-md flex items-center justify-center transition-transform group-hover:scale-105">
+          <a href="#home" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-blue to-emerald-600 p-0.5 shadow-md flex items-center justify-center transition-transform group-hover:scale-105">
               <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center text-white">
-                <span className="font-black text-base tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
+                <span className="font-black text-sm sm:text-base tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-emerald-400">
                   CP
                 </span>
               </div>
             </div>
             <div>
-              <div className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+              <div className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
                 <span>M/S COMPUTER PLANET</span>
               </div>
-              <p className="text-[10px] font-semibold tracking-wider uppercase text-emerald-600 dark:text-emerald-400">
+              <p className="text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase text-emerald-600 dark:text-emerald-400">
                 IT Solutions & Renewable Energy
               </p>
             </div>
           </a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 shrink-0">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+                className="whitespace-nowrap text-xs xl:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 px-2 xl:px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
               >
                 {link.name}
               </a>
