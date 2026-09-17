@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { 
   Users, 
   UserCheck, 
@@ -437,15 +438,11 @@ Support Helpline: +91-8638083712`;
           </style>
         </head>
         <body>
-          <div class="header">
-            <h2>M/S COMPUTER PLANET</h2>
-            <div>West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007 | Tel: +91-8638083712</div>
-            <div style="font-weight: bold; margin-top: 3px;">
-              MSME Reg: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0 | IT AMC & Solar Engineering
-            </div>
-          </div>
-
-          <h3 style="text-align: center; text-transform: uppercase; margin: 15px 0;">SALARY PAYSLIP FOR ${p.month}</h3>
+          ${getCompanyPrintHeaderHtml({
+            documentTitle: `SALARY PAYSLIP FOR ${p.month}`,
+            rightBadgeText: p.empId,
+            rightBadgeSubtext: 'CONFIDENTIAL PAYSLIP'
+          })}
 
           <div class="meta-grid">
             <div class="box">

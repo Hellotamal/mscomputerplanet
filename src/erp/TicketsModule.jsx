@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { 
   Wrench, 
   Plus, 
@@ -141,12 +142,11 @@ Chincoorie, Silchar, Cachar, Assam - 788007
           </style>
         </head>
         <body>
-          <div class="header">
-            <h2>M/S COMPUTER PLANET</h2>
-            <div>West Kachudharam, Chincoorie, Silchar - 788007 | Tel: +91-8638083712</div>
-            <small>MSME: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0</small>
-          </div>
-          <h3>SERVICE JOB SLIP: ${ticket.id}</h3>
+          ${getCompanyPrintHeaderHtml({
+            documentTitle: `SERVICE JOB SLIP: ${ticket.id}`,
+            rightBadgeText: ticket.id,
+            rightBadgeSubtext: 'SERVICE TICKET'
+          })}
           <p><strong>Date:</strong> ${ticket.reportedDate} | <strong>Priority:</strong> ${ticket.priority}</p>
           <p><strong>Customer / Branch:</strong> ${ticket.clientName} (${ticket.contactPerson || 'N/A'})</p>
           <p><strong>Phone:</strong> ${ticket.phone || 'N/A'}</p>

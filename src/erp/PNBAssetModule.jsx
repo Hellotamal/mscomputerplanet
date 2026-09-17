@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PNB_BRANCH_ASSETS } from '../data/pnbAssetData';
 import { loadErpData, saveErpData } from './erpStorage';
+import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { 
   Landmark, 
   Search, 
@@ -200,10 +201,14 @@ export default function PNBAssetModule() {
           </style>
         </head>
         <body>
-          <div class="header">
-            <h2>PUNJAB NATIONAL BANK - CIRCLE OFFICE SILCHAR</h2>
-            <h4>Branchwise Total Hardware Asset Counts (M/S COMPUTER PLANET AMC Support)</h4>
-            <div>Coverage: Silchar, Cachar, Hailakandi, Karimganj, Dima Hasao (${branches.length} Locations)</div>
+          ${getCompanyPrintHeaderHtml({
+            documentTitle: 'PUNJAB NATIONAL BANK - CIRCLE OFFICE SILCHAR',
+            rightBadgeText: `${branches.length} LOCATIONS`,
+            rightBadgeSubtext: 'AMC ASSET REGISTER'
+          })}
+          <div style="text-align: center; font-size: 11px; color: #475569; margin-bottom: 12px; font-weight: 500;">
+            Branchwise Hardware Asset Matrix under M/S COMPUTER PLANET Comprehensive AMC Support<br/>
+            Coverage: Silchar, Cachar, Hailakandi, Karimganj, Dima Hasao Circles
           </div>
           <table>
             <thead>

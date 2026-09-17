@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
+import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { 
   FileText, 
   Plus, 
@@ -222,21 +223,11 @@ Support Helpline: +91-8638083712`;
           </style>
         </head>
         <body>
-          <div class="header-table">
-            <div>
-              <div class="brand-name">M/S COMPUTER PLANET</div>
-              <div class="subhead">IT Infrastructure, Banking AMC, CCTV Surveillance & Solar Power Systems</div>
-              <div class="subhead">West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007</div>
-              <div class="subhead">Helpline: +91-8638083712 | Email: computerplanetpkd@gmail.com</div>
-              <div class="tagline">GSTIN: 18ASTPR6755J1Z0 | State: Assam (Code 18) | MSME: UDYAM-AS-05-0019941</div>
-            </div>
-            <div style="text-align: right;">
-              <div style="font-size: 11px; color: #64748b;">ORIGINAL FOR RECIPIENT</div>
-              <div style="font-size: 12px; font-weight: bold; margin-top: 4px;">TAX INVOICE</div>
-            </div>
-          </div>
-
-          <div class="invoice-title">TAX INVOICE</div>
+          ${getCompanyPrintHeaderHtml({
+            documentTitle: 'TAX INVOICE',
+            rightBadgeText: 'ORIGINAL FOR RECIPIENT',
+            rightBadgeSubtext: 'GST INVOICE'
+          })}
 
           <div class="meta-grid">
             <div class="box">
