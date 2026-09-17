@@ -14,6 +14,7 @@ import FloatingActions from './components/FloatingActions';
 import OmnisPartnership from './components/OmnisPartnership';
 import LocalSEOSection from './components/LocalSEOSection';
 import FounderProfile from './components/FounderProfile';
+import GalleryHallOfFame from './components/GalleryHallOfFame';
 import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
 
@@ -99,6 +100,7 @@ export default function App() {
         <ProductsCatalog onOpenQuote={handleOpenQuote} />
         <ClienteleTrack />
         <FounderProfile onOpenQuote={handleOpenQuote} />
+        <GalleryHallOfFame onOpenQuote={handleOpenQuote} />
         <LocalSEOSection onOpenQuote={handleOpenQuote} />
         <ContactSection />
       </main>
