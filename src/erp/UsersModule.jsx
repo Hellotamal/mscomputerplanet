@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { 
   Users, 
   UserPlus, 
@@ -29,6 +29,7 @@ const ALL_MODULES = [
   { id: 'invoices', label: 'GST Tax Invoicing' },
   { id: 'solar', label: 'Solar Projects' },
   { id: 'users', label: 'Staff & Role Management' },
+  { id: 'hrms', label: 'Staff HRMS & Payslips' },
   { id: 'settings', label: 'Data Backup & Settings' }
 ];
 

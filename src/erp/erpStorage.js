@@ -215,22 +215,22 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
     description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
+    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
   },
   {
     role: "Resident IT Service Engineer",
     description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
-    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory"]
+    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory", "hrms"]
   },
   {
     role: "Accounts & GST Billing Officer",
     description: "Generates official tax invoices, manages AMC billing schedules, and oversees commercial collections.",
-    defaultPermissions: ["dashboard", "invoices", "amc", "inventory"]
+    defaultPermissions: ["dashboard", "invoices", "amc", "inventory", "hrms"]
   },
   {
     role: "Solar Project Technical Lead",
     description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
-    defaultPermissions: ["dashboard", "solar", "inventory", "tickets"]
+    defaultPermissions: ["dashboard", "solar", "inventory", "tickets", "hrms"]
   },
   {
     role: "Store & Inventory Supervisor",
@@ -254,7 +254,7 @@ export const INITIAL_USERS = [
     phone: "+91-8638083712",
     region: "Silchar HQ & All Circles",
     status: "Active",
-    permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
+    permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
   },
   {
     id: "USR-002",
@@ -347,11 +347,227 @@ export function authenticateErpUser(enteredPin) {
   return { success: false, message: "Invalid Access PIN. (Default master PIN is 1234)" };
 }
 
+export const INITIAL_EMPLOYEES = [
+  {
+    id: "EMP-101",
+    name: "Debashis Roy",
+    designation: "Senior Resident IT Hardware Engineer",
+    department: "Banking AMC & IT Infrastructure",
+    employmentType: "Full-time Permanent",
+    joiningDate: "2022-04-10",
+    phone: "+91-9435012345",
+    email: "debashis.it@mscomputerplanet.com",
+    address: "Tarapur, Silchar, Cachar - 788003",
+    assignedCircle: "PNB Silchar 50 Branches & Currency Chest",
+    status: "Active",
+    monthlySalary: 28000,
+    dailyAllowance: 250,
+    bankDetails: {
+      bankName: "Punjab National Bank",
+      accountNo: "0743000100987654",
+      ifsc: "PUNB0074300",
+      upi: "debashis@pnb"
+    },
+    attendance: {
+      totalDays: 26,
+      presentDays: 25,
+      fieldVisits: 18,
+      leavesTaken: 1,
+      todayStatus: "Field Duty (PNB Silchar Main)"
+    }
+  },
+  {
+    id: "EMP-102",
+    name: "Priyanka Paul",
+    designation: "Senior Accounts & GST Billing Officer",
+    department: "Accounts, Finance & Compliance",
+    employmentType: "Full-time Permanent",
+    joiningDate: "2023-01-15",
+    phone: "+91-9864054321",
+    email: "priyanka.accounts@mscomputerplanet.com",
+    address: "Meherpur, Silchar, Cachar - 788015",
+    assignedCircle: "Central Business Office",
+    status: "Active",
+    monthlySalary: 24000,
+    dailyAllowance: 100,
+    bankDetails: {
+      bankName: "State Bank of India",
+      accountNo: "30876543210",
+      ifsc: "SBIN0000183",
+      upi: "priyanka@sbi"
+    },
+    attendance: {
+      totalDays: 26,
+      presentDays: 26,
+      fieldVisits: 2,
+      leavesTaken: 0,
+      todayStatus: "Present (Head Office)"
+    }
+  },
+  {
+    id: "EMP-103",
+    name: "Animesh Das",
+    designation: "Solar Installation Project Lead",
+    department: "Solar & Renewable Energy",
+    employmentType: "Full-time Permanent",
+    joiningDate: "2023-06-01",
+    phone: "+91-8638099887",
+    email: "animesh.solar@mscomputerplanet.com",
+    address: "Chincoorie Road, Silchar - 788007",
+    assignedCircle: "Barak Valley Solar Sites",
+    status: "Active",
+    monthlySalary: 26000,
+    dailyAllowance: 300,
+    bankDetails: {
+      bankName: "Assam Gramin Vikash Bank",
+      accountNo: "718900456789",
+      ifsc: "PUNB0RRBAGB",
+      upi: "animesh@upi"
+    },
+    attendance: {
+      totalDays: 26,
+      presentDays: 24,
+      fieldVisits: 20,
+      leavesTaken: 2,
+      todayStatus: "Field Duty (Barak Cold Storage)"
+    }
+  },
+  {
+    id: "EMP-104",
+    name: "Rahul Barman",
+    designation: "Field Service Technician (Printers & Peripherals)",
+    department: "Banking AMC & IT Infrastructure",
+    employmentType: "Full-time",
+    joiningDate: "2024-02-12",
+    phone: "+91-9435123456",
+    email: "rahul.tech@mscomputerplanet.com",
+    address: "Hailakandi Road, Silchar - 788005",
+    assignedCircle: "Hailakandi & Karimganj Branches",
+    status: "Active",
+    monthlySalary: 18000,
+    dailyAllowance: 200,
+    bankDetails: {
+      bankName: "Punjab National Bank",
+      accountNo: "0743000100456123",
+      ifsc: "PUNB0074300",
+      upi: "rahul@okaxis"
+    },
+    attendance: {
+      totalDays: 26,
+      presentDays: 25,
+      fieldVisits: 22,
+      leavesTaken: 1,
+      todayStatus: "Field Duty (Hailakandi PNB)"
+    }
+  }
+];
+
+export const INITIAL_LEAVES = [
+  {
+    id: "LEV-101",
+    empId: "EMP-101",
+    employeeName: "Debashis Roy",
+    leaveType: "Casual Leave",
+    startDate: "2026-09-22",
+    endDate: "2026-09-23",
+    days: 2,
+    reason: "Family ceremony at Hailakandi hometown",
+    status: "Approved",
+    appliedDate: "2026-09-15"
+  },
+  {
+    id: "LEV-102",
+    empId: "EMP-103",
+    employeeName: "Animesh Das",
+    leaveType: "Sick Leave",
+    startDate: "2026-09-18",
+    endDate: "2026-09-18",
+    days: 1,
+    reason: "Seasonal viral checkup",
+    status: "Pending",
+    appliedDate: "2026-09-17"
+  }
+];
+
+export const INITIAL_PAYROLL = [
+  {
+    id: "PAY-2026-08-01",
+    empId: "EMP-101",
+    employeeName: "Debashis Roy",
+    designation: "Senior Resident IT Hardware Engineer",
+    month: "August 2026",
+    basic: 20000,
+    hra: 5000,
+    fieldAllowance: 3000,
+    incentive: 2000,
+    grossSalary: 30000,
+    deductions: 1000,
+    netSalary: 29000,
+    status: "Paid",
+    paidDate: "2026-09-02",
+    paymentMode: "Bank Transfer (NEFT/PNB)"
+  },
+  {
+    id: "PAY-2026-08-02",
+    empId: "EMP-102",
+    employeeName: "Priyanka Paul",
+    designation: "Senior Accounts & GST Billing Officer",
+    month: "August 2026",
+    basic: 18000,
+    hra: 4000,
+    fieldAllowance: 1000,
+    incentive: 1000,
+    grossSalary: 24000,
+    deductions: 500,
+    netSalary: 23500,
+    status: "Paid",
+    paidDate: "2026-09-02",
+    paymentMode: "Bank Transfer (NEFT/SBI)"
+  },
+  {
+    id: "PAY-2026-08-03",
+    empId: "EMP-103",
+    employeeName: "Animesh Das",
+    designation: "Solar Installation Project Lead",
+    month: "August 2026",
+    basic: 18000,
+    hra: 5000,
+    fieldAllowance: 3000,
+    incentive: 2500,
+    grossSalary: 28500,
+    deductions: 500,
+    netSalary: 28000,
+    status: "Paid",
+    paidDate: "2026-09-02",
+    paymentMode: "Bank Transfer (AGVB)"
+  },
+  {
+    id: "PAY-2026-08-04",
+    empId: "EMP-104",
+    employeeName: "Rahul Barman",
+    designation: "Field Service Technician",
+    month: "August 2026",
+    basic: 14000,
+    hra: 2500,
+    fieldAllowance: 1500,
+    incentive: 1000,
+    grossSalary: 19000,
+    deductions: 500,
+    netSalary: 18500,
+    status: "Paid",
+    paidDate: "2026-09-02",
+    paymentMode: "Bank Transfer (NEFT/PNB)"
+  }
+];
+
 export function exportAllErpData() {
   const backup = {
     exportDate: new Date().toISOString(),
     firm: "M/S COMPUTER PLANET",
     users: loadErpData("users", INITIAL_USERS),
+    employees: loadErpData("employees", INITIAL_EMPLOYEES),
+    leaves: loadErpData("leaves", INITIAL_LEAVES),
+    payroll: loadErpData("payroll", INITIAL_PAYROLL),
     tickets: loadErpData("tickets", INITIAL_TICKETS),
     amc: loadErpData("amc", INITIAL_AMC_CONTRACTS),
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
@@ -366,6 +582,9 @@ export function importAllErpData(jsonString) {
   try {
     const data = JSON.parse(jsonString);
     if (data.users) saveErpData("users", data.users);
+    if (data.employees) saveErpData("employees", data.employees);
+    if (data.leaves) saveErpData("leaves", data.leaves);
+    if (data.payroll) saveErpData("payroll", data.payroll);
     if (data.tickets) saveErpData("tickets", data.tickets);
     if (data.amc) saveErpData("amc", data.amc);
     if (data.inventory) saveErpData("inventory", data.inventory);

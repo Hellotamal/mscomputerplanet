@@ -8,6 +8,9 @@ import {
   INITIAL_INVOICES, 
   INITIAL_SOLAR_PROJECTS,
   INITIAL_USERS,
+  INITIAL_EMPLOYEES,
+  INITIAL_LEAVES,
+  INITIAL_PAYROLL,
   exportAllErpData,
   importAllErpData,
   getErpPin,
@@ -20,6 +23,7 @@ import InvoiceModule from './InvoiceModule';
 import SolarProjectsModule from './SolarProjectsModule';
 import PNBAssetModule from './PNBAssetModule';
 import UsersModule from './UsersModule';
+import HRMSModule from './HRMSModule';
 import ERPLogin from './ERPLogin';
 import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
@@ -44,7 +48,8 @@ import {
   Monitor,
   Printer,
   Users,
-  UserCheck
+  UserCheck,
+  Briefcase
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -65,6 +70,9 @@ export default function ERPApp({ onExit }) {
 
   // Persistent States
   const [users, setUsers] = useState(() => loadErpData("users", INITIAL_USERS));
+  const [employees, setEmployees] = useState(() => loadErpData("employees", INITIAL_EMPLOYEES));
+  const [leaves, setLeaves] = useState(() => loadErpData("leaves", INITIAL_LEAVES));
+  const [payroll, setPayroll] = useState(() => loadErpData("payroll", INITIAL_PAYROLL));
   const [tickets, setTickets] = useState(() => loadErpData("tickets", INITIAL_TICKETS));
   const [amcContracts, setAmcContracts] = useState(() => loadErpData("amc", INITIAL_AMC_CONTRACTS));
   const [inventory, setInventory] = useState(() => loadErpData("inventory", INITIAL_INVENTORY));
@@ -73,6 +81,9 @@ export default function ERPApp({ onExit }) {
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
+  useEffect(() => { saveErpData("employees", employees); }, [employees]);
+  useEffect(() => { saveErpData("leaves", leaves); }, [leaves]);
+  useEffect(() => { saveErpData("payroll", payroll); }, [payroll]);
   useEffect(() => { saveErpData("tickets", tickets); }, [tickets]);
   useEffect(() => { saveErpData("amc", amcContracts); }, [amcContracts]);
   useEffect(() => { saveErpData("inventory", inventory); }, [inventory]);
@@ -117,6 +128,9 @@ export default function ERPApp({ onExit }) {
       const success = importAllErpData(event.target.result);
       if (success) {
         setUsers(loadErpData("users", INITIAL_USERS));
+        setEmployees(loadErpData("employees", INITIAL_EMPLOYEES));
+        setLeaves(loadErpData("leaves", INITIAL_LEAVES));
+        setPayroll(loadErpData("payroll", INITIAL_PAYROLL));
         setTickets(loadErpData("tickets", INITIAL_TICKETS));
         setAmcContracts(loadErpData("amc", INITIAL_AMC_CONTRACTS));
         setInventory(loadErpData("inventory", INITIAL_INVENTORY));
@@ -161,6 +175,7 @@ export default function ERPApp({ onExit }) {
     { id: 'invoices', name: 'GST Invoices', icon: FileText },
     { id: 'solar', name: 'Solar Projects', icon: SunMedium },
     { id: 'users', name: 'Staff & Roles', icon: Users, badge: users.length },
+    { id: 'hrms', name: 'Staff HRMS', icon: Briefcase, badge: employees.length },
     { id: 'settings', name: 'Data & Settings', icon: Settings },
   ];
 
@@ -495,6 +510,17 @@ export default function ERPApp({ onExit }) {
         {activeTab === 'invoices' && <InvoiceModule invoices={invoices} setInvoices={setInvoices} />}
         {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
         {activeTab === 'users' && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
+        {activeTab === 'hrms' && (
+          <HRMSModule 
+            employees={employees} 
+            setEmployees={setEmployees} 
+            leaves={leaves} 
+            setLeaves={setLeaves} 
+            payroll={payroll} 
+            setPayroll={setPayroll} 
+            currentUser={currentUser} 
+          />
+        )}
 
         {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto space-y-6">
