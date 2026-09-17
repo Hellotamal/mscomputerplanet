@@ -27,8 +27,23 @@ export default function App() {
         setIsErpMode(true);
       }
     };
+
+    // Discreet shortcut for authorized administration: Ctrl+Shift+E or Alt+E
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'E' || e.key === 'e')) || 
+          (e.altKey && (e.key === 'E' || e.key === 'e'))) {
+        e.preventDefault();
+        window.location.hash = 'erp';
+        setIsErpMode(true);
+      }
+    };
+
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleOpenQuote = (data = {}) => {

@@ -9,8 +9,7 @@ import {
   Cpu, 
   ArrowUp, 
   CheckCircle,
-  ExternalLink,
-  Lock
+  ExternalLink
 } from 'lucide-react';
 
 export default function Footer({ onOpenERP }) {
@@ -56,15 +55,6 @@ export default function Footer({ onOpenERP }) {
                 <span>GSTIN: {BUSINESS_INFO.legal.gstin}</span>
               </div>
             </div>
-
-            {/* Backend ERP Access Button */}
-            <button
-              onClick={onOpenERP}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition"
-            >
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Backend Operations (ERP Portal)</span>
-            </button>
           </div>
 
           {/* IT Services Links */}
@@ -131,13 +121,6 @@ export default function Footer({ onOpenERP }) {
                 <ArrowUp className="w-3.5 h-3.5" />
                 <span>Back to Top</span>
               </button>
-              <button
-                onClick={onOpenERP}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-emerald-400 hover:text-emerald-300 hover:border-slate-700 transition font-medium"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                <span>ERP Portal</span>
-              </button>
             </div>
           </div>
 
@@ -152,11 +135,6 @@ export default function Footer({ onOpenERP }) {
             <span>MSME Reg: {BUSINESS_INFO.legal.udyamRegNo}</span>
             <span>•</span>
             <span>GST: {BUSINESS_INFO.legal.gstin}</span>
-            <span>•</span>
-            <button onClick={onOpenERP} className="text-emerald-500 hover:underline inline-flex items-center gap-1 font-semibold">
-              <Lock className="w-3 h-3" />
-              <span>ERP Staff Portal</span>
-            </button>
           </div>
         </div>
       </div>
