@@ -6,6 +6,7 @@ import {
   INITIAL_AMC_CONTRACTS, 
   INITIAL_INVENTORY, 
   INITIAL_INVOICES, 
+  INITIAL_QUOTATIONS,
   INITIAL_SOLAR_PROJECTS,
   INITIAL_USERS,
   INITIAL_EMPLOYEES,
@@ -20,6 +21,7 @@ import TicketsModule from './TicketsModule';
 import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
 import InvoiceModule from './InvoiceModule';
+import QuotationModule from './QuotationModule';
 import SolarProjectsModule from './SolarProjectsModule';
 import PNBAssetModule from './PNBAssetModule';
 import UsersModule from './UsersModule';
@@ -32,6 +34,7 @@ import {
   Building2, 
   Package, 
   FileText, 
+  ClipboardList,
   SunMedium, 
   Settings, 
   LogOut, 
@@ -79,6 +82,7 @@ export default function ERPApp({ onExit }) {
   const [amcContracts, setAmcContracts] = useState(() => loadErpData("amc", INITIAL_AMC_CONTRACTS));
   const [inventory, setInventory] = useState(() => loadErpData("inventory", INITIAL_INVENTORY));
   const [invoices, setInvoices] = useState(() => loadErpData("invoices", INITIAL_INVOICES));
+  const [quotations, setQuotations] = useState(() => loadErpData("quotations", INITIAL_QUOTATIONS));
   const [solarProjects, setSolarProjects] = useState(() => loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
 
   // Sync to local storage on state change
@@ -90,6 +94,7 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("amc", amcContracts); }, [amcContracts]);
   useEffect(() => { saveErpData("inventory", inventory); }, [inventory]);
   useEffect(() => { saveErpData("invoices", invoices); }, [invoices]);
+  useEffect(() => { saveErpData("quotations", quotations); }, [quotations]);
   useEffect(() => { saveErpData("solar_projects", solarProjects); }, [solarProjects]);
 
   // Settings State
@@ -155,6 +160,7 @@ export default function ERPApp({ onExit }) {
         setAmcContracts(loadErpData("amc", INITIAL_AMC_CONTRACTS));
         setInventory(loadErpData("inventory", INITIAL_INVENTORY));
         setInvoices(loadErpData("invoices", INITIAL_INVOICES));
+        setQuotations(loadErpData("quotations", INITIAL_QUOTATIONS));
         setSolarProjects(loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
         alert("ERP Data successfully restored from backup!");
       } else {
@@ -185,6 +191,7 @@ export default function ERPApp({ onExit }) {
   const totalInventoryVal = inventory.reduce((acc, i) => acc + (i.stock * i.sellPrice), 0);
   const totalSolarKw = solarProjects.reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0);
   const openTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
+  const pendingQuotesCount = quotations.filter(q => q.status === 'Sent' || q.status === 'Draft').length;
 
   const allNavTabs = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -193,6 +200,7 @@ export default function ERPApp({ onExit }) {
     { id: 'amc', name: 'AMC Contracts', icon: Building2 },
     { id: 'inventory', name: 'Inventory & Spares', icon: Package },
     { id: 'invoices', name: 'GST Invoices', icon: FileText },
+    { id: 'quotations', name: 'Quotations', icon: ClipboardList, badge: pendingQuotesCount > 0 ? pendingQuotesCount : null },
     { id: 'solar', name: 'Solar Projects', icon: SunMedium },
     { id: 'users', name: 'Staff & Roles', icon: Users, badge: users.length },
     { id: 'hrms', name: 'Staff HRMS', icon: Briefcase, badge: employees.length },
@@ -353,13 +361,20 @@ export default function ERPApp({ onExit }) {
                   className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
                 >
                   <Landmark className="w-4 h-4" />
-                  <span>PNB Asset Register (543)</span>
+                  <span>PNB Assets (543)</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('quotations')}
+                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  <span>Quotations</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('tickets')}
                   className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition"
                 >
-                  View Active Tickets
+                  Active Tickets
                 </button>
               </div>
             </div>
@@ -558,6 +573,15 @@ export default function ERPApp({ onExit }) {
         {activeTab === 'amc' && <AMCModule amcContracts={amcContracts} setAmcContracts={setAmcContracts} />}
         {activeTab === 'inventory' && <InventoryModule inventory={inventory} setInventory={setInventory} />}
         {activeTab === 'invoices' && <InvoiceModule invoices={invoices} setInvoices={setInvoices} />}
+        {activeTab === 'quotations' && (
+          <QuotationModule 
+            quotations={quotations} 
+            setQuotations={setQuotations} 
+            invoices={invoices} 
+            setInvoices={setInvoices} 
+            setActiveTab={setActiveTab} 
+          />
+        )}
         {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
         {activeTab === 'users' && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
         {activeTab === 'hrms' && (

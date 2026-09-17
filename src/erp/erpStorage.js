@@ -184,6 +184,80 @@ export const INITIAL_INVOICES = [
   }
 ];
 
+export const INITIAL_QUOTATIONS = [
+  {
+    id: "QT-2026-001",
+    date: "2026-09-12",
+    validUntil: "2026-10-12",
+    clientName: "Punjab National Bank - Circle Office Silchar",
+    contactPerson: "Senior Manager (IT & Operations)",
+    clientPhone: "+91-9435012345",
+    clientEmail: "co_silchar@pnb.co.in",
+    clientAddress: "Club Road, Silchar, Cachar, Assam - 788001",
+    clientGst: "18AAACP2965C1Z1",
+    category: "Banking IT AMC",
+    placeOfSupply: "Assam (18)",
+    taxType: "intra",
+    status: "Approved",
+    items: [
+      { desc: "Comprehensive Annual Maintenance Contract for 50 Branch Hardware (Desktops, Passbook Printers, LaserJets, Scanners)", hsn: "9987", qty: 4, unit: "Quarter", rate: 121250 },
+      { desc: "Quarterly Preventive Maintenance, SMPS Standby & Consumables Inspection", hsn: "9987", qty: 4, unit: "Quarter", rate: 15000 }
+    ],
+    gstRate: 18,
+    terms: "1. Payment 100% at the end of each completed quarter upon submission of branch visit verification sheets.\n2. Engineer response SLA within 2 to 4 hours across Silchar Circle.\n3. Defective components replacement warranty covered under comprehensive AMC terms.\n4. Quote validity 30 days from date of issuance.",
+    notes: "Approved by Circle Office procurement committee. Ready for contract renewal."
+  },
+  {
+    id: "QT-2026-002",
+    date: "2026-09-15",
+    validUntil: "2026-10-15",
+    clientName: "Barak Valley Medical Center",
+    contactPerson: "Dr. K. N. Roy (Administrator)",
+    clientPhone: "+91-9864077654",
+    clientEmail: "admin@bvmcsilchar.com",
+    clientAddress: "National Highway 6, Meherpur, Silchar - 788015",
+    clientGst: "18AABCB9876E1Z4",
+    category: "Solar Rooftop EPC",
+    placeOfSupply: "Assam (18)",
+    taxType: "intra",
+    status: "Sent",
+    items: [
+      { desc: "10 kWp Grid-Tied Rooftop Solar Power Plant with 540W Mono PERC Bifacial Modules", hsn: "8419", qty: 1, unit: "Set", rate: 480000 },
+      { desc: "10 kW 3-Phase Solar On-Grid Inverter with Remote Cloud Monitoring", hsn: "8504", qty: 1, unit: "No", rate: 75000 },
+      { desc: "Hot-Dip Galvanized Mounting Structure, AC/DC Distribution Boxes & Surge Protection", hsn: "7308", qty: 1, unit: "Set", rate: 45000 },
+      { desc: "APDCL Net-Metering Liasoning, Testing & Grid Synchronisation Charges", hsn: "9954", qty: 1, unit: "Job", rate: 25000 }
+    ],
+    gstRate: 12,
+    terms: "1. 30% advance with formal work order, 50% on delivery of solar panels and inverters, 20% post testing and APDCL net-meter commissioning.\n2. 25-year manufacturer performance warranty on solar panels; 5-year replacement warranty on inverter.\n3. Quotation valid for 30 days.",
+    notes: "Site survey completed. Structural stability verified for hospital main building rooftop."
+  },
+  {
+    id: "QT-2026-003",
+    date: "2026-09-16",
+    validUntil: "2026-10-16",
+    clientName: "Cachar Rural Development Council",
+    contactPerson: "Executive Officer",
+    clientPhone: "+91-9435099112",
+    clientEmail: "crdc.cachar@gov.in",
+    clientAddress: "Court Road, Silchar, Assam - 788001",
+    clientGst: "18GOVC0001D1Z9",
+    category: "CCTV & Security",
+    placeOfSupply: "Assam (18)",
+    taxType: "intra",
+    status: "Draft",
+    items: [
+      { desc: "Hikvision 4MP IP Network IR Dome Cameras (Ultra Low-Light)", hsn: "8525", qty: 16, unit: "Nos", rate: 3200 },
+      { desc: "16-Channel 4K NVR with 8-Port PoE Switch", hsn: "8525", qty: 1, unit: "No", rate: 18500 },
+      { desc: "Seagate SkyHawk 4TB Surveillance Grade Hard Drive", hsn: "8471", qty: 2, unit: "Nos", rate: 8500 },
+      { desc: "Cat6 Outdoor Pure Copper STP Cable Roll (305m)", hsn: "8544", qty: 2, unit: "Rolls", rate: 7800 },
+      { desc: "Professional Installation, Conduit Piping, Rack Mounting & Testing", hsn: "9987", qty: 1, unit: "Lot", rate: 16000 }
+    ],
+    gstRate: 18,
+    terms: "1. 50% mobilization advance, balance on completion and customer sign-off.\n2. 1-Year free on-site comprehensive warranty with quarterly maintenance checkups.\n3. Quote valid for 15 days.",
+    notes: "Tender estimate prepared as per municipal council guidelines."
+  }
+];
+
 export const INITIAL_SOLAR_PROJECTS = [
   {
     id: "SOL-01",
@@ -215,22 +289,22 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
     description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
+    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
   },
   {
     role: "Resident IT Service Engineer",
     description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
-    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory", "hrms"]
+    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
   },
   {
     role: "Accounts & GST Billing Officer",
     description: "Generates official tax invoices, manages AMC billing schedules, and oversees commercial collections.",
-    defaultPermissions: ["dashboard", "invoices", "amc", "inventory", "hrms"]
+    defaultPermissions: ["dashboard", "invoices", "quotations", "amc", "inventory", "hrms"]
   },
   {
     role: "Solar Project Technical Lead",
     description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
-    defaultPermissions: ["dashboard", "solar", "inventory", "tickets", "hrms"]
+    defaultPermissions: ["dashboard", "solar", "quotations", "inventory", "tickets", "hrms"]
   },
   {
     role: "Store & Inventory Supervisor",
@@ -240,7 +314,7 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Support Desk & Customer Coordinator",
     description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
-    defaultPermissions: ["dashboard", "tickets", "amc"]
+    defaultPermissions: ["dashboard", "tickets", "quotations", "amc"]
   }
 ];
 
@@ -254,7 +328,7 @@ export const INITIAL_USERS = [
     phone: "+91-8638083712",
     region: "Silchar HQ & All Circles",
     status: "Active",
-    permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
+    permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
   },
   {
     id: "USR-002",
@@ -265,7 +339,7 @@ export const INITIAL_USERS = [
     phone: "+91-9435012345",
     region: "PNB Silchar & Cachar Circle",
     status: "Active",
-    permissions: ["dashboard", "tickets", "pnb_assets", "inventory"]
+    permissions: ["dashboard", "tickets", "pnb_assets", "inventory", "quotations"]
   },
   {
     id: "USR-003",
@@ -276,7 +350,7 @@ export const INITIAL_USERS = [
     phone: "+91-9864054321",
     region: "Silchar Central Office",
     status: "Active",
-    permissions: ["dashboard", "invoices", "amc", "inventory"]
+    permissions: ["dashboard", "invoices", "quotations", "amc", "inventory"]
   },
   {
     id: "USR-004",
@@ -287,7 +361,7 @@ export const INITIAL_USERS = [
     phone: "+91-8638099887",
     region: "Barak Valley Solar Projects",
     status: "Active",
-    permissions: ["dashboard", "solar", "inventory", "tickets"]
+    permissions: ["dashboard", "solar", "quotations", "inventory", "tickets"]
   }
 ];
 
@@ -338,7 +412,7 @@ export function authenticateErpUser(enteredPin) {
       username: "admin",
       role: "Administrator (Full Access)",
       pin: "99544",
-      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
+      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
     };
     return { success: true, user: adminUser };
   }
@@ -580,6 +654,7 @@ export function exportAllErpData() {
     amc: loadErpData("amc", INITIAL_AMC_CONTRACTS),
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
     invoices: loadErpData("invoices", INITIAL_INVOICES),
+    quotations: loadErpData("quotations", INITIAL_QUOTATIONS),
     solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
     pnbAssets: loadErpData("pnb_assets", null)
   };
@@ -597,6 +672,7 @@ export function importAllErpData(jsonString) {
     if (data.amc) saveErpData("amc", data.amc);
     if (data.inventory) saveErpData("inventory", data.inventory);
     if (data.invoices) saveErpData("invoices", data.invoices);
+    if (data.quotations) saveErpData("quotations", data.quotations);
     if (data.solarProjects) saveErpData("solar_projects", data.solarProjects);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     return true;

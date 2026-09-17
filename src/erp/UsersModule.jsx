@@ -27,6 +27,7 @@ const ALL_MODULES = [
   { id: 'amc', label: 'AMC Contracts' },
   { id: 'inventory', label: 'Spares & Stock Inventory' },
   { id: 'invoices', label: 'GST Tax Invoicing' },
+  { id: 'quotations', label: 'Quotations & Estimates' },
   { id: 'solar', label: 'Solar Projects' },
   { id: 'users', label: 'Staff & Role Management' },
   { id: 'hrms', label: 'Staff HRMS & Payslips' },
