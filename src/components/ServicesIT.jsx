@@ -34,18 +34,18 @@ const iconMap = {
 
 export default function ServicesIT({ onOpenQuote }) {
   return (
-    <section id="services-it" className="py-20 bg-slate-50 relative">
+    <section id="services-it" className="py-20 bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3">
-            <Cpu className="w-3.5 h-3.5 text-sky-600" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 text-xs font-bold uppercase tracking-wider mb-3 border border-sky-200 dark:border-sky-800">
+            <Cpu className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             Division 01: IT Infrastructure & Support
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
             Comprehensive IT Hardware Maintenance & AMC Services
           </h2>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
             From multi-branch banking networks to corporate offices in Silchar, we deliver proactive maintenance,
             rapid fault repair, dedicated manpower, and emergency SLA response to keep your operations running seamlessly.
           </p>
@@ -58,32 +58,32 @@ export default function ServicesIT({ onOpenQuote }) {
             return (
               <div
                 key={srv.id}
-                className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-card hover:shadow-xl hover:border-sky-300 transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white dark:bg-slate-900/90 rounded-2xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-card hover:shadow-xl hover:border-sky-300 dark:hover:border-sky-500/50 transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-transparent dark:border-slate-700">
                       {srv.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-900 mb-2.5 group-hover:text-sky-600 transition-colors">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2.5 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
                     {srv.title}
                   </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed mb-5">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-5">
                     {srv.description}
                   </p>
 
-                  <div className="border-t border-slate-100 pt-4 mb-5">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2.5">
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-4 mb-5">
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2.5">
                       Key Deliverables:
                     </div>
                     <ul className="space-y-2">
                       {srv.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700">
+                        <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                           <CheckCircle2 className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
@@ -94,7 +94,7 @@ export default function ServicesIT({ onOpenQuote }) {
 
                 <button
                   onClick={() => onOpenQuote({ serviceName: srv.title, category: 'IT Support & AMC' })}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-sky-700 bg-sky-50 hover:bg-sky-600 hover:text-white transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-slate-800 hover:bg-sky-600 hover:dark:bg-sky-600 hover:text-white transition-colors"
                 >
                   <span>Request Proposal</span>
                   <ArrowRight className="w-3.5 h-3.5" />

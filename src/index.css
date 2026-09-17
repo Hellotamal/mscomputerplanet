@@ -9,10 +9,14 @@
   }
   
   body {
-    @apply bg-slate-50 text-slate-800 antialiased selection:bg-brand-emerald selection:text-white;
+    @apply bg-slate-50 text-slate-800 antialiased selection:bg-brand-emerald selection:text-white transition-colors duration-300;
     overflow-x: clip;
     width: 100%;
     min-height: 100vh;
+  }
+
+  html.dark body {
+    @apply bg-slate-950 text-slate-100;
   }
 }
 

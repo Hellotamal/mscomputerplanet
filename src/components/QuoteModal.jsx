@@ -50,11 +50,11 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           aria-label="Close quote modal"
         >
           <X className="w-5 h-5" />
@@ -62,13 +62,13 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
 
         {/* Modal Header */}
         <div className="mb-6">
-          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
             Quick Estimate & Proposal
           </span>
-          <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-2">
             Request an Official Quotation
           </h3>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
             M/S Computer Planet provides transparent pricing for IT AMC, hardware sales & solar installations.
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Your Full Name *
             </label>
             <input
@@ -85,13 +85,13 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
               placeholder="e.g. Joydeep Nath"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400 dark:placeholder-slate-500"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Phone Number *
               </label>
               <input
@@ -100,12 +100,12 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
                 placeholder="+91 86380 83712"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400 dark:placeholder-slate-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Company / Office Name
               </label>
               <input
@@ -113,19 +113,19 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
                 placeholder="e.g. PNB Branch / School"
                 value={formData.orgName}
                 onChange={(e) => setFormData({ ...formData, orgName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400 dark:placeholder-slate-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Service Vertical
             </label>
             <select
               value={formData.serviceCategory}
               onChange={(e) => setFormData({ ...formData, serviceCategory: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             >
               <option value="IT Support & AMC">IT Support & Annual Maintenance Contract (AMC)</option>
               <option value="Solar Energy">Renewable Solar Energy & Rooftop Setup</option>
@@ -138,13 +138,13 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
 
           {formData.serviceCategory.includes('Solar') ? (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Target Solar Capacity
               </label>
               <select
                 value={formData.solarCapacity}
                 onChange={(e) => setFormData({ ...formData, solarCapacity: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="1 - 2 kW (Small Home / Shop)">1 - 2 kW (Small Home / Shop)</option>
                 <option value="3 - 5 kW (Medium Home / Bank Counter)">3 - 5 kW (Medium Home / Bank Counter)</option>
@@ -155,13 +155,13 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
             </div>
           ) : (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Estimated Number of Systems / Devices
               </label>
               <select
                 value={formData.systemCount}
                 onChange={(e) => setFormData({ ...formData, systemCount: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="1 - 5 Computers">1 - 5 Computers</option>
                 <option value="5 - 20 Computers (Branch)">5 - 20 Computers (Standard Branch)</option>
@@ -172,7 +172,7 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Details or Specific Requirements
             </label>
             <textarea
@@ -180,7 +180,7 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
               placeholder="Tell us any details (e.g. Silchar location, printer models, urgency)..."
               value={formData.details}
               onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400 dark:placeholder-slate-500"
             ></textarea>
           </div>
 
@@ -192,7 +192,7 @@ export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
               <MessageSquare className="w-4 h-4" />
               <span>Submit & Dispatch via WhatsApp</span>
             </button>
-            <p className="text-center text-[11px] text-slate-400 mt-2">
+            <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-2">
               Instant quote confirmation directly with our engineering department.
             </p>
           </div>

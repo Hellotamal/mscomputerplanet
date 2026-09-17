@@ -22,33 +22,33 @@ export default function ProductsCatalog({ onOpenQuote }) {
     : allItems.filter(item => item.parentCategory === selectedCategory);
 
   return (
-    <section id="products" className="py-20 bg-slate-100/70 relative">
+    <section id="products" className="py-20 bg-slate-100/70 dark:bg-slate-950 relative transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider mb-3">
-            <Package className="w-3.5 h-3.5 text-slate-800" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider mb-3">
+            <Package className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200" />
             Hardware & Renewable Equipment Sales
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
             Commercial Hardware & Clean Energy Catalog
           </h2>
-          <p className="text-slate-600 text-base sm:text-lg">
+          <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg">
             Genuine multi-brand enterprise computing systems, networking gears, and Tier-1 solar generation components with authorized OEM warranties.
           </p>
         </div>
 
         {/* Category Filters */}
         <div className="flex justify-center mb-10">
-          <div className="inline-flex p-1 rounded-xl bg-white border border-slate-200 shadow-sm">
+          <div className="inline-flex p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
             {['All', 'IT Hardware', 'Renewable Energy'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition ${
                   selectedCategory === cat
-                    ? 'bg-slate-900 text-white shadow'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-slate-900 dark:bg-sky-600 text-white shadow'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {cat === 'All' ? 'All Products' : cat}
@@ -67,7 +67,7 @@ export default function ProductsCatalog({ onOpenQuote }) {
             return (
               <div
                 key={idx}
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-card hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card hover:shadow-xl dark:hover:border-slate-700 transition-all duration-300 flex flex-col justify-between group overflow-hidden"
               >
                 <div>
                   {/* Image Container with Fallback Overlay */}
@@ -92,25 +92,26 @@ export default function ProductsCatalog({ onOpenQuote }) {
 
                   {/* Body Content */}
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-slate-700 dark:group-hover:text-sky-400 transition-colors">
                       {item.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                       {item.specs}
                     </p>
-                    <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px] text-slate-500 font-medium">
-                      <span className="font-semibold text-slate-700">Brands & Makes: </span>
+
+                    <div className="bg-slate-50 dark:bg-slate-950/70 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">Brands & Makes: </span>
                       {item.brands}
                     </div>
                   </div>
                 </div>
 
                 {/* Card Actions */}
-                <div className="p-6 pt-0 border-t border-slate-100 mt-2">
+                <div className="p-6 pt-0 border-t border-slate-100 dark:border-slate-800 mt-2">
                   <div className="grid grid-cols-2 gap-2 mt-4">
                     <button
                       onClick={() => onOpenQuote({ serviceName: item.name, category: item.parentCategory })}
-                      className="py-2.5 px-3 rounded-xl text-xs font-semibold text-slate-800 bg-slate-100 hover:bg-slate-200 transition text-center"
+                      className="py-2.5 px-3 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition text-center"
                     >
                       Get Quote
                     </button>
@@ -131,16 +132,16 @@ export default function ProductsCatalog({ onOpenQuote }) {
         </div>
 
         {/* Institutional Bulk Supply Notice */}
-        <div className="mt-12 text-center bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto">
-          <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-1">
+        <div className="mt-12 text-center bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm max-w-3xl mx-auto">
+          <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-1">
             Need Bulk Hardware Supply or Custom Institutional Procurement?
           </h4>
-          <p className="text-xs sm:text-sm text-slate-600 mb-4">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-4">
             We handle GeM (Government e-Marketplace) compliance, enterprise tenders, educational computer labs, and multi-kW rooftop installations.
           </p>
           <button
             onClick={() => onOpenQuote({ serviceName: 'Bulk Institutional Procurement / GeM Tender', category: 'General' })}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 text-white hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-900 dark:bg-sky-600 text-white hover:bg-slate-800 dark:hover:bg-sky-500 transition"
           >
             <span>Inquire for Institutional Bulk Rates</span>
             <ArrowUpRight className="w-4 h-4" />

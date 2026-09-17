@@ -25,6 +25,28 @@ export default function App() {
     return window.location.hash === '#erp';
   });
 
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('cp_theme');
+    if (saved) return saved;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('cp_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('cp_theme', 'light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   useEffect(() => {
     const handleHashChange = () => {
       if (window.location.hash === '#erp') {
@@ -82,12 +104,17 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased transition-colors duration-300">
       {/* Client-side Anti-Scrape & Security Shield */}
       <SecurityShield />
 
-      {/* Top Navigation with ERP link */}
-      <Navbar onOpenQuote={handleOpenQuote} onOpenERP={handleOpenERP} />
+      {/* Top Navigation with ERP link and Day/Night Theme Toggle */}
+      <Navbar 
+        onOpenQuote={handleOpenQuote} 
+        onOpenERP={handleOpenERP}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       {/* Main Content */}
       <main className="flex-grow">
@@ -116,7 +143,11 @@ export default function App() {
       />
 
       {/* Floating & Sticky Action Bars */}
-      <FloatingActions onOpenQuote={handleOpenQuote} />
+      <FloatingActions 
+        onOpenQuote={handleOpenQuote}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
     </div>
   );
 }
