@@ -7,6 +7,7 @@ import {
   INITIAL_INVENTORY, 
   INITIAL_INVOICES, 
   INITIAL_SOLAR_PROJECTS,
+  INITIAL_USERS,
   exportAllErpData,
   importAllErpData,
   getErpPin,
@@ -18,6 +19,7 @@ import InventoryModule from './InventoryModule';
 import InvoiceModule from './InvoiceModule';
 import SolarProjectsModule from './SolarProjectsModule';
 import PNBAssetModule from './PNBAssetModule';
+import UsersModule from './UsersModule';
 import ERPLogin from './ERPLogin';
 import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
@@ -40,7 +42,9 @@ import {
   CheckCircle2,
   Landmark,
   Monitor,
-  Printer
+  Printer,
+  Users,
+  UserCheck
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -48,9 +52,19 @@ export default function ERPApp({ onExit }) {
     return sessionStorage.getItem("mcp_erp_authenticated") === "true";
   });
 
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("mcp_erp_current_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Persistent States
+  const [users, setUsers] = useState(() => loadErpData("users", INITIAL_USERS));
   const [tickets, setTickets] = useState(() => loadErpData("tickets", INITIAL_TICKETS));
   const [amcContracts, setAmcContracts] = useState(() => loadErpData("amc", INITIAL_AMC_CONTRACTS));
   const [inventory, setInventory] = useState(() => loadErpData("inventory", INITIAL_INVENTORY));
@@ -58,6 +72,7 @@ export default function ERPApp({ onExit }) {
   const [solarProjects, setSolarProjects] = useState(() => loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
 
   // Sync to local storage on state change
+  useEffect(() => { saveErpData("users", users); }, [users]);
   useEffect(() => { saveErpData("tickets", tickets); }, [tickets]);
   useEffect(() => { saveErpData("amc", amcContracts); }, [amcContracts]);
   useEffect(() => { saveErpData("inventory", inventory); }, [inventory]);
@@ -68,13 +83,19 @@ export default function ERPApp({ onExit }) {
   const [newPinInput, setNewPinInput] = useState('');
   const [pinChangeMsg, setPinChangeMsg] = useState('');
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (authenticatedUser) => {
     sessionStorage.setItem("mcp_erp_authenticated", "true");
+    if (authenticatedUser) {
+      sessionStorage.setItem("mcp_erp_current_user", JSON.stringify(authenticatedUser));
+      setCurrentUser(authenticatedUser);
+    }
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem("mcp_erp_authenticated");
+    sessionStorage.removeItem("mcp_erp_current_user");
+    setCurrentUser(null);
     setIsAuthenticated(false);
   };
 
@@ -95,6 +116,7 @@ export default function ERPApp({ onExit }) {
     reader.onload = (event) => {
       const success = importAllErpData(event.target.result);
       if (success) {
+        setUsers(loadErpData("users", INITIAL_USERS));
         setTickets(loadErpData("tickets", INITIAL_TICKETS));
         setAmcContracts(loadErpData("amc", INITIAL_AMC_CONTRACTS));
         setInventory(loadErpData("inventory", INITIAL_INVENTORY));
@@ -130,7 +152,7 @@ export default function ERPApp({ onExit }) {
   const totalSolarKw = solarProjects.reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0);
   const openTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
 
-  const navTabs = [
+  const allNavTabs = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'pnb_assets', name: 'PNB Asset Matrix', icon: Landmark, badge: '543' },
     { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null },
@@ -138,8 +160,15 @@ export default function ERPApp({ onExit }) {
     { id: 'inventory', name: 'Inventory & Spares', icon: Package },
     { id: 'invoices', name: 'GST Invoices', icon: FileText },
     { id: 'solar', name: 'Solar Projects', icon: SunMedium },
+    { id: 'users', name: 'Staff & Roles', icon: Users, badge: users.length },
     { id: 'settings', name: 'Data & Settings', icon: Settings },
   ];
+
+  // Filter tabs based on currentUser permissions if set
+  const navTabs = allNavTabs.filter(tab => {
+    if (!currentUser || !currentUser.permissions || currentUser.permissions.length === 0) return true;
+    return currentUser.permissions.includes(tab.id);
+  });
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col antialiased text-slate-800">
@@ -169,8 +198,22 @@ export default function ERPApp({ onExit }) {
             </div>
           </div>
 
-          {/* Right: Actions */}
+          {/* Right: Actions and Active User Profile */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {currentUser && (
+              <div 
+                onClick={() => setActiveTab('users')}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-xs cursor-pointer transition"
+                title="Manage Staff & Roles"
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                <span className="font-bold text-white max-w-[130px] truncate">{currentUser.name}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-emerald-400 font-mono">
+                  {currentUser.role?.includes('Admin') ? 'Admin' : currentUser.role?.includes('Engineer') ? 'Engineer' : currentUser.role?.includes('Accounts') ? 'Accounts' : 'Staff'}
+                </span>
+              </div>
+            )}
+
             <button
               onClick={handleExportBackup}
               className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition"
@@ -451,9 +494,29 @@ export default function ERPApp({ onExit }) {
         {activeTab === 'inventory' && <InventoryModule inventory={inventory} setInventory={setInventory} />}
         {activeTab === 'invoices' && <InvoiceModule invoices={invoices} setInvoices={setInvoices} />}
         {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
+        {activeTab === 'users' && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
 
         {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto space-y-6">
+            {/* Staff & Role Quick Access */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-indigo-600" />
+                  <span>Staff & Role-Based Access Control</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Manage {users.length} registered staff members, assign roles, reset PINs, and configure module permissions.
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('users')}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
+              >
+                Manage Staff
+              </button>
+            </div>
+
             {/* Backup and Restore */}
             <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm">
               <h3 className="text-base font-bold text-slate-900 mb-2">

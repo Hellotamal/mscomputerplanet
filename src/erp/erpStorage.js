@@ -211,6 +211,86 @@ export const INITIAL_SOLAR_PROJECTS = [
   }
 ];
 
+export const ROLE_DEFINITIONS = [
+  {
+    role: "Administrator (Full Access)",
+    description: "Complete control over all business operations, financials, staff, and system settings.",
+    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
+  },
+  {
+    role: "Resident IT Service Engineer",
+    description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
+    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory"]
+  },
+  {
+    role: "Accounts & GST Billing Officer",
+    description: "Generates official tax invoices, manages AMC billing schedules, and oversees commercial collections.",
+    defaultPermissions: ["dashboard", "invoices", "amc", "inventory"]
+  },
+  {
+    role: "Solar Project Technical Lead",
+    description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
+    defaultPermissions: ["dashboard", "solar", "inventory", "tickets"]
+  },
+  {
+    role: "Store & Inventory Supervisor",
+    description: "Maintains hardware buffer stocks, monitors reorder levels, and manages warehouse parts.",
+    defaultPermissions: ["dashboard", "inventory", "tickets", "pnb_assets"]
+  },
+  {
+    role: "Support Desk & Customer Coordinator",
+    description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
+    defaultPermissions: ["dashboard", "tickets", "amc"]
+  }
+];
+
+export const INITIAL_USERS = [
+  {
+    id: "USR-001",
+    name: "Tamal (Proprietor)",
+    username: "admin",
+    role: "Administrator (Full Access)",
+    pin: "1234",
+    phone: "+91-8638083712",
+    region: "Silchar HQ & All Circles",
+    status: "Active",
+    permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
+  },
+  {
+    id: "USR-002",
+    name: "Debashis Roy",
+    username: "debashis",
+    role: "Resident IT Service Engineer",
+    pin: "2233",
+    phone: "+91-9435012345",
+    region: "PNB Silchar & Cachar Circle",
+    status: "Active",
+    permissions: ["dashboard", "tickets", "pnb_assets", "inventory"]
+  },
+  {
+    id: "USR-003",
+    name: "Priyanka Paul",
+    username: "priyanka",
+    role: "Accounts & GST Billing Officer",
+    pin: "3344",
+    phone: "+91-9864054321",
+    region: "Silchar Central Office",
+    status: "Active",
+    permissions: ["dashboard", "invoices", "amc", "inventory"]
+  },
+  {
+    id: "USR-004",
+    name: "Animesh Das",
+    username: "animesh",
+    role: "Solar Project Technical Lead",
+    pin: "4455",
+    phone: "+91-8638099887",
+    region: "Barak Valley Solar Projects",
+    status: "Active",
+    permissions: ["dashboard", "solar", "inventory", "tickets"]
+  }
+];
+
 // Helper functions for LocalStorage management
 export function loadErpData(key, fallback) {
   try {
@@ -238,10 +318,40 @@ export function setErpPin(newPin) {
   localStorage.setItem(STORAGE_KEY_PREFIX + "auth_pin", newPin);
 }
 
+export function authenticateErpUser(enteredPin) {
+  const masterPin = getErpPin();
+  const users = loadErpData("users", INITIAL_USERS);
+
+  // 1. Check if matches any specific staff user
+  const matchedUser = users.find(u => u.pin === enteredPin);
+  if (matchedUser) {
+    if (matchedUser.status === "Suspended") {
+      return { success: false, message: "This staff user account is currently suspended. Please contact Administrator." };
+    }
+    return { success: true, user: matchedUser };
+  }
+
+  // 2. Check if matches master PIN
+  if (enteredPin === masterPin) {
+    const adminUser = users.find(u => u.role.includes("Admin")) || {
+      id: "MASTER-001",
+      name: "Tamal (Proprietor)",
+      username: "admin",
+      role: "Administrator (Full Access)",
+      pin: masterPin,
+      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
+    };
+    return { success: true, user: adminUser };
+  }
+
+  return { success: false, message: "Invalid Access PIN. (Default master PIN is 1234)" };
+}
+
 export function exportAllErpData() {
   const backup = {
     exportDate: new Date().toISOString(),
     firm: "M/S COMPUTER PLANET",
+    users: loadErpData("users", INITIAL_USERS),
     tickets: loadErpData("tickets", INITIAL_TICKETS),
     amc: loadErpData("amc", INITIAL_AMC_CONTRACTS),
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
@@ -255,6 +365,7 @@ export function exportAllErpData() {
 export function importAllErpData(jsonString) {
   try {
     const data = JSON.parse(jsonString);
+    if (data.users) saveErpData("users", data.users);
     if (data.tickets) saveErpData("tickets", data.tickets);
     if (data.amc) saveErpData("amc", data.amc);
     if (data.inventory) saveErpData("inventory", data.inventory);
@@ -267,3 +378,4 @@ export function importAllErpData(jsonString) {
     return false;
   }
 }
+

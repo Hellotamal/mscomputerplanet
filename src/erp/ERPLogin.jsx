@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { getErpPin } from './erpStorage';
-import { Lock, ArrowLeft, ShieldCheck, KeyRound } from 'lucide-react';
+import { authenticateErpUser } from './erpStorage';
+import { Lock, ArrowLeft, ShieldCheck, KeyRound, UserCheck } from 'lucide-react';
 
 export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
   const [pin, setPin] = useState('');
@@ -8,12 +8,12 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const correctPin = getErpPin();
-    if (pin === correctPin) {
+    const authResult = authenticateErpUser(pin);
+    if (authResult.success) {
       setError('');
-      onLoginSuccess();
+      onLoginSuccess(authResult.user);
     } else {
-      setError('Invalid Access PIN. (Default master PIN is 1234)');
+      setError(authResult.message || 'Invalid Access PIN. (Default master PIN is 1234)');
     }
   };
 
@@ -89,8 +89,10 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Internal Business Software • Data Persists in Your Browser</span>
           </div>
-          <div className="text-[11px] text-slate-600 mt-1">
-            Default Master PIN: <strong className="text-slate-400 font-mono">1234</strong>
+          <div className="text-[11px] text-slate-500 mt-1.5 flex flex-wrap justify-center gap-x-3 gap-y-1">
+            <span>Master Admin: <strong className="text-emerald-400 font-mono">1234</strong></span>
+            <span>Resident Engineer: <strong className="text-sky-400 font-mono">2233</strong></span>
+            <span>Accounts: <strong className="text-amber-400 font-mono">3344</strong></span>
           </div>
         </div>
       </div>
