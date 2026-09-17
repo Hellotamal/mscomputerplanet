@@ -44,7 +44,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
     name: '',
     username: '',
     role: ROLE_DEFINITIONS[1].role,
-    pin: '',
+    pin: '99544',
     phone: '',
     region: 'Silchar & Cachar Circle',
     status: 'Active',
@@ -97,9 +97,9 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       return;
     }
 
-    // Check PIN uniqueness
-    if (users.some(u => u.pin === formData.pin)) {
-      alert('This PIN is already in use by another staff user. Please choose a unique PIN.');
+    // Check PIN uniqueness (except for shared default PIN 99544)
+    if (formData.pin !== '99544' && users.some(u => u.pin === formData.pin)) {
+      alert('This custom PIN is already in use by another staff user. Please choose a unique PIN.');
       return;
     }
 
@@ -167,7 +167,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       name: '',
       username: '',
       role: ROLE_DEFINITIONS[1].role,
-      pin: '',
+      pin: '99544',
       phone: '',
       region: 'Silchar & Cachar Circle',
       status: 'Active',

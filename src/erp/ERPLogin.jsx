@@ -13,7 +13,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
       setError('');
       onLoginSuccess(authResult.user);
     } else {
-      setError(authResult.message || 'Invalid Access PIN. (Default master PIN is 1234)');
+      setError(authResult.message || 'Invalid Access PIN. Access denied.');
     }
   };
 
@@ -43,14 +43,14 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
             Backend ERP & Operations Portal
           </p>
           <p className="text-xs text-slate-400 mt-2">
-            Enter authorized PIN to manage service tickets, AMCs, stock inventory, and GST billing.
+            Enter authorized PIN to access internal management portal.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 text-center">
-              Staff / Owner Access PIN
+              Enter Access PIN
             </label>
             <div className="relative">
               <input
@@ -58,7 +58,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                 maxLength="8"
                 autoFocus
                 required
-                placeholder="Enter PIN (Default: 1234)"
+                placeholder="•••••"
                 value={pin}
                 onChange={(e) => {
                   setPin(e.target.value);
@@ -87,12 +87,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
         <div className="mt-8 pt-6 border-t border-slate-800/80 text-center text-xs text-slate-500">
           <div className="flex items-center justify-center gap-1.5 text-emerald-500/80">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Internal Business Software • Data Persists in Your Browser</span>
-          </div>
-          <div className="text-[11px] text-slate-500 mt-1.5 flex flex-wrap justify-center gap-x-3 gap-y-1">
-            <span>Master Admin: <strong className="text-emerald-400 font-mono">1234</strong></span>
-            <span>Resident Engineer: <strong className="text-sky-400 font-mono">2233</strong></span>
-            <span>Accounts: <strong className="text-amber-400 font-mono">3344</strong></span>
+            <span>Restricted Access • Authorized Personnel Only</span>
           </div>
         </div>
       </div>

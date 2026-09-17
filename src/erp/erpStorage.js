@@ -250,7 +250,7 @@ export const INITIAL_USERS = [
     name: "Tamal (Proprietor)",
     username: "admin",
     role: "Administrator (Full Access)",
-    pin: "1234",
+    pin: "99544",
     phone: "+91-8638083712",
     region: "Silchar HQ & All Circles",
     status: "Active",
@@ -261,7 +261,7 @@ export const INITIAL_USERS = [
     name: "Debashis Roy",
     username: "debashis",
     role: "Resident IT Service Engineer",
-    pin: "2233",
+    pin: "99544",
     phone: "+91-9435012345",
     region: "PNB Silchar & Cachar Circle",
     status: "Active",
@@ -272,7 +272,7 @@ export const INITIAL_USERS = [
     name: "Priyanka Paul",
     username: "priyanka",
     role: "Accounts & GST Billing Officer",
-    pin: "3344",
+    pin: "99544",
     phone: "+91-9864054321",
     region: "Silchar Central Office",
     status: "Active",
@@ -283,7 +283,7 @@ export const INITIAL_USERS = [
     name: "Animesh Das",
     username: "animesh",
     role: "Solar Project Technical Lead",
-    pin: "4455",
+    pin: "99544",
     phone: "+91-8638099887",
     region: "Barak Valley Solar Projects",
     status: "Active",
@@ -295,7 +295,13 @@ export const INITIAL_USERS = [
 export function loadErpData(key, fallback) {
   try {
     const saved = localStorage.getItem(STORAGE_KEY_PREFIX + key);
-    return saved ? JSON.parse(saved) : fallback;
+    if (!saved) return fallback;
+    const parsed = JSON.parse(saved);
+    if (key === "users" && Array.isArray(parsed)) {
+      // Upgrade any legacy default pins to 99544
+      return parsed.map(u => (u.pin === "1234" || u.pin === "2233" || u.pin === "3344" || u.pin === "4455" ? { ...u, pin: "99544" } : u));
+    }
+    return parsed;
   } catch (err) {
     console.error("Failed to load ERP data for", key, err);
     return fallback;
@@ -311,7 +317,9 @@ export function saveErpData(key, data) {
 }
 
 export function getErpPin() {
-  return localStorage.getItem(STORAGE_KEY_PREFIX + "auth_pin") || "1234";
+  const saved = localStorage.getItem(STORAGE_KEY_PREFIX + "auth_pin");
+  if (!saved || saved === "1234") return "99544";
+  return saved;
 }
 
 export function setErpPin(newPin) {
@@ -322,7 +330,20 @@ export function authenticateErpUser(enteredPin) {
   const masterPin = getErpPin();
   const users = loadErpData("users", INITIAL_USERS);
 
-  // 1. Check if matches any specific staff user
+  // 1. If entered fixed default PIN 99544 or current master PIN
+  if (enteredPin === "99544" || enteredPin === masterPin) {
+    const adminUser = users.find(u => u.role.includes("Admin") && u.status !== "Suspended") || {
+      id: "USR-001",
+      name: "Tamal (Proprietor)",
+      username: "admin",
+      role: "Administrator (Full Access)",
+      pin: "99544",
+      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "hrms", "settings"]
+    };
+    return { success: true, user: adminUser };
+  }
+
+  // 2. Check if matches any specific staff user
   const matchedUser = users.find(u => u.pin === enteredPin);
   if (matchedUser) {
     if (matchedUser.status === "Suspended") {
@@ -331,20 +352,7 @@ export function authenticateErpUser(enteredPin) {
     return { success: true, user: matchedUser };
   }
 
-  // 2. Check if matches master PIN
-  if (enteredPin === masterPin) {
-    const adminUser = users.find(u => u.role.includes("Admin")) || {
-      id: "MASTER-001",
-      name: "Tamal (Proprietor)",
-      username: "admin",
-      role: "Administrator (Full Access)",
-      pin: masterPin,
-      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "solar", "users", "settings"]
-    };
-    return { success: true, user: adminUser };
-  }
-
-  return { success: false, message: "Invalid Access PIN. (Default master PIN is 1234)" };
+  return { success: false, message: "Invalid Access PIN. Access denied." };
 }
 
 export const INITIAL_EMPLOYEES = [
