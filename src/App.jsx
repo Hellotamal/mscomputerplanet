@@ -13,6 +13,7 @@ import QuoteModal from './components/QuoteModal';
 import FloatingActions from './components/FloatingActions';
 import OmnisPartnership from './components/OmnisPartnership';
 import LocalSEOSection from './components/LocalSEOSection';
+import FounderProfile from './components/FounderProfile';
 import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
 
@@ -97,6 +98,7 @@ export default function App() {
         <SolarCalculator onOpenQuote={handleOpenQuote} />
         <ProductsCatalog onOpenQuote={handleOpenQuote} />
         <ClienteleTrack />
+        <FounderProfile onOpenQuote={handleOpenQuote} />
         <LocalSEOSection onOpenQuote={handleOpenQuote} />
         <ContactSection />
       </main>

@@ -29,6 +29,28 @@ export const BUSINESS_INFO = {
   googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=West+Kachudharam+Chincoorie+Silchar+Cachar+Assam+788007",
   erpUrl: "https://erp.mscomputerplanet.com",
   operatingHours: "Mon - Sat: 9:00 AM - 8:00 PM | Priority Emergency Support: 24/7 for AMC Partners",
+  founder: {
+    name: "Mr. Amio Sinha",
+    title: "Founder & Managing Director",
+    experience: "10+ Years Multi-Domain Experience",
+    photo: "/amio-sinha-founder.jpg",
+    bio: "Visionary entrepreneur with over a decade of hands-on multi-domain leadership across enterprise Information Technology infrastructure and next-generation Renewable Solar Clean Energy systems. Renowned across Assam for establishing long-lasting, trusted client partnerships with premier banking networks, postal divisions, and commercial enterprises.",
+    quote: "True technological progress lies in unwavering reliability and sustainable clean power. At M/S Computer Planet, we bridge state-of-the-art IT engineering with renewable green solar energy—driven by our commitment to trust, integrity, and lifelong client relationships.",
+    pillars: [
+      {
+        title: "10+ Years Multi-Domain Mastery",
+        desc: "A decade of proven operational leadership across enterprise IT hardware, networking architectures, and turnkey solar EPC implementations."
+      },
+      {
+        title: "Pioneering Clean Energy & Tech Synergy",
+        desc: "Bridging modern high-uptime computing systems with MNRE-compliant solar rooftop solutions and APDCL net-metering integration."
+      },
+      {
+        title: "Exceptional Client Relationship Trust",
+        desc: "The trusted face behind decades of enduring contracts with Punjab National Bank, India Post, and hundreds of regional clients across Barak Valley."
+      }
+    ]
+  },
   clienteleHighlights: [
     {
       name: "Punjab National Bank",
