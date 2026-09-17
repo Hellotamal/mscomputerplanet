@@ -17,7 +17,9 @@ import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
 import InvoiceModule from './InvoiceModule';
 import SolarProjectsModule from './SolarProjectsModule';
+import PNBAssetModule from './PNBAssetModule';
 import ERPLogin from './ERPLogin';
+import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
   LayoutDashboard, 
   Wrench, 
@@ -35,7 +37,10 @@ import {
   IndianRupee,
   Layers,
   KeyRound,
-  CheckCircle2
+  CheckCircle2,
+  Landmark,
+  Monitor,
+  Printer
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -127,6 +132,7 @@ export default function ERPApp({ onExit }) {
 
   const navTabs = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
+    { id: 'pnb_assets', name: 'PNB Asset Matrix', icon: Landmark, badge: '543' },
     { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null },
     { id: 'amc', name: 'AMC Contracts', icon: Building2 },
     { id: 'inventory', name: 'Inventory & Spares', icon: Package },
@@ -233,17 +239,70 @@ export default function ERPApp({ onExit }) {
 
               <div className="flex gap-3 shrink-0">
                 <button
+                  onClick={() => setActiveTab('pnb_assets')}
+                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center gap-1.5"
+                >
+                  <Landmark className="w-4 h-4" />
+                  <span>PNB Asset Register (543)</span>
+                </button>
+                <button
                   onClick={() => setActiveTab('tickets')}
                   className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow"
                 >
                   View Active Tickets
                 </button>
+              </div>
+            </div>
+
+            {/* Official PNB Silchar Circle Highlight Card */}
+            <div className="bg-white rounded-3xl p-6 border-2 border-blue-100 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
+                    <Landmark className="w-4 h-4 text-blue-600" />
+                    <span>Active Banking AMC Highlight</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    PNB Circle Office Silchar — 543 Total Managed Hardware Assets
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Branchwise total counts across 50 branches, regional currency chests & PLP office under AMC support.
+                  </p>
+                </div>
                 <button
-                  onClick={() => setActiveTab('invoices')}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700"
+                  onClick={() => setActiveTab('pnb_assets')}
+                  className="inline-flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
                 >
-                  Create Invoice
+                  <span>Open Full Branch Matrix</span>
+                  <span>→</span>
                 </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-4">
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">Desktops</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.desktops}</div>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">LaserJet</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.laserjetPrinters}</div>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">Passbook</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.passbookPrinters}</div>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">HS Scanners</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.highSpeedScanners}</div>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">Flat Scanners</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.scanners}</div>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase">Cash Receipt</div>
+                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.cashReceiptPrinters}</div>
+                </div>
               </div>
             </div>
 
@@ -263,7 +322,7 @@ export default function ERPApp({ onExit }) {
                   ₹{totalAmcRevenue.toLocaleString('en-IN')}
                 </div>
                 <div className="text-xs text-sky-600 font-medium mt-2">
-                  {amcContracts.length} Active Contracts (PNB 49 br. etc.)
+                  {amcContracts.length} Active Contracts
                 </div>
               </div>
 
@@ -384,6 +443,7 @@ export default function ERPApp({ onExit }) {
           </div>
         )}
 
+        {activeTab === 'pnb_assets' && <PNBAssetModule />}
         {activeTab === 'tickets' && <TicketsModule tickets={tickets} setTickets={setTickets} />}
         {activeTab === 'amc' && <AMCModule amcContracts={amcContracts} setAmcContracts={setAmcContracts} />}
         {activeTab === 'inventory' && <InventoryModule inventory={inventory} setInventory={setInventory} />}

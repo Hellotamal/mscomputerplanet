@@ -47,15 +47,15 @@ export const INITIAL_TICKETS = [
 export const INITIAL_AMC_CONTRACTS = [
   {
     id: "AMC-2023-049",
-    clientName: "Punjab National Bank - Silchar Circle",
-    branchCount: 49,
-    deviceCount: 245,
-    annualValue: 485000,
+    clientName: "Punjab National Bank - Silchar Circle Office & Branches",
+    branchCount: 50,
+    deviceCount: 543,
+    annualValue: 685000,
     startDate: "2023-08-19",
-    expiryDate: "2024-08-18",
+    expiryDate: "2025-08-18",
     status: "Active",
     workOrderRef: "Hardware AMC/Temp/PO/033-2023",
-    slaType: "Comprehensive with 4-hr buffer replacement"
+    slaType: "Comprehensive (294 Desktops, 83 LaserJet, 46 Passbook, 74 Scanners, 46 Cash Receipt Printers)"
   },
   {
     id: "AMC-2024-012",

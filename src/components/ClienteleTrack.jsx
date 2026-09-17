@@ -53,18 +53,22 @@ export default function ClienteleTrack() {
                 The service provided by M/S COMPUTER PLANET during the period was found to be satisfactory."
               </blockquote>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Coverage</div>
-                  <div className="text-white font-bold text-sm mt-0.5">49 Bank Branches</div>
+                  <div className="text-slate-400">Total Assets</div>
+                  <div className="text-emerald-400 font-bold text-sm mt-0.5 font-mono">543 Devices</div>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Scope of Work</div>
-                  <div className="text-white font-bold text-sm mt-0.5">Hardware, OS & Peripherals</div>
+                  <div className="text-slate-400">Desktops</div>
+                  <div className="text-white font-bold text-sm mt-0.5 font-mono">294 Units</div>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Issuing Authority</div>
-                  <div className="text-white font-bold text-sm mt-0.5">IT Dept, PNB Silchar Circle</div>
+                  <div className="text-slate-400">Printers</div>
+                  <div className="text-white font-bold text-sm mt-0.5 font-mono">175 Units</div>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                  <div className="text-slate-400">Scanners</div>
+                  <div className="text-white font-bold text-sm mt-0.5 font-mono">74 Units</div>
                 </div>
               </div>
             </div>
