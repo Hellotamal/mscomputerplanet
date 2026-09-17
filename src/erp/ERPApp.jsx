@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   loadErpData, 
   saveErpData, 
@@ -49,7 +49,9 @@ import {
   Printer,
   Users,
   UserCheck,
-  Briefcase
+  Briefcase,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -93,6 +95,24 @@ export default function ERPApp({ onExit }) {
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
   const [pinChangeMsg, setPinChangeMsg] = useState('');
+
+  // Horizontal Tab Scroll Ref & Handlers
+  const navTabsRef = useRef(null);
+
+  const scrollTabs = (direction) => {
+    if (navTabsRef.current) {
+      const scrollAmount = direction === 'left' ? -260 : 260;
+      navTabsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleTabsWheel = (e) => {
+    if (navTabsRef.current) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        navTabsRef.current.scrollLeft += e.deltaY;
+      }
+    }
+  };
 
   const handleLoginSuccess = (authenticatedUser) => {
     sessionStorage.setItem("mcp_erp_authenticated", "true");
@@ -248,32 +268,62 @@ export default function ERPApp({ onExit }) {
           </div>
         </div>
 
-        {/* Navigation Tabs Bar - Seamless Dark Slate Background with no-scrollbar */}
-        <div className="bg-slate-900 border-t border-slate-800/80 px-3 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-2 no-scrollbar">
-            {navTabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition ${
-                    isActive
-                      ? 'bg-emerald-600 text-white shadow'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span>{tab.name}</span>
-                  {tab.badge && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+        {/* Navigation Tabs Bar - Seamless Dark Slate Background with interactive scroll controls */}
+        <div className="bg-slate-900 border-t border-slate-800/80 px-2 sm:px-4 lg:px-6 relative">
+          <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-1.5">
+            {/* Left Scroll Button */}
+            <button
+              onClick={() => scrollTabs('left')}
+              className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition shrink-0 flex items-center justify-center border border-slate-700/60 shadow-sm"
+              title="Scroll Tabs Left"
+              aria-label="Scroll Tabs Left"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {/* Scrollable Tabs Container */}
+            <div
+              ref={navTabsRef}
+              onWheel={handleTabsWheel}
+              className="flex-1 flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-2 no-scrollbar scroll-smooth touch-pan-x"
+            >
+              {navTabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={(e) => {
+                      setActiveTab(tab.id);
+                      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }}
+                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition ${
+                      isActive
+                        ? 'bg-emerald-600 text-white shadow ring-2 ring-emerald-400/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>{tab.name}</span>
+                    {tab.badge && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
+                        {tab.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right Scroll Button */}
+            <button
+              onClick={() => scrollTabs('right')}
+              className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition shrink-0 flex items-center justify-center border border-slate-700/60 shadow-sm"
+              title="Scroll Tabs Right"
+              aria-label="Scroll Tabs Right"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
