@@ -36,14 +36,15 @@ export default function ServicesSolar({ onOpenQuote }) {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-3">
             <SunMedium className="w-3.5 h-3.5 text-emerald-600" />
-            Division 02: Renewable Clean Energy
+            Division 02: Renewable Clean Energy • Omnis Trades EPC Partner
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4">
             Next-Gen Rooftop Solar & Clean Power Solutions
           </h2>
           <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
-            Eliminate reliance on erratic power grids, reduce exorbitant electricity bills by up to 80%,
-            and empower your commercial bank branches, homes, or institutions with robust solar energy systems.
+            As the official Channel & Solar EPC Consultant Partner of <strong className="text-slate-900">Omnis Trades</strong>, 
+            we eliminate reliance on erratic power grids, reduce electricity bills by up to 80%, facilitate PM Surya Ghar central subsidies up to ₹78,000, 
+            and deliver turnkey on-grid, off-grid, and hybrid solar installations across Silchar, Cachar, Karimganj, and Hailakandi.
           </p>
         </div>
 

@@ -1,9 +1,17 @@
 import React from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
-import { ShieldCheck, CheckCircle2, Award, Building2, Landmark, Mail } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Award, Building2, Landmark, Mail, Sun } from 'lucide-react';
 
 export default function TrustBar() {
   const trustItems = [
+    {
+      icon: Sun,
+      title: "Omnis Trades Partner",
+      subtitle: "Solar EPC Consultant",
+      color: "text-amber-400",
+      bg: "bg-amber-400/10",
+      link: "https://omnistrades.in/"
+    },
     {
       icon: ShieldCheck,
       title: "MSME Registered",
@@ -22,8 +30,8 @@ export default function TrustBar() {
       icon: Award,
       title: "Trade Licence Holder",
       subtitle: "Silchar Municipal Authority",
-      color: "text-amber-500",
-      bg: "bg-amber-500/10"
+      color: "text-orange-400",
+      bg: "bg-orange-400/10"
     },
     {
       icon: Landmark,
@@ -48,21 +56,38 @@ export default function TrustBar() {
         <p className="text-center text-xs uppercase tracking-widest text-slate-400 font-semibold mb-4">
           Verified Government & Enterprise Accreditations
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {trustItems.map((item, idx) => {
             const Icon = item.icon;
-            return (
-              <div 
-                key={idx}
-                className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 backdrop-blur hover:border-slate-600 transition"
-              >
-                <div className={`p-2.5 rounded-lg ${item.bg} ${item.color} shrink-0`}>
-                  <Icon className="w-5 h-5" />
+            const content = (
+              <>
+                <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-slate-200 truncate">{item.title}</div>
-                  <div className="text-[11px] font-mono text-slate-400 truncate">{item.subtitle}</div>
+                  <div className="text-[10px] sm:text-[11px] font-mono text-slate-400 truncate">{item.subtitle}</div>
                 </div>
+              </>
+            );
+
+            return item.link ? (
+              <a
+                key={idx}
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Visit ${item.title} Official Portal`}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-800/80 border border-amber-500/30 backdrop-blur hover:border-amber-400 hover:bg-slate-800 transition group shadow-sm"
+              >
+                {content}
+              </a>
+            ) : (
+              <div 
+                key={idx}
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 backdrop-blur hover:border-slate-600 transition"
+              >
+                {content}
               </div>
             );
           })}

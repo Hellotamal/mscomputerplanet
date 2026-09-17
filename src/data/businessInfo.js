@@ -54,5 +54,47 @@ export const BUSINESS_INFO = {
       details: "Turnkey enterprise computer supply, CCTV surveillance, solar rooftop installations, and AMC manpower solutions.",
       icon: "ShieldCheck"
     }
-  ]
+  ],
+  omnisTradesPartner: {
+    partnerName: "Omnis Trades / Omnis Solar",
+    role: "Official Channel & Solar EPC Consultant Partner",
+    badge: "Official Solar EPC Consultant & Channel Partner",
+    region: "Southern Assam & Barak Valley (Silchar, Cachar, Hailakandi, Karimganj - 100 KM Radius)",
+    headquarters: "Rajghar Road, House 234, Guwahati - 781003, Assam",
+    website: "https://omnistrades.in/",
+    trackRecord: "1000+ Northeast Installations, 150+ Solar Power Plants, 500+ Solar Pumps, 2000+ Solar Street Lights",
+    programs: [
+      "PM Surya Ghar Muft Bijli Yojana (Up to ₹78,000 Govt Subsidy)",
+      "PM-KUSUM Scheme (Solar Irrigation Pumps)",
+      "APDCL Net-Metering Liaisoning & Grid Synchronization",
+      "MNRE-Compliant 3D DPR & Precision Site Engineering",
+      "Tier-1 Bifacial Solar PV & Heavy-Duty Hybrid Inverter Systems"
+    ]
+  },
+  serviceRadius: {
+    distance: "100 KM",
+    center: "Silchar, Cachar, Assam (788007)",
+    districts: [
+      {
+        name: "Cachar District",
+        towns: "Silchar, Sonai, Dholai, Udharbond, Lakhipur, Katigorah, Borkhola, Chincoorie, Meherpur, Tarapur, Kabuganj",
+        sla: "2 to 4 Hour Emergency On-Site Response"
+      },
+      {
+        name: "Karimganj District",
+        towns: "Karimganj Town, Badarpur, Nilambazar, Ramkrishna Nagar, Patharkandi",
+        sla: "Same-Day Priority Field Support"
+      },
+      {
+        name: "Hailakandi District",
+        towns: "Hailakandi Town, Lala, Algapur, Katlicherra",
+        sla: "Same-Day Priority Field Support"
+      },
+      {
+        name: "Corridor & Industrial Zones",
+        towns: "Cachar Tea Estates, Silchar Medical/University Zone, Haflong-Dima Hasao Fringe, North Tripura Border",
+        sla: "Turnkey Project Engineering & Scheduled AMC"
+      }
+    ]
+  }
 };

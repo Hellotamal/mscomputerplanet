@@ -55,6 +55,24 @@ export default function Footer({ onOpenERP }) {
                 <span>GSTIN: {BUSINESS_INFO.legal.gstin}</span>
               </div>
             </div>
+
+            {/* Omnis Trades Strategic Partner Chip */}
+            <a
+              href="https://omnistrades.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-slate-300 hover:text-white hover:border-amber-400 transition flex items-center justify-between group"
+              title="Visit Omnis Trades Solar EPC Portal"
+            >
+              <div className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                <div>
+                  <div className="font-bold text-amber-300 text-[11px]">Omnis Trades Partner</div>
+                  <div className="text-[10px] text-slate-400">Solar EPC Consultant (100 KM Radius)</div>
+                </div>
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 text-amber-400 group-hover:translate-x-0.5 transition" />
+            </a>
           </div>
 
           {/* IT Services Links */}
@@ -69,7 +87,7 @@ export default function Footer({ onOpenERP }) {
               <li><a href="#services-it" className="hover:text-white transition">Annual Maintenance Contracts</a></li>
               <li><a href="#services-it" className="hover:text-white transition">Priority Emergency Response</a></li>
               <li><a href="#services-it" className="hover:text-white transition">Structured Cabling & LAN</a></li>
-              <li><a href="#services-it" className="hover:text-white transition">On-Site Dedicated Manpower</a></li>
+              <li><a href="#service-area" className="hover:text-white transition text-sky-400">100 KM Coverage Area</a></li>
             </ul>
           </div>
 
@@ -86,6 +104,12 @@ export default function Footer({ onOpenERP }) {
               <li><a href="#services-solar" className="hover:text-white transition">Solar Water Pumping Systems</a></li>
               <li><a href="#solar-calculator" className="hover:text-white transition">Solar Savings ROI Calculator</a></li>
               <li><a href="#services-solar" className="hover:text-white transition">APDCL Net-Metering Support</a></li>
+              <li>
+                <a href="https://omnistrades.in/" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline inline-flex items-center gap-1 text-xs">
+                  <span>Omnis Trades EPC Alliance</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -135,6 +159,10 @@ export default function Footer({ onOpenERP }) {
             <span>MSME Reg: {BUSINESS_INFO.legal.udyamRegNo}</span>
             <span>•</span>
             <span>GST: {BUSINESS_INFO.legal.gstin}</span>
+            <span>•</span>
+            <span className="text-amber-400 font-medium">Channel Partner: Omnis Trades</span>
+            <span>•</span>
+            <span className="text-emerald-400">100 KM Southern Assam Coverage</span>
           </div>
         </div>
       </div>

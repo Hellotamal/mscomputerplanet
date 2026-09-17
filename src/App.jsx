@@ -11,6 +11,8 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import QuoteModal from './components/QuoteModal';
 import FloatingActions from './components/FloatingActions';
+import OmnisPartnership from './components/OmnisPartnership';
+import LocalSEOSection from './components/LocalSEOSection';
 import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
 
@@ -89,11 +91,13 @@ export default function App() {
       <main className="flex-grow">
         <Hero onOpenQuote={handleOpenQuote} />
         <TrustBar />
+        <OmnisPartnership onOpenQuote={handleOpenQuote} />
         <ServicesIT onOpenQuote={handleOpenQuote} />
         <ServicesSolar onOpenQuote={handleOpenQuote} />
         <SolarCalculator onOpenQuote={handleOpenQuote} />
         <ProductsCatalog onOpenQuote={handleOpenQuote} />
         <ClienteleTrack />
+        <LocalSEOSection onOpenQuote={handleOpenQuote} />
         <ContactSection />
       </main>
 
