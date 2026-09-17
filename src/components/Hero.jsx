@@ -18,7 +18,7 @@ export default function Hero({ onOpenQuote }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'it', 'solar'
 
   return (
-    <section id="home" className="relative pt-32 pb-20 md:pt-36 md:pb-28 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
+    <section id="home" className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
       {/* Background Decorative Gradients */}
       <div className="absolute top-1/4 -left-48 w-96 h-96 bg-brand-lightBlue/20 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-10 -right-48 w-96 h-96 bg-brand-emerald/20 rounded-full blur-3xl pointer-events-none"></div>

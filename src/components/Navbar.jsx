@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
+import NewsTicker from './NewsTicker';
 import { 
   Phone, 
   Mail, 
@@ -103,6 +104,9 @@ export default function Navbar({ onOpenQuote, onOpenERP, theme, onToggleTheme })
           </div>
         </div>
       </div>
+
+      {/* Automated Scrolling Local IT & Solar News Ticker */}
+      <NewsTicker onOpenQuote={onOpenQuote} />
 
       {/* Main Navigation Bar */}
       <nav className={`transition-all duration-300 ${

@@ -89,3 +89,25 @@ input, textarea, [contenteditable="true"] {
   user-select: text !important;
 }
 
+/* Smooth Automated Marquee for News Ticker */
+@keyframes tickerMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker {
+  display: flex;
+  width: max-content;
+  animation: tickerMarquee 50s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker:hover,
+.ticker-paused {
+  animation-play-state: paused !important;
+}
+
