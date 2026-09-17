@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="gradIT" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0b3b60"/>
+    </linearGradient>
+    <linearGradient id="gradSolar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Disc -->
+  <circle cx="50" cy="50" r="46" fill="#0f172a" stroke="#38bdf8" stroke-width="2.5"/>
+  <!-- Planet Orbit / Tech Ring -->
+  <circle cx="50" cy="50" r="34" stroke="url(#gradIT)" stroke-width="3" stroke-dasharray="8 4"/>
+  <!-- Central Solar Sun / Tech Core -->
+  <circle cx="50" cy="50" r="16" fill="url(#gradSolar)"/>
+  <!-- Sun Rays / Circuit Nodes -->
+  <path d="M50 16 L50 26 M50 74 L50 84 M16 50 L26 50 M74 50 L84 50" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+  <path d="M26 26 L33 33 M67 67 L74 74 M26 74 L33 67 M67 33 L74 26" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Center letter CP -->
+  <text x="50" y="55" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="14" fill="#ffffff">CP</text>
+</svg>
