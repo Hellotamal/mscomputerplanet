@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import QuoteModal from './components/QuoteModal';
 import FloatingActions from './components/FloatingActions';
 import ERPApp from './erp/ERPApp';
+import SecurityShield from './components/SecurityShield';
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -53,11 +54,19 @@ export default function App() {
 
   // If in ERP mode, render full-featured business ERP Workspace
   if (isErpMode) {
-    return <ERPApp onExit={handleExitERP} />;
+    return (
+      <>
+        <SecurityShield />
+        <ERPApp onExit={handleExitERP} />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+      {/* Client-side Anti-Scrape & Security Shield */}
+      <SecurityShield />
+
       {/* Top Navigation with ERP link */}
       <Navbar onOpenQuote={handleOpenQuote} onOpenERP={handleOpenERP} />
 

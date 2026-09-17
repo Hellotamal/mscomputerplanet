@@ -1,4 +1,22 @@
+# Standard Search Engines Allowed
 User-agent: *
 Allow: /
 
+# Block Aggressive Scrapers & Content Harvesters
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
 Sitemap: https://www.mscomputerplanet.com/sitemap.xml
+
