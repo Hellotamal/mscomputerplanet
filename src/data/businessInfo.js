@@ -32,8 +32,8 @@ export const BUSINESS_INFO = {
   clienteleHighlights: [
     {
       name: "Punjab National Bank",
-      subtitle: "Circle Office Silchar & 50 Branch Locations (543 Hardware Assets)",
-      details: "Comprehensive IT hardware, software & peripheral AMC contract across 50 branches, currency chests & PLP office (543 Assets: 294 Desktops, 83 LaserJets, 46 Passbooks, 54 High-Speed Scanners, 20 Flatbed Scanners, 46 Cash Receipt Printers) with full satisfaction certification (Ref: PNB/CO/SIL/021/2023-24).",
+      subtitle: "Circle Office Silchar & Regional Branch Network",
+      details: "Comprehensive IT hardware, software & peripheral maintenance support ensuring uninterrupted financial services and high uptime across regional banking centers.",
       icon: "Landmark"
     },
     {

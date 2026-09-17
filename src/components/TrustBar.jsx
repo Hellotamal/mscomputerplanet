@@ -28,7 +28,7 @@ export default function TrustBar() {
     {
       icon: Landmark,
       title: "Banking IT Partner",
-      subtitle: "PNB (49 Branches) & AGBB",
+      subtitle: "PNB & Regional Banks",
       color: "text-blue-500",
       bg: "bg-blue-500/10"
     },

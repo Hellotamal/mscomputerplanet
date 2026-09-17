@@ -4,11 +4,9 @@ import {
   Landmark, 
   Mail, 
   Building2, 
-  FileCheck2, 
   CheckCircle, 
   ShieldCheck, 
-  Award,
-  Calendar
+  Award
 } from 'lucide-react';
 
 export default function ClienteleTrack() {
@@ -30,117 +28,122 @@ export default function ClienteleTrack() {
           </p>
         </div>
 
-        {/* Featured Certificate Card: Punjab National Bank */}
-        <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-blue-950 text-white rounded-3xl p-6 sm:p-10 mb-12 shadow-2xl border border-blue-900/50">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-4">
-                <FileCheck2 className="w-4 h-4 text-emerald-400" />
-                <span>Official Work Completion & Satisfaction Certificate</span>
+        {/* 4 Major Institutional Clientele Cards (Privacy-Compliant & Professional) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Punjab National Bank */}
+          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                  <Landmark className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                  <CheckCircle className="w-3 h-3" />
+                  Banking Partner
+                </span>
               </div>
-              
-              <h3 className="text-2xl sm:text-3xl font-black mb-2 text-white">
-                Punjab National Bank (Circle Office, Silchar)
-              </h3>
-              <p className="text-sky-300 font-mono text-xs sm:text-sm mb-4">
-                Ref. No: PNB/CO/SIL/021/2023-24 • Performance Verified
+              <h4 className="text-lg font-bold text-slate-900 mb-1">
+                Punjab National Bank
+              </h4>
+              <div className="text-xs font-semibold text-blue-600 mb-3">
+                Circle Office Silchar & Regional Branches
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Comprehensive maintenance and technical engineering support for computer hardware, passbook printers, scanners, and branch IT peripherals across the Barak Valley.
               </p>
-
-              <blockquote className="border-l-4 border-emerald-500 pl-4 py-1 text-slate-200 text-sm sm:text-base leading-relaxed italic mb-6">
-                "This is certifying that M/S COMPUTER PLANET, having their registered office at West Kachudharam,
-                Chincoorie, Silchar-788007, Assam, has successfully completed the maintenance services of Computer Hardware,
-                Software and Peripherals devices installed in various branches (49 No.) of the PNB Silchar Circle Office...
-                The service provided by M/S COMPUTER PLANET during the period was found to be satisfactory."
-              </blockquote>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Total Assets</div>
-                  <div className="text-emerald-400 font-bold text-sm mt-0.5 font-mono">543 Devices</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Desktops</div>
-                  <div className="text-white font-bold text-sm mt-0.5 font-mono">294 Units</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Printers</div>
-                  <div className="text-white font-bold text-sm mt-0.5 font-mono">175 Units</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-                  <div className="text-slate-400">Scanners</div>
-                  <div className="text-white font-bold text-sm mt-0.5 font-mono">74 Units</div>
-                </div>
-              </div>
             </div>
-
-            {/* Certificate Seal & Stats Badge */}
-            <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-800/60 rounded-2xl border border-slate-700 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-1 mb-4 flex items-center justify-center shadow-lg">
-                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
-                  <Landmark className="w-9 h-9 text-amber-400" />
-                </div>
-              </div>
-              <div className="text-lg font-black text-white">Punjab National Bank</div>
-              <div className="text-xs text-amber-300 font-semibold mb-2">Silchar Circle Office</div>
-              <p className="text-[11px] text-slate-300 leading-normal">
-                Work Order ref no: <span className="font-mono text-slate-200">Hardware AMC/Temp/PO/033-2023</span>
-              </p>
-              <div className="mt-3 inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
-                <CheckCircle className="w-3.5 h-3.5" />
-                Verified Banking Contractor
-              </div>
+            <div className="mt-5 pt-4 border-t border-slate-200/80 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-600">
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Branch IT AMC</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Priority SLA</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Field Support</span>
             </div>
           </div>
-        </div>
 
-        {/* Other Notable Clientele Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Indian Post */}
-          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-slate-300 transition shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
-              <Mail className="w-6 h-6" />
+          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-rose-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
+                  <Mail className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                  <CheckCircle className="w-3 h-3" />
+                  Postal Network
+                </span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">
+                Indian Post
+              </h4>
+              <div className="text-xs font-semibold text-rose-600 mb-3">
+                Cachar Division & Postal Counters
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Timely delivery, hardware setup, and ongoing preventative maintenance of essential computing systems, printers, and peripheral support for postal counter operations.
+              </p>
             </div>
-            <h4 className="text-lg font-bold text-slate-900 mb-1">
-              Indian Post
-            </h4>
-            <div className="text-xs font-semibold text-rose-600 mb-3">
-              Cachar Division & under Post Offices
+            <div className="mt-5 pt-4 border-t border-slate-200/80 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-600">
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Counter Hardware</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Heavy Printers</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Regular AMC</span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Timely delivery and maintenance of essential computing systems, printers, and peripheral support for postal counters.
-            </p>
           </div>
 
           {/* Assam Gramin Bikash Bank */}
-          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-slate-300 transition shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-              <Building2 className="w-6 h-6" />
+          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-emerald-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  <CheckCircle className="w-3 h-3" />
+                  Regional Banking
+                </span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">
+                Assam Gramin Bikash Bank
+              </h4>
+              <div className="text-xs font-semibold text-emerald-600 mb-3">
+                Silchar Regional Office & Branches
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Rapid troubleshooting, component-level hardware servicing, and system maintenance keeping branch services and customer transaction counters consistently operational.
+              </p>
             </div>
-            <h4 className="text-lg font-bold text-slate-900 mb-1">
-              Assam Gramin Bikash Bank
-            </h4>
-            <div className="text-xs font-semibold text-emerald-600 mb-3">
-              Silchar Regional Office & Branches
+            <div className="mt-5 pt-4 border-t border-slate-200/80 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-600">
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Hardware Servicing</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Network Uptime</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Component Spares</span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Rapid troubleshooting, hardware component servicing, and system maintenance keeping branch services up and running.
-            </p>
           </div>
 
           {/* Regional Commercial & Institutions */}
-          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-slate-300 transition shadow-sm">
-            <div className="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center mb-4">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:border-sky-300 hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200">
+                  <CheckCircle className="w-3 h-3" />
+                  Enterprises
+                </span>
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">
+                Barak Valley Enterprises
+              </h4>
+              <div className="text-xs font-semibold text-sky-600 mb-3">
+                Cachar, Hailakandi & Karimganj
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Serving colleges, medical centers, tea estate management offices, and private commercial enterprises with turnkey IT infrastructure, CCTV surveillance, and solar energy setups.
+              </p>
             </div>
-            <h4 className="text-lg font-bold text-slate-900 mb-1">
-              Barak Valley Enterprises
-            </h4>
-            <div className="text-xs font-semibold text-sky-600 mb-3">
-              Cachar, Hailakandi & Karimganj
+            <div className="mt-5 pt-4 border-t border-slate-200/80 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-600">
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Solar Rooftop</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">IP CCTV</span>
+              <span className="px-2 py-0.5 rounded bg-white border border-slate-200">Turnkey Labs</span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Serving schools, educational labs, tea garden management offices, and private enterprises with turnkey IT & solar setups.
-            </p>
           </div>
         </div>
       </div>
