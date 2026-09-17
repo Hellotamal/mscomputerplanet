@@ -10,16 +10,18 @@ import {
   User, 
   Phone, 
   X,
-  Printer
+  Printer,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 export default function TicketsModule({ tickets, setTickets }) {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [editingTicket, setEditingTicket] = useState(null);
 
-  const [newTicket, setNewTicket] = useState({
+  const [ticketForm, setTicketForm] = useState({
     clientName: '',
     contactPerson: '',
     phone: '',
@@ -27,7 +29,8 @@ export default function TicketsModule({ tickets, setTickets }) {
     priority: 'High',
     assignedTo: 'Resident Engineer Silchar',
     description: '',
-    resolution: ''
+    resolution: '',
+    status: 'Open'
   });
 
   const filteredTickets = tickets.filter(t => {
@@ -41,13 +44,13 @@ export default function TicketsModule({ tickets, setTickets }) {
 
   const handleCreateTicket = (e) => {
     e.preventDefault();
-    if (!newTicket.clientName || !newTicket.description) {
+    if (!ticketForm.clientName || !ticketForm.description) {
       alert('Please provide Client Name and Description.');
       return;
     }
 
     const created = {
-      ...newTicket,
+      ...ticketForm,
       id: `TCK-${Math.floor(1000 + Math.random() * 9000)}`,
       status: 'Open',
       reportedDate: new Date().toISOString().split('T')[0]
@@ -55,7 +58,29 @@ export default function TicketsModule({ tickets, setTickets }) {
 
     setTickets([created, ...tickets]);
     setShowAddModal(false);
-    setNewTicket({
+    resetForm();
+  };
+
+  const handleStartEdit = (ticket) => {
+    setEditingTicket(ticket);
+    setTicketForm({ ...ticket });
+  };
+
+  const handleUpdateTicket = (e) => {
+    e.preventDefault();
+    setTickets(tickets.map(t => t.id === editingTicket.id ? { ...ticketForm, id: editingTicket.id } : t));
+    setEditingTicket(null);
+    resetForm();
+  };
+
+  const handleDeleteTicket = (id, clientName) => {
+    if (window.confirm(`Are you sure you want to remove ticket ${id} (${clientName})?`)) {
+      setTickets(tickets.filter(t => t.id !== id));
+    }
+  };
+
+  const resetForm = () => {
+    setTicketForm({
       clientName: '',
       contactPerson: '',
       phone: '',
@@ -63,15 +88,13 @@ export default function TicketsModule({ tickets, setTickets }) {
       priority: 'High',
       assignedTo: 'Resident Engineer Silchar',
       description: '',
-      resolution: ''
+      resolution: '',
+      status: 'Open'
     });
   };
 
   const updateTicketStatus = (id, newStatus) => {
     setTickets(tickets.map(t => t.id === id ? { ...t, status: newStatus } : t));
-    if (selectedTicket && selectedTicket.id === id) {
-      setSelectedTicket({ ...selectedTicket, status: newStatus });
-    }
   };
 
   const handlePrintSlip = (ticket) => {
@@ -105,6 +128,7 @@ export default function TicketsModule({ tickets, setTickets }) {
             <div class="label">Reported Fault / Requirement:</div>
             <div>${ticket.description}</div>
           </div>
+          ${ticket.resolution ? `<div style="margin-top: 10px;"><strong>Action Taken / Resolution:</strong> ${ticket.resolution}</div>` : ''}
           <div style="margin-top: 40px; display: flex; justify-content: space-between;">
             <div>Customer Signature: __________________</div>
             <div>Engineer Signature: __________________</div>
@@ -174,11 +198,14 @@ export default function TicketsModule({ tickets, setTickets }) {
           </div>
 
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
           >
             <Plus className="w-4 h-4" />
-            <span>New Ticket</span>
+            <span>Add Ticket</span>
           </button>
         </div>
       </div>
@@ -242,7 +269,7 @@ export default function TicketsModule({ tickets, setTickets }) {
                 </div>
               </div>
 
-              {/* Status Toggles & Print Action */}
+              {/* Status Toggles, Edit, Remove, Print */}
               <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                 <select
                   value={ticket.status}
@@ -254,6 +281,22 @@ export default function TicketsModule({ tickets, setTickets }) {
                   <option value="Resolved">Resolved</option>
                   <option value="Closed">Closed</option>
                 </select>
+
+                <button
+                  onClick={() => handleStartEdit(ticket)}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                  title="Edit Ticket"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => handleDeleteTicket(ticket.id, ticket.clientName)}
+                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                  title="Remove Ticket"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
 
                 <button
                   onClick={() => handlePrintSlip(ticket)}
@@ -268,26 +311,31 @@ export default function TicketsModule({ tickets, setTickets }) {
         )}
       </div>
 
-      {/* Add Ticket Modal */}
-      {showAddModal && (
+      {/* Add / Edit Ticket Modal */}
+      {(showAddModal || editingTicket) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Create New Service Ticket</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingTicket ? `Edit Ticket: ${editingTicket.id}` : 'Create New Service Ticket'}
+              </h3>
+              <button 
+                onClick={() => { setShowAddModal(false); setEditingTicket(null); }} 
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateTicket} className="space-y-3">
+            <form onSubmit={editingTicket ? handleUpdateTicket : handleCreateTicket} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Customer / Branch Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Punjab National Bank - Sonai Road Branch"
-                  value={newTicket.clientName}
-                  onChange={(e) => setNewTicket({ ...newTicket, clientName: e.target.value })}
+                  value={ticketForm.clientName}
+                  onChange={(e) => setTicketForm({ ...ticketForm, clientName: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -298,8 +346,8 @@ export default function TicketsModule({ tickets, setTickets }) {
                   <input
                     type="text"
                     placeholder="e.g. Branch Manager"
-                    value={newTicket.contactPerson}
-                    onChange={(e) => setNewTicket({ ...newTicket, contactPerson: e.target.value })}
+                    value={ticketForm.contactPerson}
+                    onChange={(e) => setTicketForm({ ...ticketForm, contactPerson: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -308,8 +356,8 @@ export default function TicketsModule({ tickets, setTickets }) {
                   <input
                     type="tel"
                     placeholder="+91 94350..."
-                    value={newTicket.phone}
-                    onChange={(e) => setNewTicket({ ...newTicket, phone: e.target.value })}
+                    value={ticketForm.phone}
+                    onChange={(e) => setTicketForm({ ...ticketForm, phone: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -319,8 +367,8 @@ export default function TicketsModule({ tickets, setTickets }) {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Service Category</label>
                   <select
-                    value={newTicket.type}
-                    onChange={(e) => setNewTicket({ ...newTicket, type: e.target.value })}
+                    value={ticketForm.type}
+                    onChange={(e) => setTicketForm({ ...ticketForm, type: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="Hardware Breakdown">Hardware Breakdown</option>
@@ -334,8 +382,8 @@ export default function TicketsModule({ tickets, setTickets }) {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">SLA Priority</label>
                   <select
-                    value={newTicket.priority}
-                    onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value })}
+                    value={ticketForm.priority}
+                    onChange={(e) => setTicketForm({ ...ticketForm, priority: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="Normal">Normal (24-48 hrs)</option>
@@ -345,25 +393,51 @@ export default function TicketsModule({ tickets, setTickets }) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Assigned Resident Engineer</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Debashis / Animesh / Rahul"
-                  value={newTicket.assignedTo}
-                  onChange={(e) => setNewTicket({ ...newTicket, assignedTo: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Assigned Resident Engineer</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Debashis / Animesh / Rahul"
+                    value={ticketForm.assignedTo}
+                    onChange={(e) => setTicketForm({ ...ticketForm, assignedTo: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Status</label>
+                  <select
+                    value={ticketForm.status}
+                    onChange={(e) => setTicketForm({ ...ticketForm, status: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  >
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Fault Description *</label>
                 <textarea
-                  rows="3"
+                  rows="2"
                   required
                   placeholder="Details of the reported failure or requirement..."
-                  value={newTicket.description}
-                  onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+                  value={ticketForm.description}
+                  onChange={(e) => setTicketForm({ ...ticketForm, description: e.target.value })}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Resolution Notes (if completed)</label>
+                <textarea
+                  rows="2"
+                  placeholder="Parts replaced, repairs made, engineer remarks..."
+                  value={ticketForm.resolution}
+                  onChange={(e) => setTicketForm({ ...ticketForm, resolution: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 ></textarea>
               </div>
@@ -371,7 +445,7 @@ export default function TicketsModule({ tickets, setTickets }) {
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingTicket(null); }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
@@ -380,7 +454,7 @@ export default function TicketsModule({ tickets, setTickets }) {
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow hover:bg-emerald-500"
                 >
-                  Save & Log Ticket
+                  {editingTicket ? 'Save Changes' : 'Save & Log Ticket'}
                 </button>
               </div>
             </form>

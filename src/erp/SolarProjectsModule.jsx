@@ -8,14 +8,17 @@ import {
   Clock, 
   Zap, 
   Calendar,
-  X
+  X,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 export default function SolarProjectsModule({ solarProjects, setSolarProjects }) {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
 
-  const [newProject, setNewProject] = useState({
+  const [projectForm, setProjectForm] = useState({
     customer: '',
     location: 'Silchar',
     capacityKw: 3,
@@ -38,18 +41,58 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
 
   const handleCreateProject = (e) => {
     e.preventDefault();
-    if (!newProject.customer) {
+    if (!projectForm.customer) {
       alert('Please provide customer name.');
       return;
     }
 
     const created = {
-      ...newProject,
-      id: `SOL-0${solarProjects.length + 1}`
+      ...projectForm,
+      id: `SOL-0${solarProjects.length + 1}`,
+      capacityKw: Number(projectForm.capacityKw) || 1,
+      totalAmount: Number(projectForm.totalAmount) || 0
     };
 
     setSolarProjects([...solarProjects, created]);
     setShowAddModal(false);
+    resetForm();
+  };
+
+  const handleStartEdit = (project) => {
+    setEditingProject(project);
+    setProjectForm({ ...project });
+  };
+
+  const handleUpdateProject = (e) => {
+    e.preventDefault();
+    setSolarProjects(solarProjects.map(p => p.id === editingProject.id ? {
+      ...projectForm,
+      id: editingProject.id,
+      capacityKw: Number(projectForm.capacityKw) || 1,
+      totalAmount: Number(projectForm.totalAmount) || 0
+    } : p));
+    setEditingProject(null);
+    resetForm();
+  };
+
+  const handleDeleteProject = (id, customer) => {
+    if (window.confirm(`Are you sure you want to remove solar project ${id} for ${customer}?`)) {
+      setSolarProjects(solarProjects.filter(p => p.id !== id));
+    }
+  };
+
+  const resetForm = () => {
+    setProjectForm({
+      customer: '',
+      location: 'Silchar',
+      capacityKw: 3,
+      systemType: 'On-Grid Rooftop',
+      totalAmount: 180000,
+      status: 'Site Survey Completed',
+      surveyCompleted: true,
+      targetDate: '',
+      notes: ''
+    });
   };
 
   const updateProjectStatus = (id, newStatus) => {
@@ -99,7 +142,10 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowAddModal(true);
+          }}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
         >
           <Plus className="w-4 h-4" />
@@ -119,9 +165,25 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                 <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                   {project.id}
                 </span>
-                <span className="text-xs font-bold font-mono text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                  {project.capacityKw} kWp
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold font-mono text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    {project.capacityKw} kWp
+                  </span>
+                  <button
+                    onClick={() => handleStartEdit(project)}
+                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600"
+                    title="Edit Solar Project"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProject(project.id, project.customer)}
+                    className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600"
+                    title="Remove Project"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
               <h4 className="text-base font-bold text-slate-900 mb-1">
@@ -175,26 +237,31 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
         ))}
       </div>
 
-      {/* Add Project Modal */}
-      {showAddModal && (
+      {/* Add / Edit Project Modal */}
+      {(showAddModal || editingProject) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">New Solar Installation Project</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingProject ? `Edit Project: ${editingProject.id}` : 'New Solar Installation Project'}
+              </h3>
+              <button 
+                onClick={() => { setShowAddModal(false); setEditingProject(null); }} 
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProject} className="space-y-3">
+            <form onSubmit={editingProject ? handleUpdateProject : handleCreateProject} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Customer / Commercial Enterprise *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Bank Branch / Home Owner"
-                  value={newProject.customer}
-                  onChange={(e) => setNewProject({ ...newProject, customer: e.target.value })}
+                  value={projectForm.customer}
+                  onChange={(e) => setProjectForm({ ...projectForm, customer: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -205,8 +272,8 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                   <input
                     type="text"
                     placeholder="e.g. Tarapur / Meherpur"
-                    value={newProject.location}
-                    onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
+                    value={projectForm.location}
+                    onChange={(e) => setProjectForm({ ...projectForm, location: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -216,8 +283,8 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                     type="number"
                     step="0.5"
                     min="1"
-                    value={newProject.capacityKw}
-                    onChange={(e) => setNewProject({ ...newProject, capacityKw: Number(e.target.value) })}
+                    value={projectForm.capacityKw}
+                    onChange={(e) => setProjectForm({ ...projectForm, capacityKw: Number(e.target.value) })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -227,8 +294,8 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">System Type</label>
                   <select
-                    value={newProject.systemType}
-                    onChange={(e) => setNewProject({ ...newProject, systemType: e.target.value })}
+                    value={projectForm.systemType}
+                    onChange={(e) => setProjectForm({ ...projectForm, systemType: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="On-Grid Rooftop">On-Grid Rooftop</option>
@@ -241,9 +308,35 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Estimated Value (₹)</label>
                   <input
                     type="number"
-                    value={newProject.totalAmount}
-                    onChange={(e) => setNewProject({ ...newProject, totalAmount: Number(e.target.value) })}
+                    value={projectForm.totalAmount}
+                    onChange={(e) => setProjectForm({ ...projectForm, totalAmount: Number(e.target.value) })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Status</label>
+                  <select
+                    value={projectForm.status}
+                    onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  >
+                    <option value="Site Survey Scheduled">Site Survey Scheduled</option>
+                    <option value="Site Survey Completed">Site Survey Completed</option>
+                    <option value="APDCL Application Submitted">APDCL Application Submitted</option>
+                    <option value="Installation In Progress">Installation In Progress</option>
+                    <option value="Commissioned & Net-Metered">Commissioned & Net-Metered</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Target Completion Date</label>
+                  <input
+                    type="date"
+                    value={projectForm.targetDate}
+                    onChange={(e) => setProjectForm({ ...projectForm, targetDate: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -253,8 +346,8 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                 <textarea
                   rows="2"
                   placeholder="e.g. RCC terrace 400 sq ft, APDCL meter number..."
-                  value={newProject.notes}
-                  onChange={(e) => setNewProject({ ...newProject, notes: e.target.value })}
+                  value={projectForm.notes}
+                  onChange={(e) => setProjectForm({ ...projectForm, notes: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 ></textarea>
               </div>
@@ -262,7 +355,7 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingProject(null); }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
@@ -271,7 +364,7 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow hover:bg-emerald-500"
                 >
-                  Create Project
+                  {editingProject ? 'Save Project Changes' : 'Create Project'}
                 </button>
               </div>
             </form>

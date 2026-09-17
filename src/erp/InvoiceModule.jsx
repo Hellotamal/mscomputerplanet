@@ -9,15 +9,16 @@ import {
   CheckCircle2, 
   Building, 
   IndianRupee,
-  X
+  X,
+  Edit2
 } from 'lucide-react';
 
 export default function InvoiceModule({ invoices, setInvoices }) {
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [viewInvoice, setViewInvoice] = useState(null);
+  const [editingInv, setEditingInv] = useState(null);
 
-  const [newInv, setNewInv] = useState({
+  const [invForm, setInvForm] = useState({
     clientName: '',
     clientAddress: '',
     clientGst: '',
@@ -35,24 +36,24 @@ export default function InvoiceModule({ invoices, setInvoices }) {
   );
 
   const handleAddItemRow = () => {
-    setNewInv({
-      ...newInv,
-      items: [...newInv.items, { desc: '', hsn: '', qty: 1, rate: 0 }]
+    setInvForm({
+      ...invForm,
+      items: [...invForm.items, { desc: '', hsn: '', qty: 1, rate: 0 }]
     });
   };
 
   const handleRemoveItemRow = (idx) => {
-    if (newInv.items.length === 1) return;
-    setNewInv({
-      ...newInv,
-      items: newInv.items.filter((_, i) => i !== idx)
+    if (invForm.items.length === 1) return;
+    setInvForm({
+      ...invForm,
+      items: invForm.items.filter((_, i) => i !== idx)
     });
   };
 
   const handleItemChange = (idx, field, val) => {
-    const updated = [...newInv.items];
+    const updated = [...invForm.items];
     updated[idx][field] = field === 'qty' || field === 'rate' ? Number(val) : val;
-    setNewInv({ ...newInv, items: updated });
+    setInvForm({ ...invForm, items: updated });
   };
 
   const calculateSubtotal = (items) => {
@@ -61,18 +62,51 @@ export default function InvoiceModule({ invoices, setInvoices }) {
 
   const handleSaveInvoice = (e) => {
     e.preventDefault();
-    if (!newInv.clientName || newInv.items.length === 0) {
+    if (!invForm.clientName || invForm.items.length === 0) {
       alert('Please provide client name and at least one item.');
       return;
     }
 
     const created = {
-      ...newInv,
+      ...invForm,
       id: `INV-2024-${Math.floor(100 + Math.random() * 900)}`
     };
 
     setInvoices([created, ...invoices]);
     setShowCreateModal(false);
+    resetForm();
+  };
+
+  const handleStartEdit = (inv) => {
+    setEditingInv(inv);
+    setInvForm({ ...inv });
+  };
+
+  const handleUpdateInvoice = (e) => {
+    e.preventDefault();
+    setInvoices(invoices.map(inv => inv.id === editingInv.id ? { ...invForm, id: editingInv.id } : inv));
+    setEditingInv(null);
+    resetForm();
+  };
+
+  const handleDeleteInvoice = (id, clientName) => {
+    if (window.confirm(`Are you sure you want to remove invoice ${id} for ${clientName}?`)) {
+      setInvoices(invoices.filter(inv => inv.id !== id));
+    }
+  };
+
+  const resetForm = () => {
+    setInvForm({
+      clientName: '',
+      clientAddress: '',
+      clientGst: '',
+      invoiceDate: new Date().toISOString().split('T')[0],
+      items: [
+        { desc: 'Comprehensive Computer AMC Service', hsn: '9987', qty: 1, rate: 25000 }
+      ],
+      gstRate: 18,
+      status: 'Sent'
+    });
   };
 
   const handlePrintInvoice = (inv) => {
@@ -101,7 +135,6 @@ export default function InvoiceModule({ invoices, setInvoices }) {
             .totals-table { width: 45%; margin-left: auto; border-collapse: collapse; }
             .totals-table td { padding: 6px 10px; }
             .grand-total { font-weight: bold; font-size: 15px; border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a; }
-            .footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 11px; }
           </style>
         </head>
         <body>
@@ -212,7 +245,10 @@ export default function InvoiceModule({ invoices, setInvoices }) {
         </div>
 
         <button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowCreateModal(true);
+          }}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
         >
           <Plus className="w-4 h-4" />
@@ -260,7 +296,7 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                 )}
               </div>
 
-              <div className="flex items-center gap-4 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+              <div className="flex items-center gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                 <div className="text-right">
                   <div className="text-xs text-slate-400">Total (incl. {inv.gstRate}% GST)</div>
                   <div className="text-xl font-black font-mono text-slate-900">
@@ -268,35 +304,58 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handlePrintInvoice(inv)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition shadow-sm"
-                  title="Print or Save as PDF"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>Print</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleStartEdit(inv)}
+                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                    title="Edit Invoice"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteInvoice(inv.id, inv.clientName)}
+                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                    title="Remove Invoice"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handlePrintInvoice(inv)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                    title="Print or Save as PDF"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Print</span>
+                  </button>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Create Invoice Modal */}
-      {showCreateModal && (
+      {/* Create / Edit Invoice Modal */}
+      {(showCreateModal || editingInv) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">Generate GST Tax Invoice</h3>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {editingInv ? `Edit Invoice: ${editingInv.id}` : 'Generate GST Tax Invoice'}
+                </h3>
                 <p className="text-xs text-slate-400 font-mono">From: M/S Computer Planet (GSTIN: 18ASTPR6755J1Z0)</p>
               </div>
-              <button onClick={() => setShowCreateModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700">
+              <button 
+                onClick={() => { setShowCreateModal(false); setEditingInv(null); }} 
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveInvoice} className="space-y-4">
+            <form onSubmit={editingInv ? handleUpdateInvoice : handleSaveInvoice} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Customer / Organization Name *</label>
@@ -304,8 +363,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                     type="text"
                     required
                     placeholder="e.g. Punjab National Bank Silchar"
-                    value={newInv.clientName}
-                    onChange={(e) => setNewInv({ ...newInv, clientName: e.target.value })}
+                    value={invForm.clientName}
+                    onChange={(e) => setInvForm({ ...invForm, clientName: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -314,8 +373,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   <input
                     type="text"
                     placeholder="e.g. 18AAACP..."
-                    value={newInv.clientGst}
-                    onChange={(e) => setNewInv({ ...newInv, clientGst: e.target.value })}
+                    value={invForm.clientGst}
+                    onChange={(e) => setInvForm({ ...invForm, clientGst: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
                   />
                 </div>
@@ -327,8 +386,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   <input
                     type="text"
                     placeholder="e.g. Club Road, Silchar - 788001"
-                    value={newInv.clientAddress}
-                    onChange={(e) => setNewInv({ ...newInv, clientAddress: e.target.value })}
+                    value={invForm.clientAddress}
+                    onChange={(e) => setInvForm({ ...invForm, clientAddress: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -336,8 +395,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Invoice Date</label>
                   <input
                     type="date"
-                    value={newInv.invoiceDate}
-                    onChange={(e) => setNewInv({ ...newInv, invoiceDate: e.target.value })}
+                    value={invForm.invoiceDate}
+                    onChange={(e) => setInvForm({ ...invForm, invoiceDate: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -358,7 +417,7 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                 </div>
 
                 <div className="space-y-2">
-                  {newInv.items.map((item, idx) => (
+                  {invForm.items.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <input
                         type="text"
@@ -390,7 +449,7 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                         onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
                         className="w-24 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-right"
                       />
-                      {newInv.items.length > 1 && (
+                      {invForm.items.length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveItemRow(idx)}
@@ -409,8 +468,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">GST Tax Bracket</label>
                   <select
-                    value={newInv.gstRate}
-                    onChange={(e) => setNewInv({ ...newInv, gstRate: Number(e.target.value) })}
+                    value={invForm.gstRate}
+                    onChange={(e) => setInvForm({ ...invForm, gstRate: Number(e.target.value) })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="18">18% GST (IT Hardware, AMC & Networking)</option>
@@ -422,8 +481,8 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Invoice Status</label>
                   <select
-                    value={newInv.status}
-                    onChange={(e) => setNewInv({ ...newInv, status: e.target.value })}
+                    value={invForm.status}
+                    onChange={(e) => setInvForm({ ...invForm, status: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="Sent">Sent / Pending</option>
@@ -436,7 +495,7 @@ export default function InvoiceModule({ invoices, setInvoices }) {
               <div className="pt-3 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => { setShowCreateModal(false); setEditingInv(null); }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
@@ -445,7 +504,7 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow hover:bg-emerald-500"
                 >
-                  Save & Generate
+                  {editingInv ? 'Save Invoice Changes' : 'Save & Generate'}
                 </button>
               </div>
             </form>

@@ -9,14 +9,17 @@ import {
   AlertCircle,
   IndianRupee,
   Landmark,
-  X
+  X,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 export default function AMCModule({ amcContracts, setAmcContracts }) {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingAmc, setEditingAmc] = useState(null);
 
-  const [newAmc, setNewAmc] = useState({
+  const [amcForm, setAmcForm] = useState({
     clientName: '',
     branchCount: 1,
     deviceCount: 10,
@@ -24,7 +27,8 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
     startDate: new Date().toISOString().split('T')[0],
     expiryDate: '',
     workOrderRef: '',
-    slaType: 'Comprehensive Hardware AMC'
+    slaType: 'Comprehensive Hardware AMC',
+    status: 'Active'
   });
 
   const totalAnnualRevenue = amcContracts.reduce((acc, c) => acc + (Number(c.annualValue) || 0), 0);
@@ -39,20 +43,51 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
 
   const handleCreateAmc = (e) => {
     e.preventDefault();
-    if (!newAmc.clientName || !newAmc.annualValue) {
+    if (!amcForm.clientName || !amcForm.annualValue) {
       alert('Please fill in Client Name and Annual Contract Value.');
       return;
     }
 
     const created = {
-      ...newAmc,
+      ...amcForm,
       id: `AMC-2024-${Math.floor(100 + Math.random() * 900)}`,
+      branchCount: Number(amcForm.branchCount) || 1,
+      deviceCount: Number(amcForm.deviceCount) || 1,
+      annualValue: Number(amcForm.annualValue) || 0,
       status: 'Active'
     };
 
     setAmcContracts([created, ...amcContracts]);
     setShowAddModal(false);
-    setNewAmc({
+    resetForm();
+  };
+
+  const handleStartEdit = (amc) => {
+    setEditingAmc(amc);
+    setAmcForm({ ...amc });
+  };
+
+  const handleUpdateAmc = (e) => {
+    e.preventDefault();
+    setAmcContracts(amcContracts.map(c => c.id === editingAmc.id ? { 
+      ...amcForm, 
+      id: editingAmc.id,
+      branchCount: Number(amcForm.branchCount) || 1,
+      deviceCount: Number(amcForm.deviceCount) || 1,
+      annualValue: Number(amcForm.annualValue) || 0
+    } : c));
+    setEditingAmc(null);
+    resetForm();
+  };
+
+  const handleDeleteAmc = (id, clientName) => {
+    if (window.confirm(`Are you sure you want to remove the AMC contract for ${clientName} (${id})?`)) {
+      setAmcContracts(amcContracts.filter(c => c.id !== id));
+    }
+  };
+
+  const resetForm = () => {
+    setAmcForm({
       clientName: '',
       branchCount: 1,
       deviceCount: 10,
@@ -60,7 +95,8 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
       startDate: new Date().toISOString().split('T')[0],
       expiryDate: '',
       workOrderRef: '',
-      slaType: 'Comprehensive Hardware AMC'
+      slaType: 'Comprehensive Hardware AMC',
+      status: 'Active'
     });
   };
 
@@ -96,7 +132,7 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
           <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 font-mono">
             {totalDevices} <span className="text-sm font-sans font-normal text-slate-500">Units</span>
           </div>
-          <div className="text-[11px] text-slate-400 mt-2">Desktops, Servers, Printers & UPS</div>
+          <div className="text-[11px] text-slate-400 mt-2">Desktops, Servers, Printers & Scanners</div>
         </div>
       </div>
 
@@ -114,7 +150,10 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            resetForm();
+            setShowAddModal(true);
+          }}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
         >
           <Plus className="w-4 h-4" />
@@ -138,9 +177,25 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   <span className="text-xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                     {amc.id}
                   </span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                    {amc.status}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      {amc.status}
+                    </span>
+                    <button
+                      onClick={() => handleStartEdit(amc)}
+                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600"
+                      title="Edit Contract"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAmc(amc.id, amc.clientName)}
+                      className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600"
+                      title="Remove Contract"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 <h4 className="text-base font-bold text-slate-900 mb-1">
@@ -187,26 +242,31 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
         })}
       </div>
 
-      {/* Add AMC Modal */}
-      {showAddModal && (
+      {/* Add / Edit AMC Modal */}
+      {(showAddModal || editingAmc) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Record New Annual Maintenance Contract</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingAmc ? `Edit Contract: ${editingAmc.id}` : 'Record New Annual Maintenance Contract'}
+              </h3>
+              <button 
+                onClick={() => { setShowAddModal(false); setEditingAmc(null); }} 
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateAmc} className="space-y-3">
+            <form onSubmit={editingAmc ? handleUpdateAmc : handleCreateAmc} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Organization / Bank Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. State Bank of India / Local College"
-                  value={newAmc.clientName}
-                  onChange={(e) => setNewAmc({ ...newAmc, clientName: e.target.value })}
+                  placeholder="e.g. Punjab National Bank Silchar"
+                  value={amcForm.clientName}
+                  onChange={(e) => setAmcForm({ ...amcForm, clientName: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -217,18 +277,18 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   <input
                     type="number"
                     min="1"
-                    value={newAmc.branchCount}
-                    onChange={(e) => setNewAmc({ ...newAmc, branchCount: e.target.value })}
+                    value={amcForm.branchCount}
+                    onChange={(e) => setAmcForm({ ...amcForm, branchCount: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Devices</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Devices Covered</label>
                   <input
                     type="number"
                     min="1"
-                    value={newAmc.deviceCount}
-                    onChange={(e) => setNewAmc({ ...newAmc, deviceCount: e.target.value })}
+                    value={amcForm.deviceCount}
+                    onChange={(e) => setAmcForm({ ...amcForm, deviceCount: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -241,8 +301,8 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                     type="number"
                     required
                     placeholder="e.g. 150000"
-                    value={newAmc.annualValue}
-                    onChange={(e) => setNewAmc({ ...newAmc, annualValue: e.target.value })}
+                    value={amcForm.annualValue}
+                    onChange={(e) => setAmcForm({ ...amcForm, annualValue: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -251,8 +311,8 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   <input
                     type="text"
                     placeholder="e.g. PO/044-2024"
-                    value={newAmc.workOrderRef}
-                    onChange={(e) => setNewAmc({ ...newAmc, workOrderRef: e.target.value })}
+                    value={amcForm.workOrderRef}
+                    onChange={(e) => setAmcForm({ ...amcForm, workOrderRef: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -263,8 +323,8 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Start Date</label>
                   <input
                     type="date"
-                    value={newAmc.startDate}
-                    onChange={(e) => setNewAmc({ ...newAmc, startDate: e.target.value })}
+                    value={amcForm.startDate}
+                    onChange={(e) => setAmcForm({ ...amcForm, startDate: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -272,28 +332,42 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Expiry Date</label>
                   <input
                     type="date"
-                    value={newAmc.expiryDate}
-                    onChange={(e) => setNewAmc({ ...newAmc, expiryDate: e.target.value })}
+                    value={amcForm.expiryDate}
+                    onChange={(e) => setAmcForm({ ...amcForm, expiryDate: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">SLA Scope</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Comprehensive Hardware with 4-hr buffer replacement"
-                  value={newAmc.slaType}
-                  onChange={(e) => setNewAmc({ ...newAmc, slaType: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Status</label>
+                  <select
+                    value={amcForm.status}
+                    onChange={(e) => setAmcForm({ ...amcForm, status: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Pending Renewal">Pending Renewal</option>
+                    <option value="Expired">Expired</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">SLA Scope</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Comprehensive with 4-hr buffer replacement"
+                    value={amcForm.slaType}
+                    onChange={(e) => setAmcForm({ ...amcForm, slaType: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
               </div>
 
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingAmc(null); }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
@@ -302,7 +376,7 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow hover:bg-emerald-500"
                 >
-                  Save Contract
+                  {editingAmc ? 'Save Contract Changes' : 'Save Contract'}
                 </button>
               </div>
             </form>

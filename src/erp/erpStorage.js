@@ -246,7 +246,8 @@ export function exportAllErpData() {
     amc: loadErpData("amc", INITIAL_AMC_CONTRACTS),
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
     invoices: loadErpData("invoices", INITIAL_INVOICES),
-    solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS)
+    solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
+    pnbAssets: loadErpData("pnb_assets", null)
   };
   return JSON.stringify(backup, null, 2);
 }
@@ -259,6 +260,7 @@ export function importAllErpData(jsonString) {
     if (data.inventory) saveErpData("inventory", data.inventory);
     if (data.invoices) saveErpData("invoices", data.invoices);
     if (data.solarProjects) saveErpData("solar_projects", data.solarProjects);
+    if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     return true;
   } catch (err) {
     console.error("Invalid ERP backup file", err);

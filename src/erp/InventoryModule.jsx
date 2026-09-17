@@ -8,15 +8,18 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   SlidersHorizontal,
-  X
+  X,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 export default function InventoryModule({ inventory, setInventory }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
 
-  const [newItem, setNewItem] = useState({
+  const [itemForm, setItemForm] = useState({
     name: '',
     category: 'IT Hardware',
     stock: 10,
@@ -26,7 +29,7 @@ export default function InventoryModule({ inventory, setInventory }) {
     location: 'Shelf A-1'
   });
 
-  const categories = ['All', 'IT Hardware', 'Networking', 'Solar Energy'];
+  const categories = ['All', 'IT Hardware', 'Networking', 'Solar Energy', 'Security / CCTV'];
 
   const filteredItems = inventory.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,23 +55,52 @@ export default function InventoryModule({ inventory, setInventory }) {
 
   const handleCreateItem = (e) => {
     e.preventDefault();
-    if (!newItem.name) {
+    if (!itemForm.name) {
       alert('Please provide item name.');
       return;
     }
 
     const created = {
-      ...newItem,
+      ...itemForm,
       id: `INV-00${inventory.length + 1}`,
-      stock: Number(newItem.stock) || 0,
-      minStock: Number(newItem.minStock) || 0,
-      costPrice: Number(newItem.costPrice) || 0,
-      sellPrice: Number(newItem.sellPrice) || 0
+      stock: Number(itemForm.stock) || 0,
+      minStock: Number(itemForm.minStock) || 0,
+      costPrice: Number(itemForm.costPrice) || 0,
+      sellPrice: Number(itemForm.sellPrice) || 0
     };
 
     setInventory([...inventory, created]);
     setShowAddModal(false);
-    setNewItem({
+    resetForm();
+  };
+
+  const handleStartEdit = (item) => {
+    setEditingItem(item);
+    setItemForm({ ...item });
+  };
+
+  const handleUpdateItem = (e) => {
+    e.preventDefault();
+    setInventory(inventory.map(item => item.id === editingItem.id ? {
+      ...itemForm,
+      id: editingItem.id,
+      stock: Number(itemForm.stock) || 0,
+      minStock: Number(itemForm.minStock) || 0,
+      costPrice: Number(itemForm.costPrice) || 0,
+      sellPrice: Number(itemForm.sellPrice) || 0
+    } : item));
+    setEditingItem(null);
+    resetForm();
+  };
+
+  const handleDeleteItem = (id, name) => {
+    if (window.confirm(`Are you sure you want to remove item "${name}" (${id}) from inventory?`)) {
+      setInventory(inventory.filter(item => item.id !== id));
+    }
+  };
+
+  const resetForm = () => {
+    setItemForm({
       name: '',
       category: 'IT Hardware',
       stock: 10,
@@ -142,7 +174,10 @@ export default function InventoryModule({ inventory, setInventory }) {
           </div>
 
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
             className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
           >
             <Plus className="w-4 h-4" />
@@ -159,11 +194,12 @@ export default function InventoryModule({ inventory, setInventory }) {
               <tr>
                 <th className="py-3.5 px-4">Item & SKU</th>
                 <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Warehouse Location</th>
+                <th className="py-3.5 px-4">Location</th>
                 <th className="py-3.5 px-4 text-right">Cost Price</th>
                 <th className="py-3.5 px-4 text-right">Selling Price</th>
                 <th className="py-3.5 px-4 text-center">In Stock</th>
-                <th className="py-3.5 px-4 text-center">Quick Adjust</th>
+                <th className="py-3.5 px-4 text-center">Quick Stock</th>
+                <th className="py-3.5 px-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -215,6 +251,24 @@ export default function InventoryModule({ inventory, setInventory }) {
                         </button>
                       </div>
                     </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleStartEdit(item)}
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                          title="Edit Stock Item"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(item.id, item.name)}
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                          title="Remove Item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}
@@ -223,26 +277,31 @@ export default function InventoryModule({ inventory, setInventory }) {
         </div>
       </div>
 
-      {/* Add Item Modal */}
-      {showAddModal && (
+      {/* Add / Edit Item Modal */}
+      {(showAddModal || editingItem) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Add Inventory Spare / Product</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-700">
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingItem ? `Edit Item: ${editingItem.id}` : 'Add Inventory Spare / Product'}
+              </h3>
+              <button 
+                onClick={() => { setShowAddModal(false); setEditingItem(null); }} 
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateItem} className="space-y-3">
+            <form onSubmit={editingItem ? handleUpdateItem : handleCreateItem} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Item Description & Model *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Dell OptiPlex Motherboard or 540W Mono PERC Panel"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  value={itemForm.name}
+                  onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -251,8 +310,8 @@ export default function InventoryModule({ inventory, setInventory }) {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
                   <select
-                    value={newItem.category}
-                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                    value={itemForm.category}
+                    onChange={(e) => setItemForm({ ...itemForm, category: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="IT Hardware">IT Hardware</option>
@@ -266,8 +325,8 @@ export default function InventoryModule({ inventory, setInventory }) {
                   <input
                     type="text"
                     placeholder="e.g. Shelf B-2"
-                    value={newItem.location}
-                    onChange={(e) => setNewItem({ ...newItem, location: e.target.value })}
+                    value={itemForm.location}
+                    onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -275,12 +334,12 @@ export default function InventoryModule({ inventory, setInventory }) {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Stock Count</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Current Stock Count</label>
                   <input
                     type="number"
                     min="0"
-                    value={newItem.stock}
-                    onChange={(e) => setNewItem({ ...newItem, stock: e.target.value })}
+                    value={itemForm.stock}
+                    onChange={(e) => setItemForm({ ...itemForm, stock: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -289,8 +348,8 @@ export default function InventoryModule({ inventory, setInventory }) {
                   <input
                     type="number"
                     min="1"
-                    value={newItem.minStock}
-                    onChange={(e) => setNewItem({ ...newItem, minStock: e.target.value })}
+                    value={itemForm.minStock}
+                    onChange={(e) => setItemForm({ ...itemForm, minStock: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -302,8 +361,8 @@ export default function InventoryModule({ inventory, setInventory }) {
                   <input
                     type="number"
                     min="0"
-                    value={newItem.costPrice}
-                    onChange={(e) => setNewItem({ ...newItem, costPrice: e.target.value })}
+                    value={itemForm.costPrice}
+                    onChange={(e) => setItemForm({ ...itemForm, costPrice: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -312,8 +371,8 @@ export default function InventoryModule({ inventory, setInventory }) {
                   <input
                     type="number"
                     min="0"
-                    value={newItem.sellPrice}
-                    onChange={(e) => setNewItem({ ...newItem, sellPrice: e.target.value })}
+                    value={itemForm.sellPrice}
+                    onChange={(e) => setItemForm({ ...itemForm, sellPrice: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -322,7 +381,7 @@ export default function InventoryModule({ inventory, setInventory }) {
               <div className="pt-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => { setShowAddModal(false); setEditingItem(null); }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
@@ -331,7 +390,7 @@ export default function InventoryModule({ inventory, setInventory }) {
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow hover:bg-emerald-500"
                 >
-                  Save to Inventory
+                  {editingItem ? 'Save Item Changes' : 'Save to Inventory'}
                 </button>
               </div>
             </form>
