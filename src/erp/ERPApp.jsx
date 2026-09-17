@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   loadErpData, 
   saveErpData, 
@@ -12,6 +12,9 @@ import {
   INITIAL_EMPLOYEES,
   INITIAL_LEAVES,
   INITIAL_PAYROLL,
+  INITIAL_FIELD_VISITS,
+  INITIAL_CLIENTS,
+  INITIAL_TRANSACTIONS,
   exportAllErpData,
   importAllErpData,
   getErpPin,
@@ -26,6 +29,9 @@ import SolarProjectsModule from './SolarProjectsModule';
 import PNBAssetModule from './PNBAssetModule';
 import UsersModule from './UsersModule';
 import HRMSModule from './HRMSModule';
+import ClientsModule from './ClientsModule';
+import ReportsModule from './ReportsModule';
+import AccountsModule from './AccountsModule';
 import ERPLogin from './ERPLogin';
 import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
@@ -60,7 +66,11 @@ import {
   X,
   MapPin,
   Calendar,
-  CalendarDays
+  CalendarDays,
+  FileSpreadsheet,
+  ShoppingBag,
+  CreditCard,
+  Wallet
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -79,8 +89,10 @@ export default function ERPApp({ onExit }) {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [hrmsSubTab, setHrmsSubTab] = useState('directory');
+  const [clientSubCategory, setClientSubCategory] = useState('All');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isHrmsExpanded, setIsHrmsExpanded] = useState(true);
+  const [isClientsExpanded, setIsClientsExpanded] = useState(true);
+  const [isHrmsExpanded, setIsHrmsExpanded] = useState(false);
 
   // Persistent States
   const [users, setUsers] = useState(() => loadErpData("users", INITIAL_USERS));
@@ -93,6 +105,8 @@ export default function ERPApp({ onExit }) {
   const [invoices, setInvoices] = useState(() => loadErpData("invoices", INITIAL_INVOICES));
   const [quotations, setQuotations] = useState(() => loadErpData("quotations", INITIAL_QUOTATIONS));
   const [solarProjects, setSolarProjects] = useState(() => loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
+  const [clients, setClients] = useState(() => loadErpData("clients", INITIAL_CLIENTS));
+  const [transactions, setTransactions] = useState(() => loadErpData("transactions", INITIAL_TRANSACTIONS));
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
@@ -105,6 +119,8 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("invoices", invoices); }, [invoices]);
   useEffect(() => { saveErpData("quotations", quotations); }, [quotations]);
   useEffect(() => { saveErpData("solar_projects", solarProjects); }, [solarProjects]);
+  useEffect(() => { saveErpData("clients", clients); }, [clients]);
+  useEffect(() => { saveErpData("transactions", transactions); }, [transactions]);
 
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
@@ -153,6 +169,8 @@ export default function ERPApp({ onExit }) {
         setInvoices(loadErpData("invoices", INITIAL_INVOICES));
         setQuotations(loadErpData("quotations", INITIAL_QUOTATIONS));
         setSolarProjects(loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
+        setClients(loadErpData("clients", INITIAL_CLIENTS));
+        setTransactions(loadErpData("transactions", INITIAL_TRANSACTIONS));
         alert("ERP Data successfully restored from backup!");
       } else {
         alert("Invalid backup file format.");
@@ -200,9 +218,26 @@ export default function ERPApp({ onExit }) {
       ]
     },
     {
-      title: "Banking & Operations",
+      title: "Clients & Managed Assets",
       items: [
-        { id: 'pnb_assets', name: 'PNB Asset Matrix', icon: Landmark, badge: '543', badgeColor: 'bg-amber-500 text-slate-950' },
+        { 
+          id: 'clients', 
+          name: 'Clients & Assets', 
+          icon: Landmark, 
+          badge: clients.length, 
+          badgeColor: 'bg-emerald-500 text-slate-950',
+          hasSubmenu: true,
+          subExpanded: isClientsExpanded,
+          toggleSubmenu: () => setIsClientsExpanded(!isClientsExpanded),
+          subItems: [
+            { id: 'all_clients', name: 'All Enrolled Clients', icon: Layers, badge: clients.length, isCurrent: activeTab === 'clients' && clientSubCategory === 'All', onSelect: () => { setActiveTab('clients'); setClientSubCategory('All'); } },
+            { id: 'amc_clients', name: 'Banking & AMC', icon: Landmark, badge: clients.filter(c => c.category === 'AMC').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'AMC', onSelect: () => { setActiveTab('clients'); setClientSubCategory('AMC'); } },
+            { id: 'sales_clients', name: 'Hardware Sales', icon: ShoppingBag, badge: clients.filter(c => c.category === 'Sales').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Sales', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Sales'); } },
+            { id: 'solar_clients', name: 'Solar EPC Clients', icon: SunMedium, badge: clients.filter(c => c.category === 'Solar').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Solar', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Solar'); } },
+            { id: 'service_clients', name: 'Service & Repairs', icon: Wrench, badge: clients.filter(c => c.category === 'Service').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Service', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Service'); } },
+            { id: 'pnb_branch_matrix', name: 'PNB 50-Branch Matrix', icon: Building2, badge: '543', badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'pnb_assets', onSelect: () => { setActiveTab('pnb_assets'); } }
+          ]
+        },
         { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null, badgeColor: 'bg-rose-500 text-white' },
         { id: 'amc', name: 'AMC Contracts', icon: Building2 },
         { id: 'inventory', name: 'Inventory & Spares', icon: Package },
@@ -210,10 +245,17 @@ export default function ERPApp({ onExit }) {
       ]
     },
     {
-      title: "Sales & Finance",
+      title: "Commercial & Accounts",
       items: [
         { id: 'quotations', name: 'Quotations', icon: ClipboardList, badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, badgeColor: 'bg-blue-500 text-white' },
-        { id: 'invoices', name: 'GST Invoices', icon: FileText }
+        { id: 'invoices', name: 'GST Invoices', icon: FileText },
+        { id: 'accounts', name: 'Accounts & Finance', icon: IndianRupee, badge: transactions.length, badgeColor: 'bg-teal-500 text-slate-950' }
+      ]
+    },
+    {
+      title: "Audit & Downloads",
+      items: [
+        { id: 'reports', name: 'Reports Centre', icon: FileSpreadsheet, badge: 'Audit', badgeColor: 'bg-indigo-500 text-white' }
       ]
     },
     {
@@ -226,12 +268,14 @@ export default function ERPApp({ onExit }) {
           badge: employees.length, 
           badgeColor: 'bg-emerald-500 text-slate-950',
           hasSubmenu: true,
+          subExpanded: isHrmsExpanded,
+          toggleSubmenu: () => setIsHrmsExpanded(!isHrmsExpanded),
           subItems: [
-            { id: 'directory', name: 'Employee Directory', icon: Users, badge: employees.length },
-            { id: 'attendance', name: 'Daily Attendance', icon: UserCheck },
-            { id: 'field_visits', name: 'Field Duty Register', icon: MapPin },
-            { id: 'leaves', name: 'Leave Requests', icon: Calendar, badge: pendingLeavesCount > 0 ? pendingLeavesCount : null, badgeColor: 'bg-amber-500 text-slate-950' },
-            { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee }
+            { id: 'directory', name: 'Employee Directory', icon: Users, badge: employees.length, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'directory', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('directory'); } },
+            { id: 'attendance', name: 'Daily Attendance', icon: UserCheck, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'attendance', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('attendance'); } },
+            { id: 'field_visits', name: 'Field Duty Register', icon: MapPin, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'field_visits', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('field_visits'); } },
+            { id: 'leaves', name: 'Leave Requests', icon: Calendar, badge: pendingLeavesCount > 0 ? pendingLeavesCount : null, badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'hrms' && hrmsSubTab === 'leaves', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('leaves'); } },
+            { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'payroll', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('payroll'); } }
           ]
         },
         { id: 'users', name: 'Staff & Roles', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' }
@@ -307,7 +351,7 @@ export default function ERPApp({ onExit }) {
                           onClick={() => {
                             if (item.hasSubmenu) {
                               setActiveTab(item.id);
-                              setIsHrmsExpanded(!isHrmsExpanded);
+                              if (item.toggleSubmenu) item.toggleSubmenu();
                             } else {
                               setActiveTab(item.id);
                               setIsSidebarOpen(false);
@@ -332,25 +376,24 @@ export default function ERPApp({ onExit }) {
                             )}
                             {item.hasSubmenu && (
                               <span className="text-slate-400 group-hover:text-white">
-                                {isHrmsExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                {item.subExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                               </span>
                             )}
                           </div>
                         </button>
 
                         {/* Expandable Sub-Menu in the Left Side */}
-                        {item.hasSubmenu && isHrmsExpanded && (
+                        {item.hasSubmenu && item.subExpanded && (
                           <div className="mt-1 ml-3.5 pl-2.5 border-l border-slate-800 space-y-1">
                             {item.subItems.map((sub) => {
                               const SubIcon = sub.icon;
-                              const isSubActive = activeTab === 'hrms' && hrmsSubTab === sub.id;
+                              const isSubActive = sub.isCurrent;
 
                               return (
                                 <button
                                   key={sub.id}
                                   onClick={() => {
-                                    setActiveTab('hrms');
-                                    setHrmsSubTab(sub.id);
+                                    if (sub.onSelect) sub.onSelect();
                                     setIsSidebarOpen(false);
                                   }}
                                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition ${
@@ -449,12 +492,19 @@ export default function ERPApp({ onExit }) {
                 <div className="flex items-center gap-2 truncate">
                   <span className="font-bold text-sm sm:text-base text-slate-900 truncate">
                     {activeTab === 'dashboard' && 'Operations Dashboard'}
+                    {activeTab === 'clients' && (
+                      <span>
+                        Clients & Assets <span className="text-slate-400 font-normal">/</span> {clientSubCategory === 'All' ? 'All Clients' : clientSubCategory + ' Directory'}
+                      </span>
+                    )}
                     {activeTab === 'pnb_assets' && 'PNB Asset Matrix (543)'}
                     {activeTab === 'tickets' && 'Service Tickets'}
                     {activeTab === 'amc' && 'AMC Contracts'}
                     {activeTab === 'inventory' && 'Inventory & Spares'}
                     {activeTab === 'invoices' && 'GST Tax Invoices'}
                     {activeTab === 'quotations' && 'Quotations & Estimates'}
+                    {activeTab === 'accounts' && 'Accounts & Bookkeeping Ledger'}
+                    {activeTab === 'reports' && 'Reports & Downloads Centre'}
                     {activeTab === 'solar' && 'Solar Rooftop Projects'}
                     {activeTab === 'users' && 'Staff & Role Management'}
                     {activeTab === 'hrms' && (
@@ -518,18 +568,25 @@ export default function ERPApp({ onExit }) {
 
               <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
                 <button
-                  onClick={() => setActiveTab('pnb_assets')}
+                  onClick={() => setActiveTab('clients')}
                   className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
                 >
                   <Landmark className="w-4 h-4" />
-                  <span>PNB Assets (543)</span>
+                  <span>Clients & Assets ({clients.length})</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab('quotations')}
+                  onClick={() => setActiveTab('accounts')}
+                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                >
+                  <IndianRupee className="w-4 h-4" />
+                  <span>Accounts Ledger</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('reports')}
                   className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
                 >
-                  <ClipboardList className="w-4 h-4" />
-                  <span>Quotations</span>
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>Reports Centre</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('tickets')}
@@ -729,6 +786,13 @@ export default function ERPApp({ onExit }) {
           </div>
         )}
 
+        {activeTab === 'clients' && (
+          <ClientsModule 
+            clients={clients} 
+            setClients={setClients} 
+            initialCategory={clientSubCategory} 
+          />
+        )}
         {activeTab === 'pnb_assets' && <PNBAssetModule />}
         {activeTab === 'tickets' && <TicketsModule tickets={tickets} setTickets={setTickets} />}
         {activeTab === 'amc' && <AMCModule amcContracts={amcContracts} setAmcContracts={setAmcContracts} />}
@@ -744,6 +808,28 @@ export default function ERPApp({ onExit }) {
           />
         )}
         {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
+        {activeTab === 'accounts' && (
+          <AccountsModule 
+            transactions={transactions} 
+            setTransactions={setTransactions} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'reports' && (
+          <ReportsModule 
+            invoices={invoices}
+            quotations={quotations}
+            amcContracts={amcContracts}
+            inventory={inventory}
+            solarProjects={solarProjects}
+            tickets={tickets}
+            employees={employees}
+            payroll={payroll}
+            leaves={leaves}
+            clients={clients}
+            transactions={transactions}
+          />
+        )}
         {activeTab === 'users' && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
         {activeTab === 'hrms' && (
           <HRMSModule 
