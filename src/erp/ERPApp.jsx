@@ -117,6 +117,7 @@ export default function ERPApp({ onExit }) {
       const activeSession = validateSecureSession();
       if (!activeSession) {
         terminateSecureSession();
+        sessionStorage.removeItem("mcp_erp_terminal_unlocked");
         setCurrentUser(null);
         setIsAuthenticated(false);
         alert("Security Auto-Lock: You have been logged out due to 15 minutes of inactivity.");
@@ -170,6 +171,7 @@ export default function ERPApp({ onExit }) {
 
   const handleLogout = () => {
     terminateSecureSession();
+    sessionStorage.removeItem("mcp_erp_terminal_unlocked");
     setCurrentUser(null);
     setIsAuthenticated(false);
   };

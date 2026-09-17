@@ -46,6 +46,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
     username: '',
     role: ROLE_DEFINITIONS[1].role,
     pin: '99544',
+    password: '',
     phone: '',
     region: 'Silchar & Cachar Circle',
     status: 'Active',
@@ -109,6 +110,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       ...formData,
       id: `USR-00${users.length + 1}`,
       username: autoUsername,
+      password: formData.password || `${autoUsername}@99544`
     };
 
     setUsers([...users, newUser]);
@@ -123,6 +125,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       username: user.username,
       role: user.role,
       pin: user.pin,
+      password: user.password || `${user.username || 'staff'}@99544`,
       phone: user.phone || '',
       region: user.region || 'Silchar',
       status: user.status || 'Active',
@@ -145,7 +148,8 @@ export default function UsersModule({ users, setUsers, currentUser }) {
 
     setUsers(users.map(u => u.id === editingUser.id ? {
       ...formData,
-      id: editingUser.id
+      id: editingUser.id,
+      password: formData.password || u.password || `${u.username}@99544`
     } : u));
 
     setEditingUser(null);
@@ -169,6 +173,7 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       username: '',
       role: ROLE_DEFINITIONS[1].role,
       pin: '99544',
+      password: '',
       phone: '',
       region: 'Silchar & Cachar Circle',
       status: 'Active',
@@ -316,17 +321,26 @@ export default function UsersModule({ users, setUsers, currentUser }) {
                     <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">{u.region || 'Silchar'}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 col-span-2 pt-1 border-t border-slate-200/60">
-                    <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span>Staff Login PIN: </span>
-                    <strong className="font-mono text-slate-900 tracking-wider">
-                      {isRevealed ? u.pin : '••••'}
-                    </strong>
+                  <div className="flex flex-wrap items-center justify-between col-span-2 pt-1.5 border-t border-slate-200/60 gap-2 text-[11px]">
+                    <div className="flex items-center gap-1.5">
+                      <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="text-slate-500">PIN:</span>
+                      <strong className="font-mono text-slate-900 tracking-wider">
+                        {isRevealed ? u.pin : '••••'}
+                      </strong>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="text-slate-500">Pass:</span>
+                      <strong className="font-mono text-slate-900">
+                        {isRevealed ? (u.password || `${u.username}@99544`) : '••••••••'}
+                      </strong>
+                    </div>
                     <button
                       type="button"
                       onClick={() => togglePinVisibility(u.id)}
-                      className="p-1 text-slate-400 hover:text-slate-700 ml-1"
-                      title={isRevealed ? "Hide PIN" : "Show PIN"}
+                      className="p-1 text-slate-400 hover:text-slate-700 ml-auto"
+                      title={isRevealed ? "Hide Credentials" : "Show Credentials"}
                     >
                       {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -457,21 +471,49 @@ export default function UsersModule({ users, setUsers, currentUser }) {
                 </div>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1">
-                  Staff Login PIN (4 to 8 Digits) *
-                </label>
-                <input
-                  type="password"
-                  required
-                  maxLength="8"
-                  placeholder="Enter 4-digit PIN (e.g. 5678)"
-                  value={formData.pin}
-                  onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '') })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono tracking-widest text-slate-900 bg-white"
-                />
-                <p className="text-[10px] text-slate-400 mt-1">
-                  The staff member will enter this PIN at the website ERP login to access authorized modules.
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Security Credentials (2-Step Gate)
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+                    2-Factor Portal
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Step 1: Terminal PIN *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      maxLength="8"
+                      placeholder="e.g. 99544"
+                      value={formData.pin}
+                      onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '') })}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-mono tracking-widest text-slate-900 bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
+                      Step 2: Password *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. staff@99544"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-mono text-slate-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-slate-400">
+                  Staff member enters Terminal PIN first, then User ID (<span className="font-mono text-slate-700 font-bold">{formData.username || 'auto-generated'}</span>) and Password.
                 </p>
               </div>
 

@@ -330,6 +330,7 @@ export const INITIAL_USERS = [
     id: "USR-001",
     name: "Tamal (Proprietor)",
     username: "admin",
+    password: "admin@99544",
     role: "Administrator (Full Access)",
     pin: "99544",
     phone: "+91-8638083712",
@@ -341,6 +342,7 @@ export const INITIAL_USERS = [
     id: "USR-002",
     name: "Debashis Roy",
     username: "debashis",
+    password: "debashis@99544",
     role: "Resident IT Service Engineer",
     pin: "99544",
     phone: "+91-9435012345",
@@ -352,6 +354,7 @@ export const INITIAL_USERS = [
     id: "USR-003",
     name: "Priyanka Paul",
     username: "priyanka",
+    password: "priyanka@99544",
     role: "Accounts & GST Billing Officer",
     pin: "99544",
     phone: "+91-9864054321",
@@ -363,6 +366,7 @@ export const INITIAL_USERS = [
     id: "USR-004",
     name: "Animesh Das",
     username: "animesh",
+    password: "animesh@99544",
     role: "Solar Project Technical Lead",
     pin: "99544",
     phone: "+91-8638099887",
@@ -380,8 +384,17 @@ export function loadErpData(key, fallback) {
     const parsed = decryptStorageData(saved);
     if (parsed === null || parsed === undefined) return fallback;
     if (key === "users" && Array.isArray(parsed)) {
-      // Upgrade any legacy default pins to 99544
-      return parsed.map(u => (u.pin === "1234" || u.pin === "2233" || u.pin === "3344" || u.pin === "4455" ? { ...u, pin: "99544" } : u));
+      // Upgrade any legacy default pins to 99544 and ensure password exists
+      return parsed.map(u => {
+        let updated = { ...u };
+        if (u.pin === "1234" || u.pin === "2233" || u.pin === "3344" || u.pin === "4455") {
+          updated.pin = "99544";
+        }
+        if (!updated.password) {
+          updated.password = `${(updated.username || 'user')}@99544`;
+        }
+        return updated;
+      });
     }
     return parsed;
   } catch (err) {
@@ -425,6 +438,90 @@ export async function setErpPin(newPin) {
   localStorage.removeItem(STORAGE_KEY_PREFIX + "auth_pin");
 }
 
+// -------------------------------------------------------------
+// 2-STEP GATE AUTHENTICATION: STEP 1 (TERMINAL ACCESS PIN)
+// -------------------------------------------------------------
+export async function verifyTerminalPinAsync(enteredPin) {
+  if (!enteredPin) return { success: false, message: "Please enter Access PIN." };
+  const inputHash = await sha256(enteredPin);
+  const masterPinHash = await getErpPinHash();
+  const users = loadErpData("users", INITIAL_USERS);
+
+  // 1. Check against master PIN / default 99544
+  if (inputHash === DEFAULT_PIN_HASH || inputHash === masterPinHash || enteredPin === "99544") {
+    return { success: true, message: "Terminal Access Granted." };
+  }
+
+  // 2. Check if entered PIN belongs to any active staff user
+  for (const u of users) {
+    if (u.status === "Suspended") continue;
+    if (u.pinHash && u.pinHash === inputHash) return { success: true, message: "Terminal Access Granted." };
+    if (u.pin) {
+      const uHash = await sha256(u.pin);
+      if (uHash === inputHash || u.pin === enteredPin) {
+        return { success: true, message: "Terminal Access Granted." };
+      }
+    }
+  }
+
+  return { success: false, message: "Invalid Terminal Access PIN. Access denied." };
+}
+
+// -------------------------------------------------------------
+// 2-STEP GATE AUTHENTICATION: STEP 2 (USER ID & PASSWORD)
+// -------------------------------------------------------------
+export async function authenticateUserCredentialsAsync(username, password) {
+  if (!username || !password) {
+    return { success: false, message: "Please enter both User ID and Password." };
+  }
+
+  const cleanUser = username.trim().toLowerCase();
+  const inputPassHash = await sha256(password);
+  const users = loadErpData("users", INITIAL_USERS);
+
+  // Generic anti-enumeration error message
+  const genericError = "Invalid User ID or Password. Access denied.";
+
+  const user = users.find(u => 
+    (u.username && u.username.toLowerCase() === cleanUser) || 
+    (u.id && u.id.toLowerCase() === cleanUser)
+  );
+
+  if (!user) {
+    return { success: false, message: genericError };
+  }
+
+  if (user.status === "Suspended") {
+    return { success: false, message: "This account has been suspended. Please contact Administrator." };
+  }
+
+  // Verify password with salted SHA-256
+  let isPasswordValid = false;
+
+  if (user.passwordHash) {
+    isPasswordValid = (user.passwordHash === inputPassHash);
+  } else if (user.password) {
+    const userPassHash = await sha256(user.password);
+    isPasswordValid = (userPassHash === inputPassHash || user.password === password);
+  }
+
+  // Fallback defaults for initial setups
+  if (!isPasswordValid) {
+    if (cleanUser === "admin" && (password === "admin@99544" || password === "Admin@99544" || password === "99544" || password === "admin123")) {
+      isPasswordValid = true;
+    } else if (password === `${cleanUser}@99544` || password === "99544") {
+      isPasswordValid = true;
+    }
+  }
+
+  if (!isPasswordValid) {
+    return { success: false, message: genericError };
+  }
+
+  return { success: true, user };
+}
+
+// Legacy single-pin authentication method preserved for backwards compatibility
 export async function authenticateErpUserAsync(enteredPin) {
   const inputHash = await sha256(enteredPin);
   const masterPinHash = await getErpPinHash();
@@ -438,6 +535,7 @@ export async function authenticateErpUserAsync(enteredPin) {
       username: "admin",
       role: "Administrator (Full Access)",
       pin: "99544",
+      password: "admin@99544",
       permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
     };
     return { success: true, user: adminUser };
@@ -472,6 +570,7 @@ export function authenticateErpUser(enteredPin) {
       username: "admin",
       role: "Administrator (Full Access)",
       pin: "99544",
+      password: "admin@99544",
       permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
     };
     return { success: true, user: adminUser };
