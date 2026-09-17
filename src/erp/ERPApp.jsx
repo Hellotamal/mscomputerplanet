@@ -20,6 +20,12 @@ import {
   getErpPin,
   setErpPin
 } from './erpStorage';
+import { 
+  generateSecureSession, 
+  validateSecureSession, 
+  updateSessionActivity, 
+  terminateSecureSession 
+} from './erpSecurity';
 import TicketsModule from './TicketsModule';
 import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
@@ -74,17 +80,13 @@ import {
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem("mcp_erp_authenticated") === "true";
+  const [currentUser, setCurrentUser] = useState(() => {
+    const session = validateSecureSession();
+    return session ? session.user : null;
   });
 
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const saved = sessionStorage.getItem("mcp_erp_current_user");
-      return saved ? JSON.parse(saved) : null;
-    } catch (e) {
-      return null;
-    }
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!validateSecureSession();
   });
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -93,6 +95,40 @@ export default function ERPApp({ onExit }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isClientsExpanded, setIsClientsExpanded] = useState(true);
   const [isHrmsExpanded, setIsHrmsExpanded] = useState(false);
+
+  // Inactivity Auto-Lockout (15 minutes idle timeout)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let throttleTimer = null;
+    const handleUserActivity = () => {
+      if (!throttleTimer) {
+        throttleTimer = setTimeout(() => {
+          updateSessionActivity();
+          throttleTimer = null;
+        }, 5000);
+      }
+    };
+
+    const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    activityEvents.forEach(evt => window.addEventListener(evt, handleUserActivity, { passive: true }));
+
+    const sessionChecker = setInterval(() => {
+      const activeSession = validateSecureSession();
+      if (!activeSession) {
+        terminateSecureSession();
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+        alert("Security Auto-Lock: You have been logged out due to 15 minutes of inactivity.");
+      }
+    }, 15000);
+
+    return () => {
+      if (throttleTimer) clearTimeout(throttleTimer);
+      activityEvents.forEach(evt => window.removeEventListener(evt, handleUserActivity));
+      clearInterval(sessionChecker);
+    };
+  }, [isAuthenticated]);
 
   // Persistent States
   const [users, setUsers] = useState(() => loadErpData("users", INITIAL_USERS));
@@ -127,17 +163,13 @@ export default function ERPApp({ onExit }) {
   const [pinChangeMsg, setPinChangeMsg] = useState('');
 
   const handleLoginSuccess = (authenticatedUser) => {
-    sessionStorage.setItem("mcp_erp_authenticated", "true");
-    if (authenticatedUser) {
-      sessionStorage.setItem("mcp_erp_current_user", JSON.stringify(authenticatedUser));
-      setCurrentUser(authenticatedUser);
-    }
+    generateSecureSession(authenticatedUser);
+    setCurrentUser(authenticatedUser);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("mcp_erp_authenticated");
-    sessionStorage.removeItem("mcp_erp_current_user");
+    terminateSecureSession();
     setCurrentUser(null);
     setIsAuthenticated(false);
   };
@@ -173,17 +205,17 @@ export default function ERPApp({ onExit }) {
         setTransactions(loadErpData("transactions", INITIAL_TRANSACTIONS));
         alert("ERP Data successfully restored from backup!");
       } else {
-        alert("Invalid backup file format.");
+        alert("Invalid backup file format or security policy violation.");
       }
     };
     reader.readAsText(file);
   };
 
-  const handleUpdatePin = (e) => {
+  const handleUpdatePin = async (e) => {
     e.preventDefault();
     if (newPinInput.length >= 4) {
-      setErpPin(newPinInput);
-      setPinChangeMsg('PIN updated successfully!');
+      await setErpPin(newPinInput);
+      setPinChangeMsg('PIN updated successfully with salted SHA-256 hash!');
       setNewPinInput('');
       setTimeout(() => setPinChangeMsg(''), 3000);
     } else {

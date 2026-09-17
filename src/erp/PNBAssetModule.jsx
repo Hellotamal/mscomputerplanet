@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PNB_BRANCH_ASSETS } from '../data/pnbAssetData';
 import { loadErpData, saveErpData } from './erpStorage';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   Landmark, 
   Search, 
@@ -229,17 +230,17 @@ export default function PNBAssetModule() {
             <tbody>
               ${branches.map(b => `
                 <tr>
-                  <td class="text-center">${b.slNo}</td>
-                  <td>${b.be}</td>
-                  <td><strong>${b.branchName}</strong></td>
-                  <td class="text-center">${b.solId}</td>
-                  <td class="text-right">${b.desktop}</td>
-                  <td class="text-right">${b.passbook}</td>
-                  <td class="text-right">${b.laserjet}</td>
-                  <td class="text-right">${b.scanner}</td>
-                  <td class="text-right">${b.hsScanner}</td>
-                  <td class="text-right">${b.cashReceipt}</td>
-                  <td class="text-right"><strong>${b.total}</strong></td>
+                  <td class="text-center">${escapeHtml(b.slNo)}</td>
+                  <td>${escapeHtml(b.be)}</td>
+                  <td><strong>${escapeHtml(b.branchName)}</strong></td>
+                  <td class="text-center">${escapeHtml(b.solId)}</td>
+                  <td class="text-right">${Number(b.desktop) || 0}</td>
+                  <td class="text-right">${Number(b.passbook) || 0}</td>
+                  <td class="text-right">${Number(b.laserjet) || 0}</td>
+                  <td class="text-right">${Number(b.scanner) || 0}</td>
+                  <td class="text-right">${Number(b.hsScanner) || 0}</td>
+                  <td class="text-right">${Number(b.cashReceipt) || 0}</td>
+                  <td class="text-right"><strong>${Number(b.total) || 0}</strong></td>
                 </tr>
               `).join('')}
               <tr class="total-row">

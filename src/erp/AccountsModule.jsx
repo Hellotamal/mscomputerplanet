@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   IndianRupee, 
   Plus, 
@@ -209,25 +210,25 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
           
           <div class="meta-row">
             <div>
-              <strong>Voucher No:</strong> <span style="font-family: monospace; font-weight: bold;">${tx.id}</span><br>
-              <strong>Voucher Type:</strong> ${tx.voucherType} (${tx.type})
+              <strong>Voucher No:</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(tx.id)}</span><br>
+              <strong>Voucher Type:</strong> ${escapeHtml(tx.voucherType)} (${escapeHtml(tx.type)})
             </div>
             <div style="text-align: right;">
-              <strong>Date:</strong> ${tx.date}<br>
-              <strong>Payment Mode:</strong> ${tx.paymentMode}
+              <strong>Date:</strong> ${escapeHtml(tx.date)}<br>
+              <strong>Payment Mode:</strong> ${escapeHtml(tx.paymentMode)}
             </div>
           </div>
 
-          <p><strong>${tx.type === 'Income' ? 'Received with thanks from:' : 'Paid to:'}</strong> <span style="font-size: 15px; font-weight: bold;">${tx.party}</span></p>
-          <p><strong>Ledger Category:</strong> ${tx.category}</p>
-          ${tx.refNo ? `<p><strong>Reference / Cheque / UTR No:</strong> <span style="font-family: monospace;">${tx.refNo}</span></p>` : ''}
+          <p><strong>${tx.type === 'Income' ? 'Received with thanks from:' : 'Paid to:'}</strong> <span style="font-size: 15px; font-weight: bold;">${escapeHtml(tx.party)}</span></p>
+          <p><strong>Ledger Category:</strong> ${escapeHtml(tx.category)}</p>
+          ${tx.refNo ? `<p><strong>Reference / Cheque / UTR No:</strong> <span style="font-family: monospace;">${escapeHtml(tx.refNo)}</span></p>` : ''}
 
           <div class="amount-box">
             Amount: <span style="color: #059669; font-size: 18px;">₹${Number(tx.amount || 0).toLocaleString('en-IN')}</span>
             <div class="words">In Words: ${numberToIndianWords(Number(tx.amount || 0))}</div>
           </div>
 
-          <p><strong>Narration / Details:</strong><br>${tx.narration || 'General commercial transaction logged in ERP accounts register.'}</p>
+          <p><strong>Narration / Details:</strong><br>${escapeHtml(tx.narration || 'General commercial transaction logged in ERP accounts register.')}</p>
 
           <div class="footer-sign">
             <div>

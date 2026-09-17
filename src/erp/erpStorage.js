@@ -1,4 +1,11 @@
 // ERP Local Storage and Initial Seed Data for M/S COMPUTER PLANET
+import { 
+  sha256, 
+  DEFAULT_PIN_HASH, 
+  encryptStorageData, 
+  decryptStorageData, 
+  sanitizeImportPayload 
+} from './erpSecurity';
 
 const STORAGE_KEY_PREFIX = "mcp_erp_";
 
@@ -365,12 +372,13 @@ export const INITIAL_USERS = [
   }
 ];
 
-// Helper functions for LocalStorage management
+// Helper functions for LocalStorage management (Hardened with Obfuscated/Encrypted Payload Storage)
 export function loadErpData(key, fallback) {
   try {
     const saved = localStorage.getItem(STORAGE_KEY_PREFIX + key);
     if (!saved) return fallback;
-    const parsed = JSON.parse(saved);
+    const parsed = decryptStorageData(saved);
+    if (parsed === null || parsed === undefined) return fallback;
     if (key === "users" && Array.isArray(parsed)) {
       // Upgrade any legacy default pins to 99544
       return parsed.map(u => (u.pin === "1234" || u.pin === "2233" || u.pin === "3344" || u.pin === "4455" ? { ...u, pin: "99544" } : u));
@@ -384,10 +392,25 @@ export function loadErpData(key, fallback) {
 
 export function saveErpData(key, data) {
   try {
-    localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(data));
+    const payload = encryptStorageData(data);
+    localStorage.setItem(STORAGE_KEY_PREFIX + key, payload);
   } catch (err) {
     console.error("Failed to save ERP data for", key, err);
   }
+}
+
+export async function getErpPinHash() {
+  const saved = localStorage.getItem(STORAGE_KEY_PREFIX + "auth_pin_hash");
+  if (saved) return saved;
+  // Legacy migration check: if plaintext pin was stored previously
+  const oldPlain = localStorage.getItem(STORAGE_KEY_PREFIX + "auth_pin");
+  if (oldPlain) {
+    const hashed = await sha256(oldPlain);
+    localStorage.setItem(STORAGE_KEY_PREFIX + "auth_pin_hash", hashed);
+    localStorage.removeItem(STORAGE_KEY_PREFIX + "auth_pin");
+    return hashed;
+  }
+  return DEFAULT_PIN_HASH;
 }
 
 export function getErpPin() {
@@ -396,16 +419,19 @@ export function getErpPin() {
   return saved;
 }
 
-export function setErpPin(newPin) {
-  localStorage.setItem(STORAGE_KEY_PREFIX + "auth_pin", newPin);
+export async function setErpPin(newPin) {
+  const hashed = await sha256(newPin);
+  localStorage.setItem(STORAGE_KEY_PREFIX + "auth_pin_hash", hashed);
+  localStorage.removeItem(STORAGE_KEY_PREFIX + "auth_pin");
 }
 
-export function authenticateErpUser(enteredPin) {
-  const masterPin = getErpPin();
+export async function authenticateErpUserAsync(enteredPin) {
+  const inputHash = await sha256(enteredPin);
+  const masterPinHash = await getErpPinHash();
   const users = loadErpData("users", INITIAL_USERS);
 
-  // 1. If entered fixed default PIN 99544 or current master PIN
-  if (enteredPin === "99544" || enteredPin === masterPin) {
+  // 1. Check against salted master PIN hash or default PIN hash
+  if (inputHash === DEFAULT_PIN_HASH || inputHash === masterPinHash || enteredPin === "99544") {
     const adminUser = users.find(u => u.role.includes("Admin") && u.status !== "Suspended") || {
       id: "USR-001",
       name: "Tamal (Proprietor)",
@@ -418,6 +444,38 @@ export function authenticateErpUser(enteredPin) {
   }
 
   // 2. Check if matches any specific staff user
+  for (const u of users) {
+    let matches = false;
+    if (u.pinHash) {
+      matches = (u.pinHash === inputHash);
+    } else if (u.pin) {
+      const uHash = await sha256(u.pin);
+      matches = (uHash === inputHash || u.pin === enteredPin);
+    }
+    if (matches) {
+      if (u.status === "Suspended") {
+        return { success: false, message: "This staff user account is currently suspended. Please contact Administrator." };
+      }
+      return { success: true, user: u };
+    }
+  }
+
+  return { success: false, message: "Invalid Access PIN. Access denied." };
+}
+
+export function authenticateErpUser(enteredPin) {
+  const users = loadErpData("users", INITIAL_USERS);
+  if (enteredPin === "99544") {
+    const adminUser = users.find(u => u.role.includes("Admin") && u.status !== "Suspended") || {
+      id: "USR-001",
+      name: "Tamal (Proprietor)",
+      username: "admin",
+      role: "Administrator (Full Access)",
+      pin: "99544",
+      permissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
+    };
+    return { success: true, user: adminUser };
+  }
   const matchedUser = users.find(u => u.pin === enteredPin);
   if (matchedUser) {
     if (matchedUser.status === "Suspended") {
@@ -425,7 +483,6 @@ export function authenticateErpUser(enteredPin) {
     }
     return { success: true, user: matchedUser };
   }
-
   return { success: false, message: "Invalid Access PIN. Access denied." };
 }
 
@@ -1071,20 +1128,25 @@ export function exportAllErpData() {
 
 export function importAllErpData(jsonString) {
   try {
-    const data = JSON.parse(jsonString);
-    if (data.users) saveErpData("users", data.users);
-    if (data.employees) saveErpData("employees", data.employees);
-    if (data.leaves) saveErpData("leaves", data.leaves);
-    if (data.payroll) saveErpData("payroll", data.payroll);
-    if (data.fieldVisits) saveErpData("field_visits", data.fieldVisits);
-    if (data.clients) saveErpData("clients", data.clients);
-    if (data.transactions) saveErpData("transactions", data.transactions);
-    if (data.tickets) saveErpData("tickets", data.tickets);
-    if (data.amc) saveErpData("amc", data.amc);
-    if (data.inventory) saveErpData("inventory", data.inventory);
-    if (data.invoices) saveErpData("invoices", data.invoices);
-    if (data.quotations) saveErpData("quotations", data.quotations);
-    if (data.solarProjects) saveErpData("solar_projects", data.solarProjects);
+    const raw = JSON.parse(jsonString);
+    const data = sanitizeImportPayload(raw);
+    if (!data) {
+      console.error("Payload validation failed: Malformed or untrusted structure");
+      return false;
+    }
+    if (data.users && Array.isArray(data.users)) saveErpData("users", data.users);
+    if (data.employees && Array.isArray(data.employees)) saveErpData("employees", data.employees);
+    if (data.leaves && Array.isArray(data.leaves)) saveErpData("leaves", data.leaves);
+    if (data.payroll && Array.isArray(data.payroll)) saveErpData("payroll", data.payroll);
+    if (data.fieldVisits && Array.isArray(data.fieldVisits)) saveErpData("field_visits", data.fieldVisits);
+    if (data.clients && Array.isArray(data.clients)) saveErpData("clients", data.clients);
+    if (data.transactions && Array.isArray(data.transactions)) saveErpData("transactions", data.transactions);
+    if (data.tickets && Array.isArray(data.tickets)) saveErpData("tickets", data.tickets);
+    if (data.amc && Array.isArray(data.amc)) saveErpData("amc", data.amc);
+    if (data.inventory && Array.isArray(data.inventory)) saveErpData("inventory", data.inventory);
+    if (data.invoices && Array.isArray(data.invoices)) saveErpData("invoices", data.invoices);
+    if (data.quotations && Array.isArray(data.quotations)) saveErpData("quotations", data.quotations);
+    if (data.solarProjects && Array.isArray(data.solarProjects)) saveErpData("solar_projects", data.solarProjects);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     return true;
   } catch (err) {

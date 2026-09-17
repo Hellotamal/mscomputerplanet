@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import PNBAssetModule from './PNBAssetModule';
 import { 
   Building2, 
@@ -158,31 +159,31 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
         
         <div style="margin: 15px 0; border-bottom: 2px solid #0f172a; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <h2 style="margin: 0; font-size: 18px; color: #0f172a;">${client.name}</h2>
-            <div style="color: #64748b; font-size: 12px; margin-top: 2px;">Client ID: <strong>${client.id}</strong> | Category: <span class="badge badge-${client.category.toLowerCase()}">${client.category}</span></div>
+            <h2 style="margin: 0; font-size: 18px; color: #0f172a;">${escapeHtml(client.name)}</h2>
+            <div style="color: #64748b; font-size: 12px; margin-top: 2px;">Client ID: <strong>${escapeHtml(client.id)}</strong> | Category: <span class="badge badge-${escapeHtml(client.category.toLowerCase())}">${escapeHtml(client.category)}</span></div>
           </div>
           <div style="text-align: right;">
             <div style="font-size: 12px; color: #64748b;">Contract Status</div>
-            <strong style="color: #059669; font-size: 14px;">${client.status}</strong>
+            <strong style="color: #059669; font-size: 14px;">${escapeHtml(client.status)}</strong>
           </div>
         </div>
 
         <div class="grid">
           <div class="card">
             <h4 style="margin: 0 0 8px 0; color: #334155; font-size: 12px; text-transform: uppercase;">Contact & Location</h4>
-            <div><strong>Contact Person:</strong> ${client.contactPerson || 'N/A'}</div>
-            <div><strong>Phone Number:</strong> ${client.phone || 'N/A'}</div>
-            <div><strong>Email Address:</strong> ${client.email || 'N/A'}</div>
-            <div><strong>Physical Address:</strong> ${client.address || 'Silchar, Assam'}</div>
+            <div><strong>Contact Person:</strong> ${escapeHtml(client.contactPerson || 'N/A')}</div>
+            <div><strong>Phone Number:</strong> ${escapeHtml(client.phone || 'N/A')}</div>
+            <div><strong>Email Address:</strong> ${escapeHtml(client.email || 'N/A')}</div>
+            <div><strong>Physical Address:</strong> ${escapeHtml(client.address || 'Silchar, Assam')}</div>
           </div>
 
           <div class="card">
             <h4 style="margin: 0 0 8px 0; color: #334155; font-size: 12px; text-transform: uppercase;">Contract & Asset Metrics</h4>
-            <div><strong>Agreement Type:</strong> ${client.contractType || 'Standard Contract'}</div>
-            <div><strong>Total Managed Branches/Sites:</strong> ${client.branchesCount}</div>
-            <div><strong>Total Hardware Units:</strong> ${client.assetsCount} Units</div>
+            <div><strong>Agreement Type:</strong> ${escapeHtml(client.contractType || 'Standard Contract')}</div>
+            <div><strong>Total Managed Branches/Sites:</strong> ${Number(client.branchesCount) || 0}</div>
+            <div><strong>Total Hardware Units:</strong> ${Number(client.assetsCount) || 0} Units</div>
             <div><strong>Total Agreement Value:</strong> ₹${Number(client.contractValue || 0).toLocaleString('en-IN')}</div>
-            <div><strong>Validity Period:</strong> ${client.startDate} to ${client.expiryDate}</div>
+            <div><strong>Validity Period:</strong> ${escapeHtml(client.startDate)} to ${escapeHtml(client.expiryDate)}</div>
           </div>
         </div>
 
@@ -196,7 +197,7 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
           <tbody>
             <tr>
               <td><strong>Service Category</strong></td>
-              <td>${client.category} Support & Engineering</td>
+              <td>${escapeHtml(client.category)} Support & Engineering</td>
             </tr>
             <tr>
               <td><strong>SLA Turnaround Priority</strong></td>
@@ -208,7 +209,7 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
             </tr>
             <tr>
               <td><strong>Operational Notes / Scope</strong></td>
-              <td>${client.notes || 'All routine maintenance and hardware health checks logged in ERP.'}</td>
+              <td>${escapeHtml(client.notes || 'All routine maintenance and hardware health checks logged in ERP.')}</td>
             </tr>
           </tbody>
         </table>

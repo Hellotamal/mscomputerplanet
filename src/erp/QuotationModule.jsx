@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   ClipboardList, 
   Plus, 
@@ -363,20 +364,20 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
           <div class="meta-grid">
             <div class="box">
               <div class="box-title">Client / Recipient Details</div>
-              <div style="font-weight: bold; font-size: 13px; color: #0f172a;">${quote.clientName}</div>
-              ${quote.contactPerson ? `<div><strong>Attn:</strong> ${quote.contactPerson}</div>` : ''}
-              <div style="margin-top: 2px;">${quote.clientAddress || 'Silchar, Cachar, Assam'}</div>
-              ${quote.clientPhone ? `<div><strong>Phone:</strong> ${quote.clientPhone}</div>` : ''}
-              ${quote.clientEmail ? `<div><strong>Email:</strong> ${quote.clientEmail}</div>` : ''}
-              ${quote.clientGst ? `<div style="margin-top: 3px;"><strong>GSTIN:</strong> ${quote.clientGst}</div>` : ''}
+              <div style="font-weight: bold; font-size: 13px; color: #0f172a;">${escapeHtml(quote.clientName)}</div>
+              ${quote.contactPerson ? `<div><strong>Attn:</strong> ${escapeHtml(quote.contactPerson)}</div>` : ''}
+              <div style="margin-top: 2px;">${escapeHtml(quote.clientAddress || 'Silchar, Cachar, Assam')}</div>
+              ${quote.clientPhone ? `<div><strong>Phone:</strong> ${escapeHtml(quote.clientPhone)}</div>` : ''}
+              ${quote.clientEmail ? `<div><strong>Email:</strong> ${escapeHtml(quote.clientEmail)}</div>` : ''}
+              ${quote.clientGst ? `<div style="margin-top: 3px;"><strong>GSTIN:</strong> ${escapeHtml(quote.clientGst)}</div>` : ''}
             </div>
             <div class="box">
               <div class="box-title">Proposal & Validity Particulars</div>
-              <div><strong>Quotation No:</strong> <span style="font-family: monospace; font-weight: bold;">${quote.id}</span></div>
-              <div><strong>Quotation Date:</strong> ${quote.date}</div>
-              <div><strong>Proposal Validity:</strong> <span style="color: #b45309; font-weight: bold;">Valid until ${quote.validUntil}</span></div>
-              <div><strong>Service Category:</strong> ${quote.category}</div>
-              <div><strong>Place of Supply:</strong> ${quote.placeOfSupply || 'Assam (18)'}</div>
+              <div><strong>Quotation No:</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(quote.id)}</span></div>
+              <div><strong>Quotation Date:</strong> ${escapeHtml(quote.date)}</div>
+              <div><strong>Proposal Validity:</strong> <span style="color: #b45309; font-weight: bold;">Valid until ${escapeHtml(quote.validUntil)}</span></div>
+              <div><strong>Service Category:</strong> ${escapeHtml(quote.category)}</div>
+              <div><strong>Place of Supply:</strong> ${escapeHtml(quote.placeOfSupply || 'Assam (18)')}</div>
               <div><strong>Tax Type:</strong> ${isInterState ? 'Inter-State (IGST Applicable)' : 'Intra-State (CGST + SGST Applicable)'}</div>
             </div>
           </div>
@@ -397,12 +398,12 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
               ${quote.items.map((it, idx) => `
                 <tr>
                   <td class="text-center">${idx + 1}</td>
-                  <td><strong>${it.desc}</strong></td>
-                  <td class="text-center font-mono">${it.hsn || '9987'}</td>
-                  <td class="text-right">${it.qty}</td>
-                  <td class="text-center">${it.unit || 'Nos'}</td>
-                  <td class="text-right">${Number(it.rate).toLocaleString('en-IN')}</td>
-                  <td class="text-right">${(Number(it.qty) * Number(it.rate)).toLocaleString('en-IN')}</td>
+                  <td><strong>${escapeHtml(it.desc)}</strong></td>
+                  <td class="text-center font-mono">${escapeHtml(it.hsn || '9987')}</td>
+                  <td class="text-right">${Number(it.qty) || 0}</td>
+                  <td class="text-center">${escapeHtml(it.unit || 'Nos')}</td>
+                  <td class="text-right">${Number(it.rate || 0).toLocaleString('en-IN')}</td>
+                  <td class="text-right">${((Number(it.qty) || 0) * (Number(it.rate) || 0)).toLocaleString('en-IN')}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -450,7 +451,7 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
           ${quote.terms ? `
             <div class="terms-box">
               <div class="terms-title">Commercial Terms & Conditions</div>
-              <div style="white-space: pre-line; color: #334155;">${quote.terms}</div>
+              <div style="white-space: pre-line; color: #334155;">${escapeHtml(quote.terms)}</div>
             </div>
           ` : ''}
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   Wrench, 
   Plus, 
@@ -143,20 +144,20 @@ Chincoorie, Silchar, Cachar, Assam - 788007
         </head>
         <body>
           ${getCompanyPrintHeaderHtml({
-            documentTitle: `SERVICE JOB SLIP: ${ticket.id}`,
-            rightBadgeText: ticket.id,
+            documentTitle: `SERVICE JOB SLIP: ${escapeHtml(ticket.id)}`,
+            rightBadgeText: escapeHtml(ticket.id),
             rightBadgeSubtext: 'SERVICE TICKET'
           })}
-          <p><strong>Date:</strong> ${ticket.reportedDate} | <strong>Priority:</strong> ${ticket.priority}</p>
-          <p><strong>Customer / Branch:</strong> ${ticket.clientName} (${ticket.contactPerson || 'N/A'})</p>
-          <p><strong>Phone:</strong> ${ticket.phone || 'N/A'}</p>
-          <p><strong>Service Type:</strong> ${ticket.type}</p>
-          <p><strong>Assigned Engineer:</strong> ${ticket.assignedTo}</p>
+          <p><strong>Date:</strong> ${escapeHtml(ticket.reportedDate)} | <strong>Priority:</strong> ${escapeHtml(ticket.priority)}</p>
+          <p><strong>Customer / Branch:</strong> ${escapeHtml(ticket.clientName)} (${escapeHtml(ticket.contactPerson || 'N/A')})</p>
+          <p><strong>Phone:</strong> ${escapeHtml(ticket.phone || 'N/A')}</p>
+          <p><strong>Service Type:</strong> ${escapeHtml(ticket.type)}</p>
+          <p><strong>Assigned Engineer:</strong> ${escapeHtml(ticket.assignedTo)}</p>
           <div class="box">
             <div class="label">Reported Fault / Requirement:</div>
-            <div>${ticket.description}</div>
+            <div>${escapeHtml(ticket.description)}</div>
           </div>
-          ${ticket.resolution ? `<div style="margin-top: 10px;"><strong>Action Taken / Resolution:</strong> ${ticket.resolution}</div>` : ''}
+          ${ticket.resolution ? `<div style="margin-top: 10px;"><strong>Action Taken / Resolution:</strong> ${escapeHtml(ticket.resolution)}</div>` : ''}
           <div style="margin-top: 40px; display: flex; justify-content: space-between;">
             <div>Customer Signature: __________________</div>
             <div>Engineer Signature: __________________</div>

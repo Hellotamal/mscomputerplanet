@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   FileText, 
   Download, 
@@ -334,7 +335,7 @@ export default function ReportsModule({
         
         <div class="report-meta">
           <div>
-            <strong>Report:</strong> ${selectedReport.title} (${selectedReport.categoryName})<br>
+            <strong>Report:</strong> ${escapeHtml(selectedReport.title)} (${escapeHtml(selectedReport.categoryName)})<br>
             <span style="color: #64748b;">Generated from ERP Operations System</span>
           </div>
           <div style="text-align: right;">
@@ -347,14 +348,14 @@ export default function ReportsModule({
           <thead>
             <tr>
               <th>#</th>
-              ${headers.map(h => `<th>${h}</th>`).join('')}
+              ${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}
             </tr>
           </thead>
           <tbody>
             ${filteredReportData.map((row, idx) => `
               <tr>
                 <td>${idx + 1}</td>
-                ${headers.map(h => `<td>${row[h]}</td>`).join('')}
+                ${headers.map(h => `<td>${escapeHtml(row[h])}</td>`).join('')}
               </tr>
             `).join('')}
           </tbody>

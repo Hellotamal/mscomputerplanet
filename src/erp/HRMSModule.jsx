@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { loadErpData, saveErpData, INITIAL_FIELD_VISITS } from './erpStorage';
 import { 
   Users, 
@@ -431,20 +432,20 @@ export default function HRMSModule({
         </head>
         <body>
           ${getCompanyPrintHeaderHtml({
-            documentTitle: `FIELD DUTY & BRANCH VISIT CONFIRMATION: ${visit.id}`,
-            rightBadgeText: visit.id,
+            documentTitle: `FIELD DUTY & BRANCH VISIT CONFIRMATION: ${escapeHtml(visit.id)}`,
+            rightBadgeText: escapeHtml(visit.id),
             rightBadgeSubtext: 'ON-SITE VERIFICATION'
           })}
 
           <table>
-            <tr><th>Visit Reference No</th><td><strong>${visit.id}</strong></td></tr>
-            <tr><th>Service Engineer</th><td>${visit.employeeName} (${visit.empId})</td></tr>
-            <tr><th>Visit Date & Time</th><td>${visit.date} at ${visit.time}</td></tr>
-            <tr><th>Client / Branch Location</th><td><strong>${visit.branch}</strong></td></tr>
-            <tr><th>Activity / Work Carried Out</th><td>${visit.activity}</td></tr>
-            <tr><th>GPS Satellite Coordinates</th><td><span style="font-family: monospace;">${visit.coords || 'Verified On-Site'}</span></td></tr>
-            <tr><th>Duty Status</th><td><span style="font-weight: bold; color: #059669;">${visit.status}</span></td></tr>
-            <tr><th>Engineer Remarks</th><td>${visit.remarks || 'Standard on-site preventive checkup and customer verification completed.'}</td></tr>
+            <tr><th>Visit Reference No</th><td><strong>${escapeHtml(visit.id)}</strong></td></tr>
+            <tr><th>Service Engineer</th><td>${escapeHtml(visit.employeeName)} (${escapeHtml(visit.empId)})</td></tr>
+            <tr><th>Visit Date & Time</th><td>${escapeHtml(visit.date)} at ${escapeHtml(visit.time)}</td></tr>
+            <tr><th>Client / Branch Location</th><td><strong>${escapeHtml(visit.branch)}</strong></td></tr>
+            <tr><th>Activity / Work Carried Out</th><td>${escapeHtml(visit.activity)}</td></tr>
+            <tr><th>GPS Satellite Coordinates</th><td><span style="font-family: monospace;">${escapeHtml(visit.coords || 'Verified On-Site')}</span></td></tr>
+            <tr><th>Duty Status</th><td><span style="font-weight: bold; color: #059669;">${escapeHtml(visit.status)}</span></td></tr>
+            <tr><th>Engineer Remarks</th><td>${escapeHtml(visit.remarks || 'Standard on-site preventive checkup and customer verification completed.')}</td></tr>
           </table>
 
           <div style="margin-top: 50px; display: flex; justify-content: space-between;">
@@ -776,25 +777,25 @@ Support Helpline: +91-8638083712`;
         </head>
         <body>
           ${getCompanyPrintHeaderHtml({
-            documentTitle: `SALARY PAYSLIP FOR ${p.month}`,
-            rightBadgeText: p.empId,
+            documentTitle: `SALARY PAYSLIP FOR ${escapeHtml(p.month)}`,
+            rightBadgeText: escapeHtml(p.empId),
             rightBadgeSubtext: 'CONFIDENTIAL PAYSLIP'
           })}
 
           <div class="meta-grid">
             <div class="box">
-              <div><strong>Employee ID:</strong> ${p.empId}</div>
-              <div><strong>Employee Name:</strong> ${p.employeeName}</div>
-              <div><strong>Designation:</strong> ${p.designation}</div>
-              <div><strong>Department:</strong> ${emp.department || 'Technical Operations'}</div>
-              <div><strong>Circle Coverage:</strong> ${emp.assignedCircle || 'Silchar Circle'}</div>
+              <div><strong>Employee ID:</strong> ${escapeHtml(p.empId)}</div>
+              <div><strong>Employee Name:</strong> ${escapeHtml(p.employeeName)}</div>
+              <div><strong>Designation:</strong> ${escapeHtml(p.designation)}</div>
+              <div><strong>Department:</strong> ${escapeHtml(emp.department || 'Technical Operations')}</div>
+              <div><strong>Circle Coverage:</strong> ${escapeHtml(emp.assignedCircle || 'Silchar Circle')}</div>
             </div>
             <div class="box">
-              <div><strong>Payment Date:</strong> ${p.paidDate || 'N/A'}</div>
-              <div><strong>Payment Mode:</strong> ${p.paymentMode}</div>
-              <div><strong>Bank Name:</strong> ${emp.bankDetails?.bankName || 'Punjab National Bank'}</div>
-              <div><strong>Account No:</strong> ${emp.bankDetails?.accountNo || 'Direct Transfer'}</div>
-              <div><strong>IFSC Code:</strong> ${emp.bankDetails?.ifsc || 'PUNB0074300'}</div>
+              <div><strong>Payment Date:</strong> ${escapeHtml(p.paidDate || 'N/A')}</div>
+              <div><strong>Payment Mode:</strong> ${escapeHtml(p.paymentMode)}</div>
+              <div><strong>Bank Name:</strong> ${escapeHtml(emp.bankDetails?.bankName || 'Punjab National Bank')}</div>
+              <div><strong>Account No:</strong> ${escapeHtml(emp.bankDetails?.accountNo || 'Direct Transfer')}</div>
+              <div><strong>IFSC Code:</strong> ${escapeHtml(emp.bankDetails?.ifsc || 'PUNB0074300')}</div>
             </div>
           </div>
 
@@ -810,33 +811,33 @@ Support Helpline: +91-8638083712`;
             <tbody>
               <tr>
                 <td>Basic Salary</td>
-                <td class="text-right">${p.basic.toLocaleString('en-IN')}</td>
+                <td class="text-right">${Number(p.basic || 0).toLocaleString('en-IN')}</td>
                 <td>Provident / Advance Recovery</td>
-                <td class="text-right">${p.deductions.toLocaleString('en-IN')}</td>
+                <td class="text-right">${Number(p.deductions || 0).toLocaleString('en-IN')}</td>
               </tr>
               <tr>
                 <td>House Rent Allowance (HRA)</td>
-                <td class="text-right">${p.hra.toLocaleString('en-IN')}</td>
+                <td class="text-right">${Number(p.hra || 0).toLocaleString('en-IN')}</td>
                 <td>Professional Tax (PT)</td>
                 <td class="text-right">₹0</td>
               </tr>
               <tr>
                 <td>Field Duty & Conveyance Allowance</td>
-                <td class="text-right">${p.fieldAllowance.toLocaleString('en-IN')}</td>
+                <td class="text-right">${Number(p.fieldAllowance || 0).toLocaleString('en-IN')}</td>
                 <td>-</td>
                 <td class="text-right">-</td>
               </tr>
               <tr>
                 <td>Performance & SLA Incentive</td>
-                <td class="text-right">${p.incentive.toLocaleString('en-IN')}</td>
+                <td class="text-right">${Number(p.incentive || 0).toLocaleString('en-IN')}</td>
                 <td>-</td>
                 <td class="text-right">-</td>
               </tr>
               <tr class="total-row">
                 <td>Gross Total Earnings</td>
-                <td class="text-right">₹${p.grossSalary.toLocaleString('en-IN')}</td>
+                <td class="text-right">₹${Number(p.grossSalary || 0).toLocaleString('en-IN')}</td>
                 <td>Total Deductions</td>
-                <td class="text-right">₹${p.deductions.toLocaleString('en-IN')}</td>
+                <td class="text-right">₹${Number(p.deductions || 0).toLocaleString('en-IN')}</td>
               </tr>
             </tbody>
           </table>
@@ -844,10 +845,10 @@ Support Helpline: +91-8638083712`;
           <div class="net-box">
             <div>
               <strong style="font-size: 14px; color: #15803d;">NET PAYABLE SALARY DISBURSED:</strong>
-              <div style="font-size: 11px; color: #4b5563;">Status: ${p.status} (Transferred to staff account)</div>
+              <div style="font-size: 11px; color: #4b5563;">Status: ${escapeHtml(p.status)} (Transferred to staff account)</div>
             </div>
             <div style="font-size: 20px; font-weight: 900; color: #15803d;">
-              ₹${p.netSalary.toLocaleString('en-IN')}
+              ₹${Number(p.netSalary || 0).toLocaleString('en-IN')}
             </div>
           </div>
 

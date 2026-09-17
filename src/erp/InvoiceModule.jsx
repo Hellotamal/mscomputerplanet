@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
+import { escapeHtml } from './erpSecurity';
 import { 
   FileText, 
   Plus, 
@@ -232,18 +233,18 @@ Support Helpline: +91-8638083712`;
           <div class="meta-grid">
             <div class="box">
               <div class="box-title">Billed To (Customer Details)</div>
-              <div style="font-weight: bold; font-size: 13px; color: #0f172a;">${inv.clientName}</div>
-              <div style="margin-top: 2px;">${inv.clientAddress || 'Silchar, Cachar, Assam'}</div>
-              ${inv.clientPhone ? `<div>Phone: ${inv.clientPhone}</div>` : ''}
-              <div style="margin-top: 3px;"><strong>GSTIN / UIN:</strong> ${inv.clientGst || 'Unregistered / End Consumer'}</div>
+              <div style="font-weight: bold; font-size: 13px; color: #0f172a;">${escapeHtml(inv.clientName)}</div>
+              <div style="margin-top: 2px;">${escapeHtml(inv.clientAddress || 'Silchar, Cachar, Assam')}</div>
+              ${inv.clientPhone ? `<div>Phone: ${escapeHtml(inv.clientPhone)}</div>` : ''}
+              <div style="margin-top: 3px;"><strong>GSTIN / UIN:</strong> ${escapeHtml(inv.clientGst || 'Unregistered / End Consumer')}</div>
             </div>
             <div class="box">
               <div class="box-title">Invoice & Supply Particulars</div>
-              <div><strong>Invoice No:</strong> <span style="font-family: monospace; font-weight: bold;">${inv.id}</span></div>
-              <div><strong>Invoice Date:</strong> ${inv.invoiceDate}</div>
-              <div><strong>Place of Supply:</strong> ${inv.placeOfSupply || 'Assam (18)'}</div>
+              <div><strong>Invoice No:</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(inv.id)}</span></div>
+              <div><strong>Invoice Date:</strong> ${escapeHtml(inv.invoiceDate)}</div>
+              <div><strong>Place of Supply:</strong> ${escapeHtml(inv.placeOfSupply || 'Assam (18)')}</div>
               <div><strong>Supply Type:</strong> ${isInterState ? 'Inter-State (IGST Applicable)' : 'Intra-State (CGST + SGST Applicable)'}</div>
-              <div><strong>Payment Status:</strong> <span style="font-weight: bold; color: #059669;">${inv.status}</span></div>
+              <div><strong>Payment Status:</strong> <span style="font-weight: bold; color: #059669;">${escapeHtml(inv.status)}</span></div>
             </div>
           </div>
 
@@ -262,11 +263,11 @@ Support Helpline: +91-8638083712`;
               ${inv.items.map((it, idx) => `
                 <tr>
                   <td class="text-center">${idx + 1}</td>
-                  <td><strong>${it.desc}</strong></td>
-                  <td class="text-center font-mono">${it.hsn || '9987'}</td>
-                  <td class="text-right">${it.qty}</td>
-                  <td class="text-right">${Number(it.rate).toLocaleString('en-IN')}</td>
-                  <td class="text-right">${(Number(it.qty) * Number(it.rate)).toLocaleString('en-IN')}</td>
+                  <td><strong>${escapeHtml(it.desc)}</strong></td>
+                  <td class="text-center font-mono">${escapeHtml(it.hsn || '9987')}</td>
+                  <td class="text-right">${Number(it.qty) || 0}</td>
+                  <td class="text-right">${Number(it.rate || 0).toLocaleString('en-IN')}</td>
+                  <td class="text-right">${((Number(it.qty) || 0) * (Number(it.rate) || 0)).toLocaleString('en-IN')}</td>
                 </tr>
               `).join('')}
             </tbody>
