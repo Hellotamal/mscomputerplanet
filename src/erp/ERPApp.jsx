@@ -54,7 +54,13 @@ import {
   UserCheck,
   Briefcase,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronDown,
+  Menu,
+  X,
+  MapPin,
+  Calendar,
+  CalendarDays
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -72,6 +78,9 @@ export default function ERPApp({ onExit }) {
   });
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [hrmsSubTab, setHrmsSubTab] = useState('directory');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHrmsExpanded, setIsHrmsExpanded] = useState(true);
 
   // Persistent States
   const [users, setUsers] = useState(() => loadErpData("users", INITIAL_USERS));
@@ -100,24 +109,6 @@ export default function ERPApp({ onExit }) {
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
   const [pinChangeMsg, setPinChangeMsg] = useState('');
-
-  // Horizontal Tab Scroll Ref & Handlers
-  const navTabsRef = useRef(null);
-
-  const scrollTabs = (direction) => {
-    if (navTabsRef.current) {
-      const scrollAmount = direction === 'left' ? -260 : 260;
-      navTabsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  const handleTabsWheel = (e) => {
-    if (navTabsRef.current) {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        navTabsRef.current.scrollLeft += e.deltaY;
-      }
-    }
-  };
 
   const handleLoginSuccess = (authenticatedUser) => {
     sessionStorage.setItem("mcp_erp_authenticated", "true");
@@ -192,152 +183,322 @@ export default function ERPApp({ onExit }) {
   const totalSolarKw = solarProjects.reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0);
   const openTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
   const pendingQuotesCount = quotations.filter(q => q.status === 'Sent' || q.status === 'Draft').length;
-
-  const allNavTabs = [
-    { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
-    { id: 'pnb_assets', name: 'PNB Asset Matrix', icon: Landmark, badge: '543' },
-    { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null },
-    { id: 'amc', name: 'AMC Contracts', icon: Building2 },
-    { id: 'inventory', name: 'Inventory & Spares', icon: Package },
-    { id: 'invoices', name: 'GST Invoices', icon: FileText },
-    { id: 'quotations', name: 'Quotations', icon: ClipboardList, badge: pendingQuotesCount > 0 ? pendingQuotesCount : null },
-    { id: 'solar', name: 'Solar Projects', icon: SunMedium },
-    { id: 'users', name: 'Staff & Roles', icon: Users, badge: users.length },
-    { id: 'hrms', name: 'Staff HRMS', icon: Briefcase, badge: employees.length },
-    { id: 'settings', name: 'Data & Settings', icon: Settings },
-  ];
+  const pendingLeavesCount = leaves.filter(l => l.status === 'Pending').length;
 
   // Filter tabs based on currentUser permissions if set
-  const navTabs = allNavTabs.filter(tab => {
+  const hasTabPermission = (tabId) => {
     if (!currentUser || !currentUser.permissions || currentUser.permissions.length === 0) return true;
-    return currentUser.permissions.includes(tab.id);
-  });
+    return currentUser.permissions.includes(tabId);
+  };
+
+  // Left Sidebar Menu & Submenu Navigation Hierarchy
+  const navSections = [
+    {
+      title: "Core Overview",
+      items: [
+        { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard }
+      ]
+    },
+    {
+      title: "Banking & Operations",
+      items: [
+        { id: 'pnb_assets', name: 'PNB Asset Matrix', icon: Landmark, badge: '543', badgeColor: 'bg-amber-500 text-slate-950' },
+        { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null, badgeColor: 'bg-rose-500 text-white' },
+        { id: 'amc', name: 'AMC Contracts', icon: Building2 },
+        { id: 'inventory', name: 'Inventory & Spares', icon: Package },
+        { id: 'solar', name: 'Solar Projects', icon: SunMedium }
+      ]
+    },
+    {
+      title: "Sales & Finance",
+      items: [
+        { id: 'quotations', name: 'Quotations', icon: ClipboardList, badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, badgeColor: 'bg-blue-500 text-white' },
+        { id: 'invoices', name: 'GST Invoices', icon: FileText }
+      ]
+    },
+    {
+      title: "Human Resources (HRMS)",
+      items: [
+        { 
+          id: 'hrms', 
+          name: 'Staff HRMS', 
+          icon: Briefcase, 
+          badge: employees.length, 
+          badgeColor: 'bg-emerald-500 text-slate-950',
+          hasSubmenu: true,
+          subItems: [
+            { id: 'directory', name: 'Employee Directory', icon: Users, badge: employees.length },
+            { id: 'attendance', name: 'Daily Attendance', icon: UserCheck },
+            { id: 'field_visits', name: 'Field Duty Register', icon: MapPin },
+            { id: 'leaves', name: 'Leave Requests', icon: Calendar, badge: pendingLeavesCount > 0 ? pendingLeavesCount : null, badgeColor: 'bg-amber-500 text-slate-950' },
+            { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee }
+          ]
+        },
+        { id: 'users', name: 'Staff & Roles', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' }
+      ]
+    },
+    {
+      title: "Administration",
+      items: [
+        { id: 'settings', name: 'Data & Settings', icon: Settings }
+      ]
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col antialiased text-slate-800">
-      {/* ERP Top Header */}
-      <header className="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
-          {/* Left: Exit to Website and Brand */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <button
-              onClick={onExit}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold shrink-0"
-              title="Return to Public Website"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Website</span>
-            </button>
+    <div className="min-h-screen bg-slate-100 flex antialiased text-slate-800">
+      {/* Mobile Sidebar Overlay Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-950/70 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-            <div className="h-5 w-px bg-slate-800 hidden sm:block"></div>
-
-            <div className="flex items-center gap-1.5 sm:gap-2 truncate">
-              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white truncate">
-                M/S COMPUTER PLANET
-              </span>
-              <span className="hidden md:inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
-                ERP Operations
-              </span>
+      {/* Left Sidebar Menu & Sub-Menus */}
+      <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 xl:w-72 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out ${
+        isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0'
+      }`}>
+        {/* Top Brand Area */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80 shrink-0 bg-slate-950/40">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-slate-950 font-black text-xs shadow-md shadow-emerald-500/20 shrink-0">
+              CP
+            </div>
+            <div className="min-w-0">
+              <div className="font-extrabold text-xs sm:text-sm text-white tracking-tight truncate leading-tight">
+                COMPUTER PLANET
+              </div>
+              <div className="text-[10px] text-emerald-400 font-bold tracking-wider uppercase flex items-center gap-1 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>ERP Suite v2.0</span>
+              </div>
             </div>
           </div>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden transition"
+            aria-label="Close Sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Right: Actions and Active User Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {currentUser && (
-              <div 
-                onClick={() => setActiveTab('users')}
-                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 text-xs cursor-pointer transition"
-                title="Manage Staff & Roles"
-              >
-                <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                <span className="font-bold text-white max-w-[130px] truncate">{currentUser.name}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-700 text-emerald-400 font-mono">
-                  {currentUser.role?.includes('Admin') ? 'Admin' : currentUser.role?.includes('Engineer') ? 'Engineer' : currentUser.role?.includes('Accounts') ? 'Accounts' : 'Staff'}
-                </span>
+        {/* Scrollable Navigation Items & Sub-Menus */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-4 no-scrollbar">
+          {navSections.map((section, sIdx) => {
+            const visibleItems = section.items.filter(item => hasTabPermission(item.id));
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={sIdx} className="space-y-1">
+                <div className="text-[10px] font-bold tracking-wider uppercase text-slate-500 px-3 py-1">
+                  {section.title}
+                </div>
+
+                <div className="space-y-1">
+                  {visibleItems.map(item => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+
+                    return (
+                      <div key={item.id} className="space-y-1">
+                        <button
+                          onClick={() => {
+                            if (item.hasSubmenu) {
+                              setActiveTab(item.id);
+                              setIsHrmsExpanded(!isHrmsExpanded);
+                            } else {
+                              setActiveTab(item.id);
+                              setIsSidebarOpen(false);
+                            }
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition group ${
+                            isActive
+                              ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/30 ring-1 ring-emerald-400/40'
+                              : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+                            <span className="truncate">{item.name}</span>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0 ml-1.5">
+                            {item.badge && (
+                              <span className={`px-1.5 py-0.2 rounded-full font-black text-[10px] ${item.badgeColor || 'bg-amber-500 text-slate-950'}`}>
+                                {item.badge}
+                              </span>
+                            )}
+                            {item.hasSubmenu && (
+                              <span className="text-slate-400 group-hover:text-white">
+                                {isHrmsExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Expandable Sub-Menu in the Left Side */}
+                        {item.hasSubmenu && isHrmsExpanded && (
+                          <div className="mt-1 ml-3.5 pl-2.5 border-l border-slate-800 space-y-1">
+                            {item.subItems.map((sub) => {
+                              const SubIcon = sub.icon;
+                              const isSubActive = activeTab === 'hrms' && hrmsSubTab === sub.id;
+
+                              return (
+                                <button
+                                  key={sub.id}
+                                  onClick={() => {
+                                    setActiveTab('hrms');
+                                    setHrmsSubTab(sub.id);
+                                    setIsSidebarOpen(false);
+                                  }}
+                                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition ${
+                                    isSubActive
+                                      ? 'bg-slate-800 text-emerald-400 font-bold border-l-2 border-emerald-400 shadow-xs'
+                                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 truncate">
+                                    <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+                                    <span className="truncate">{sub.name}</span>
+                                  </div>
+
+                                  {sub.badge && (
+                                    <span className={`px-1.5 py-0.2 rounded-full font-black text-[9px] ${sub.badgeColor || 'bg-slate-800 text-slate-300'}`}>
+                                      {sub.badge}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
+            );
+          })}
+        </div>
 
-            <button
-              onClick={handleExportBackup}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition"
-              title="Backup all data to JSON file"
+        {/* Sidebar Footer: User Card & Direct Actions */}
+        <div className="p-3 border-t border-slate-800/80 bg-slate-950/40 shrink-0 space-y-2">
+          {currentUser && (
+            <div 
+              onClick={() => { setActiveTab('users'); setIsSidebarOpen(false); }}
+              className="flex items-center gap-2 p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/50 cursor-pointer transition text-xs"
+              title="Manage Staff & Roles"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Backup Data</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center font-bold text-emerald-400 text-xs shrink-0">
+                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-white text-xs truncate">{currentUser.name}</div>
+                <div className="text-[10px] text-slate-400 truncate">{currentUser.role || 'Staff'}</div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-1.5 pt-1">
+            <button
+              onClick={onExit}
+              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white text-[11px] font-semibold border border-slate-700/60 transition"
+              title="Return to Public Website"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-slate-400" />
+              <span>Website</span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-semibold border border-rose-800/60 transition"
+              className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 hover:text-white text-[11px] font-semibold border border-rose-800/40 transition"
+              title="Log Out of ERP"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Log Out</span>
+              <LogOut className="w-3.5 h-3.5 text-rose-400" />
+              <span>Log Out</span>
             </button>
           </div>
         </div>
+      </aside>
 
-        {/* Navigation Tabs Bar - Seamless Dark Slate Background with interactive scroll controls */}
-        <div className="bg-slate-900 border-t border-slate-800/80 px-2 sm:px-4 lg:px-6 relative">
-          <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-1.5">
-            {/* Left Scroll Button */}
-            <button
-              onClick={() => scrollTabs('left')}
-              className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition shrink-0 flex items-center justify-center border border-slate-700/60 shadow-sm"
-              title="Scroll Tabs Left"
-              aria-label="Scroll Tabs Left"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+      {/* Main Right Area */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+        {/* Top Header Bar */}
+        <header className="bg-white sticky top-0 z-30 border-b border-slate-200/90 shadow-xs">
+          <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+            {/* Left: Mobile hamburger + Breadcrumb */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 transition shrink-0"
+                title="Open Menu"
+                aria-label="Open Menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
 
-            {/* Scrollable Tabs Container */}
-            <div
-              ref={navTabsRef}
-              onWheel={handleTabsWheel}
-              className="flex-1 flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-2 no-scrollbar scroll-smooth touch-pan-x"
-            >
-              {navTabs.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={(e) => {
-                      setActiveTab(tab.id);
-                      e.currentTarget.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                    }}
-                    className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition ${
-                      isActive
-                        ? 'bg-emerald-600 text-white shadow ring-2 ring-emerald-400/30'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span>{tab.name}</span>
-                    {tab.badge && (
-                      <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
-                        {tab.badge}
+              {/* Breadcrumbs & Active Section Title */}
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-400 font-medium shrink-0">
+                  <span>ERP</span>
+                  <span>/</span>
+                </div>
+                <div className="flex items-center gap-2 truncate">
+                  <span className="font-bold text-sm sm:text-base text-slate-900 truncate">
+                    {activeTab === 'dashboard' && 'Operations Dashboard'}
+                    {activeTab === 'pnb_assets' && 'PNB Asset Matrix (543)'}
+                    {activeTab === 'tickets' && 'Service Tickets'}
+                    {activeTab === 'amc' && 'AMC Contracts'}
+                    {activeTab === 'inventory' && 'Inventory & Spares'}
+                    {activeTab === 'invoices' && 'GST Tax Invoices'}
+                    {activeTab === 'quotations' && 'Quotations & Estimates'}
+                    {activeTab === 'solar' && 'Solar Rooftop Projects'}
+                    {activeTab === 'users' && 'Staff & Role Management'}
+                    {activeTab === 'hrms' && (
+                      <span>
+                        Staff HRMS <span className="text-slate-400 font-normal">/</span> {
+                          hrmsSubTab === 'directory' ? 'Employee Directory' :
+                          hrmsSubTab === 'attendance' ? 'Daily Attendance' :
+                          hrmsSubTab === 'field_visits' ? 'Field Duty Register' :
+                          hrmsSubTab === 'leaves' ? 'Leave Requests' :
+                          'Payroll & Salary Slips'
+                        }
                       </span>
                     )}
-                  </button>
-                );
-              })}
+                    {activeTab === 'settings' && 'Data & Settings'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Right Scroll Button */}
-            <button
-              onClick={() => scrollTabs('right')}
-              className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition shrink-0 flex items-center justify-center border border-slate-700/60 shadow-sm"
-              title="Scroll Tabs Right"
-              aria-label="Scroll Tabs Right"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </header>
+            {/* Right Top Actions */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleExportBackup}
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition"
+                title="Backup ERP database to JSON file"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="hidden md:inline">Backup JSON</span>
+              </button>
 
-      {/* Main ERP Workspace Area */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
+              <button
+                onClick={onExit}
+                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition"
+                title="Exit ERP to Website"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Website</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main ERP Workspace Area */}
+        <main className="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
         {activeTab === 'dashboard' && (
           <div className="space-y-6 sm:space-y-8">
             {/* Business Welcome Banner */}
@@ -593,6 +754,8 @@ export default function ERPApp({ onExit }) {
             payroll={payroll} 
             setPayroll={setPayroll} 
             currentUser={currentUser} 
+            activeSubTab={hrmsSubTab}
+            onSubTabChange={setHrmsSubTab}
           />
         )}
 
@@ -687,7 +850,8 @@ export default function ERPApp({ onExit }) {
             </div>
           </div>
         )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

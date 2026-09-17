@@ -642,6 +642,45 @@ export const INITIAL_PAYROLL = [
   }
 ];
 
+export const INITIAL_FIELD_VISITS = [
+  {
+    id: "VST-2026-001",
+    date: "2026-09-17",
+    empId: "EMP-101",
+    employeeName: "Debashis Roy",
+    branch: "PNB Circle Office Silchar (Club Road)",
+    activity: "Preventive Hardware AMC Maintenance & SMPS Check",
+    coords: "24.8333, 92.7789",
+    time: "10:30 AM",
+    status: "Verified On-Site",
+    remarks: "Checked 8 desktops in credit section. Replaced SMPS fan on unit 4."
+  },
+  {
+    id: "VST-2026-002",
+    date: "2026-09-17",
+    empId: "EMP-104",
+    employeeName: "Rahul Barman",
+    branch: "PNB Hailakandi Main Branch",
+    activity: "Passbook Printer Servicing & Sensor Cleaning",
+    coords: "24.6850, 92.5630",
+    time: "12:15 PM",
+    status: "Verified On-Site",
+    remarks: "Ribbon cartridge replaced, test passbook print clean."
+  },
+  {
+    id: "VST-2026-003",
+    date: "2026-09-16",
+    empId: "EMP-103",
+    employeeName: "Animesh Das",
+    branch: "Barak Cold Storage Solar Installation",
+    activity: "Solar Rooftop EPC Structural Inverter Inspection",
+    coords: "24.8115, 92.7950",
+    time: "02:45 PM",
+    status: "Verified On-Site",
+    remarks: "DC wiring inspection done. Ready for APDCL inspection."
+  }
+];
+
 export function exportAllErpData() {
   const backup = {
     exportDate: new Date().toISOString(),
@@ -650,6 +689,7 @@ export function exportAllErpData() {
     employees: loadErpData("employees", INITIAL_EMPLOYEES),
     leaves: loadErpData("leaves", INITIAL_LEAVES),
     payroll: loadErpData("payroll", INITIAL_PAYROLL),
+    fieldVisits: loadErpData("field_visits", INITIAL_FIELD_VISITS),
     tickets: loadErpData("tickets", INITIAL_TICKETS),
     amc: loadErpData("amc", INITIAL_AMC_CONTRACTS),
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
@@ -668,6 +708,7 @@ export function importAllErpData(jsonString) {
     if (data.employees) saveErpData("employees", data.employees);
     if (data.leaves) saveErpData("leaves", data.leaves);
     if (data.payroll) saveErpData("payroll", data.payroll);
+    if (data.fieldVisits) saveErpData("field_visits", data.fieldVisits);
     if (data.tickets) saveErpData("tickets", data.tickets);
     if (data.amc) saveErpData("amc", data.amc);
     if (data.inventory) saveErpData("inventory", data.inventory);
