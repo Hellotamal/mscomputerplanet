@@ -1,0 +1,468 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  loadErpData, 
+  saveErpData, 
+  INITIAL_TICKETS, 
+  INITIAL_AMC_CONTRACTS, 
+  INITIAL_INVENTORY, 
+  INITIAL_INVOICES, 
+  INITIAL_SOLAR_PROJECTS,
+  exportAllErpData,
+  importAllErpData,
+  getErpPin,
+  setErpPin
+} from './erpStorage';
+import TicketsModule from './TicketsModule';
+import AMCModule from './AMCModule';
+import InventoryModule from './InventoryModule';
+import InvoiceModule from './InvoiceModule';
+import SolarProjectsModule from './SolarProjectsModule';
+import ERPLogin from './ERPLogin';
+import { 
+  LayoutDashboard, 
+  Wrench, 
+  Building2, 
+  Package, 
+  FileText, 
+  SunMedium, 
+  Settings, 
+  LogOut, 
+  ArrowLeft, 
+  Download, 
+  Upload, 
+  ShieldCheck, 
+  TrendingUp, 
+  IndianRupee,
+  Layers,
+  KeyRound,
+  CheckCircle2
+} from 'lucide-react';
+
+export default function ERPApp({ onExit }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("mcp_erp_authenticated") === "true";
+  });
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Persistent States
+  const [tickets, setTickets] = useState(() => loadErpData("tickets", INITIAL_TICKETS));
+  const [amcContracts, setAmcContracts] = useState(() => loadErpData("amc", INITIAL_AMC_CONTRACTS));
+  const [inventory, setInventory] = useState(() => loadErpData("inventory", INITIAL_INVENTORY));
+  const [invoices, setInvoices] = useState(() => loadErpData("invoices", INITIAL_INVOICES));
+  const [solarProjects, setSolarProjects] = useState(() => loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
+
+  // Sync to local storage on state change
+  useEffect(() => { saveErpData("tickets", tickets); }, [tickets]);
+  useEffect(() => { saveErpData("amc", amcContracts); }, [amcContracts]);
+  useEffect(() => { saveErpData("inventory", inventory); }, [inventory]);
+  useEffect(() => { saveErpData("invoices", invoices); }, [invoices]);
+  useEffect(() => { saveErpData("solar_projects", solarProjects); }, [solarProjects]);
+
+  // Settings State
+  const [newPinInput, setNewPinInput] = useState('');
+  const [pinChangeMsg, setPinChangeMsg] = useState('');
+
+  const handleLoginSuccess = () => {
+    sessionStorage.setItem("mcp_erp_authenticated", "true");
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("mcp_erp_authenticated");
+    setIsAuthenticated(false);
+  };
+
+  const handleExportBackup = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(exportAllErpData());
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `mcp_erp_backup_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handleImportBackup = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const success = importAllErpData(event.target.result);
+      if (success) {
+        setTickets(loadErpData("tickets", INITIAL_TICKETS));
+        setAmcContracts(loadErpData("amc", INITIAL_AMC_CONTRACTS));
+        setInventory(loadErpData("inventory", INITIAL_INVENTORY));
+        setInvoices(loadErpData("invoices", INITIAL_INVOICES));
+        setSolarProjects(loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
+        alert("ERP Data successfully restored from backup!");
+      } else {
+        alert("Invalid backup file format.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleUpdatePin = (e) => {
+    e.preventDefault();
+    if (newPinInput.length >= 4) {
+      setErpPin(newPinInput);
+      setPinChangeMsg('PIN updated successfully!');
+      setNewPinInput('');
+      setTimeout(() => setPinChangeMsg(''), 3000);
+    } else {
+      alert('PIN must be at least 4 digits.');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return <ERPLogin onLoginSuccess={handleLoginSuccess} onBackToSite={onExit} />;
+  }
+
+  // Dashboard Aggregates
+  const totalAmcRevenue = amcContracts.reduce((acc, c) => acc + (Number(c.annualValue) || 0), 0);
+  const totalInventoryVal = inventory.reduce((acc, i) => acc + (i.stock * i.sellPrice), 0);
+  const totalSolarKw = solarProjects.reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0);
+  const openTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
+
+  const navTabs = [
+    { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
+    { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null },
+    { id: 'amc', name: 'AMC Contracts', icon: Building2 },
+    { id: 'inventory', name: 'Inventory & Spares', icon: Package },
+    { id: 'invoices', name: 'GST Billing & Invoices', icon: FileText },
+    { id: 'solar', name: 'Solar Projects', icon: SunMedium },
+    { id: 'settings', name: 'Data & Settings', icon: Settings },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-100 flex flex-col antialiased">
+      {/* ERP Top Header */}
+      <header className="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onExit}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold"
+              title="Return to Public Website"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Website</span>
+            </button>
+
+            <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
+
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-base tracking-tight text-white">
+                M/S COMPUTER PLANET
+              </span>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                ERP Operations
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExportBackup}
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition"
+              title="Backup all data to JSON file"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Backup Data</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-semibold border border-rose-800/60 transition"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Log Out</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation Tabs Bar */}
+        <div className="bg-slate-850 border-t border-slate-800 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+            {navTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition ${
+                    isActive
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.name}</span>
+                  {tab.badge && (
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px] flex items-center justify-center">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* Main ERP Workspace Area */}
+      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'dashboard' && (
+          <div className="space-y-8">
+            {/* Business Welcome Banner */}
+            <div className="bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                  Internal Operations Centre
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-black mt-1">
+                  Welcome to Computer Planet ERP
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl mt-2 leading-relaxed">
+                  Manage Punjab National Bank branch service calls, post office AMCs, stock levels of computer & solar spares,
+                  and generate GST-compliant tax invoices directly from your website.
+                </p>
+              </div>
+
+              <div className="flex gap-3 shrink-0">
+                <button
+                  onClick={() => setActiveTab('tickets')}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow"
+                >
+                  View Active Tickets
+                </button>
+                <button
+                  onClick={() => setActiveTab('invoices')}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700"
+                >
+                  Create Invoice
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Primary Operational Counters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div
+                onClick={() => setActiveTab('amc')}
+                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Annual AMC Value</span>
+                  <div className="p-2 rounded-xl bg-sky-50 text-sky-600 group-hover:scale-110 transition-transform">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">
+                  ₹{totalAmcRevenue.toLocaleString('en-IN')}
+                </div>
+                <div className="text-xs text-sky-600 font-medium mt-2">
+                  {amcContracts.length} Active Contracts (PNB 49 br. etc.)
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('tickets')}
+                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Pending Service Calls</span>
+                  <div className="p-2 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-110 transition-transform">
+                    <Wrench className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">
+                  {openTicketsCount}
+                </div>
+                <div className="text-xs text-amber-600 font-medium mt-2">
+                  Under 2-4 Hr Priority SLA
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('inventory')}
+                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Stock Valuation</span>
+                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
+                    <Package className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">
+                  ₹{totalInventoryVal.toLocaleString('en-IN')}
+                </div>
+                <div className="text-xs text-emerald-600 font-medium mt-2">
+                  {inventory.length} Hardware & Solar SKUs
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('solar')}
+                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Solar Capacity</span>
+                  <div className="p-2 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-110 transition-transform">
+                    <SunMedium className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">
+                  {totalSolarKw} <span className="text-sm font-sans font-normal text-slate-500">kWp</span>
+                </div>
+                <div className="text-xs text-teal-600 font-medium mt-2">
+                  {solarProjects.length} Active Solar Deployments
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Operational Shortcuts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Open Tickets */}
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-emerald-600" />
+                    <span>Recent Support Incidents</span>
+                  </h3>
+                  <button
+                    onClick={() => setActiveTab('tickets')}
+                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                  >
+                    View All →
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {tickets.slice(0, 3).map((t) => (
+                    <div key={t.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between gap-3 text-xs">
+                      <div>
+                        <div className="font-bold text-slate-900">{t.clientName}</div>
+                        <div className="text-slate-500 truncate max-w-sm">{t.description}</div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded font-bold shrink-0 ${
+                        t.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {t.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Legal Credentials Reference */}
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-900 text-sm mb-4 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-sky-600" />
+                  <span>Business Legal Credentials (For Invoicing)</span>
+                </h3>
+                <div className="space-y-2.5 text-xs text-slate-700">
+                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-500">MSME Registration:</span>
+                    <strong className="font-mono text-slate-900">UDYAM-AS-05-0019941</strong>
+                  </div>
+                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-500">GSTIN Identification:</span>
+                    <strong className="font-mono text-slate-900">18ASTPR6755J1Z0</strong>
+                  </div>
+                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-500">Trade License:</span>
+                    <strong className="text-slate-900">Silchar Municipal Authority</strong>
+                  </div>
+                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                    <span className="text-slate-500">Registered Office:</span>
+                    <span className="text-slate-700 font-medium">West Kachudharam, Chincoorie, Silchar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'tickets' && <TicketsModule tickets={tickets} setTickets={setTickets} />}
+        {activeTab === 'amc' && <AMCModule amcContracts={amcContracts} setAmcContracts={setAmcContracts} />}
+        {activeTab === 'inventory' && <InventoryModule inventory={inventory} setInventory={setInventory} />}
+        {activeTab === 'invoices' && <InvoiceModule invoices={invoices} setInvoices={setInvoices} />}
+        {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
+
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Backup and Restore */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <h3 className="text-base font-bold text-slate-900 mb-2">
+                ERP Data Backup & Restore
+              </h3>
+              <p className="text-xs text-slate-500 mb-6">
+                All tickets, AMC contracts, inventory, and invoices are automatically saved in your browser.
+                Download a JSON backup anytime to transfer data between computers or protect records.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleExportBackup}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-900 text-white font-bold text-xs shadow hover:bg-slate-800 transition"
+                >
+                  <Download className="w-4 h-4 text-emerald-400" />
+                  <span>Download Backup File (JSON)</span>
+                </button>
+
+                <label className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs border border-slate-200 cursor-pointer transition">
+                  <Upload className="w-4 h-4 text-sky-600" />
+                  <span>Restore from Backup File</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportBackup}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Change Access PIN */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+              <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-emerald-600" />
+                <span>Change Staff Access PIN</span>
+              </h3>
+              <p className="text-xs text-slate-500 mb-4">
+                Update the master PIN used to unlock this ERP workspace.
+              </p>
+
+              <form onSubmit={handleUpdatePin} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">New 4-8 Digit PIN</label>
+                  <input
+                    type="password"
+                    maxLength="8"
+                    placeholder="Enter new numeric PIN"
+                    value={newPinInput}
+                    onChange={(e) => setNewPinInput(e.target.value)}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono tracking-widest"
+                  />
+                </div>
+                {pinChangeMsg && (
+                  <div className="text-xs text-emerald-700 bg-emerald-50 p-2 rounded-xl flex items-center gap-1.5 font-semibold">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{pinChangeMsg}</span>
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow hover:bg-emerald-500"
+                >
+                  Update Master PIN
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

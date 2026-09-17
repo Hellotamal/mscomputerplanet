@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TrustBar from './components/TrustBar';
@@ -10,13 +10,25 @@ import ClienteleTrack from './components/ClienteleTrack';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import QuoteModal from './components/QuoteModal';
-import ERPModal from './components/ERPModal';
 import FloatingActions from './components/FloatingActions';
+import ERPApp from './erp/ERPApp';
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteInitialData, setQuoteInitialData] = useState({});
-  const [erpModalOpen, setErpModalOpen] = useState(false);
+  const [isErpMode, setIsErpMode] = useState(() => {
+    return window.location.hash === '#erp';
+  });
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#erp') {
+        setIsErpMode(true);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const handleOpenQuote = (data = {}) => {
     setQuoteInitialData(data);
@@ -29,16 +41,24 @@ export default function App() {
   };
 
   const handleOpenERP = () => {
-    setErpModalOpen(true);
+    window.location.hash = 'erp';
+    setIsErpMode(true);
   };
 
-  const handleCloseERP = () => {
-    setErpModalOpen(false);
+  const handleExitERP = () => {
+    window.location.hash = '';
+    setIsErpMode(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // If in ERP mode, render full-featured business ERP Workspace
+  if (isErpMode) {
+    return <ERPApp onExit={handleExitERP} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
-      {/* Top Navigation */}
+      {/* Top Navigation with ERP link */}
       <Navbar onOpenQuote={handleOpenQuote} onOpenERP={handleOpenERP} />
 
       {/* Main Content */}
@@ -61,12 +81,6 @@ export default function App() {
         isOpen={quoteModalOpen}
         onClose={handleCloseQuote}
         initialData={quoteInitialData}
-      />
-
-      {/* Backend Operations & ERP Gateway Modal */}
-      <ERPModal
-        isOpen={erpModalOpen}
-        onClose={handleCloseERP}
       />
 
       {/* Floating & Sticky Action Bars */}
