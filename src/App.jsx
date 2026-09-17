@@ -17,12 +17,14 @@ import FounderProfile from './components/FounderProfile';
 import GalleryHallOfFame from './components/GalleryHallOfFame';
 import B2BMarketplaceHub from './components/B2BMarketplaceHub';
 import SocialShareModal from './components/SocialShareModal';
+import SupportTicketModal from './components/SupportTicketModal';
 import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteInitialData, setQuoteInitialData] = useState({});
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isErpMode, setIsErpMode] = useState(() => {
     return window.location.hash === '#erp';
@@ -85,6 +87,14 @@ export default function App() {
     setQuoteInitialData({});
   };
 
+  const handleOpenSupportTicket = () => {
+    setSupportModalOpen(true);
+  };
+
+  const handleCloseSupportTicket = () => {
+    setSupportModalOpen(false);
+  };
+
   const handleOpenShare = () => {
     setShareModalOpen(true);
   };
@@ -125,14 +135,15 @@ export default function App() {
         onOpenERP={handleOpenERP}
         theme={theme}
         onToggleTheme={toggleTheme}
+        onOpenSupportTicket={handleOpenSupportTicket}
       />
 
       {/* Main Content */}
       <main className="flex-grow">
-        <Hero onOpenQuote={handleOpenQuote} />
+        <Hero onOpenQuote={handleOpenQuote} onOpenSupportTicket={handleOpenSupportTicket} />
         <TrustBar />
         <OmnisPartnership onOpenQuote={handleOpenQuote} />
-        <ServicesIT onOpenQuote={handleOpenQuote} />
+        <ServicesIT onOpenQuote={handleOpenQuote} onOpenSupportTicket={handleOpenSupportTicket} />
         <ServicesSolar onOpenQuote={handleOpenQuote} />
         <SolarCalculator onOpenQuote={handleOpenQuote} />
         <ProductsCatalog onOpenQuote={handleOpenQuote} />
@@ -141,7 +152,7 @@ export default function App() {
         <FounderProfile onOpenQuote={handleOpenQuote} />
         <GalleryHallOfFame onOpenQuote={handleOpenQuote} />
         <LocalSEOSection onOpenQuote={handleOpenQuote} />
-        <ContactSection />
+        <ContactSection onOpenSupportTicket={handleOpenSupportTicket} />
       </main>
 
       {/* Footer */}
@@ -152,6 +163,12 @@ export default function App() {
         isOpen={quoteModalOpen}
         onClose={handleCloseQuote}
         initialData={quoteInitialData}
+      />
+
+      {/* Customer Support & AMC Breakdown Ticket Modal */}
+      <SupportTicketModal
+        isOpen={supportModalOpen}
+        onClose={handleCloseSupportTicket}
       />
 
       {/* Omnichannel Social Share & Referral Modal */}
@@ -166,6 +183,7 @@ export default function App() {
         theme={theme}
         onToggleTheme={toggleTheme}
         onOpenShare={handleOpenShare}
+        onOpenSupportTicket={handleOpenSupportTicket}
       />
     </div>
   );

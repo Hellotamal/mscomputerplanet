@@ -27,15 +27,14 @@ export default function TicketsModule({ tickets, setTickets }) {
 ---------------------------------------------
 *Ticket ID:* ${ticket.id}
 *Client:* ${ticket.clientName}
-*Reported Date:* ${ticket.reportedDate}
+${ticket.clientCode ? `*Client / AMC Code:* ${ticket.clientCode}\n` : ''}${ticket.address ? `*Branch Address:* ${ticket.address}\n` : ''}*Reported Date:* ${ticket.reportedDate}
 *Priority:* ${ticket.priority} SLA
 *Assigned Engineer:* ${ticket.assignedTo}
 *Current Status:* ${ticket.status}
----------------------------------------------
+${ticket.hardwareMake ? `*Hardware Make/Model:* ${ticket.hardwareMake}\n` : ''}${ticket.serialNumber ? `*Serial Number (S/N):* ${ticket.serialNumber}\n` : ''}---------------------------------------------
 *Issue Description:*
 ${ticket.description}
-${ticket.resolution ? `\n*Resolution Details:*\n${ticket.resolution}\n` : ''}
----------------------------------------------
+${ticket.resolution ? `\n*Resolution Details:*\n${ticket.resolution}\n` : ''}---------------------------------------------
 *Support Contact:* +91-8638083712
 Chincoorie, Silchar, Cachar, Assam - 788007
 *M/S COMPUTER PLANET (Banking IT & Solar AMC)*`;
@@ -48,9 +47,15 @@ Chincoorie, Silchar, Cachar, Assam - 788007
 
   const [ticketForm, setTicketForm] = useState({
     clientName: '',
+    clientCode: '',
+    address: '',
     contactPerson: '',
+    designation: '',
     phone: '',
+    email: '',
     type: 'Hardware Breakdown',
+    hardwareMake: '',
+    serialNumber: '',
     priority: 'High',
     assignedTo: 'Resident Engineer Silchar',
     description: '',
@@ -107,9 +112,15 @@ Chincoorie, Silchar, Cachar, Assam - 788007
   const resetForm = () => {
     setTicketForm({
       clientName: '',
+      clientCode: '',
+      address: '',
       contactPerson: '',
+      designation: '',
       phone: '',
+      email: '',
       type: 'Hardware Breakdown',
+      hardwareMake: '',
+      serialNumber: '',
       priority: 'High',
       assignedTo: 'Resident Engineer Silchar',
       description: '',
@@ -135,27 +146,37 @@ Chincoorie, Silchar, Cachar, Assam - 788007
             .section { margin-bottom: 15px; }
             .label { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: bold; }
             .box { border: 1px dashed #cbd5e1; padding: 15px; border-radius: 6px; margin-top: 15px; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
           </style>
         </head>
         <body>
           ${getCompanyPrintHeaderHtml({
-            documentTitle: `SERVICE JOB SLIP: ${escapeHtml(ticket.id)}`,
+            documentTitle: `SERVICE BREAKDOWN JOB SLIP: ${escapeHtml(ticket.id)}`,
             rightBadgeText: escapeHtml(ticket.id),
             rightBadgeSubtext: 'SERVICE TICKET'
           })}
-          <p><strong>Date:</strong> ${escapeHtml(ticket.reportedDate)} | <strong>Priority:</strong> ${escapeHtml(ticket.priority)}</p>
-          <p><strong>Customer / Branch:</strong> ${escapeHtml(ticket.clientName)} (${escapeHtml(ticket.contactPerson || 'N/A')})</p>
-          <p><strong>Phone:</strong> ${escapeHtml(ticket.phone || 'N/A')}</p>
-          <p><strong>Service Type:</strong> ${escapeHtml(ticket.type)}</p>
-          <p><strong>Assigned Engineer:</strong> ${escapeHtml(ticket.assignedTo)}</p>
-          <div class="box">
-            <div class="label">Reported Fault / Requirement:</div>
-            <div>${escapeHtml(ticket.description)}</div>
+          <div class="info-grid">
+            <div><strong>Date Reported:</strong> ${escapeHtml(ticket.reportedDate || '')}</div>
+            <div><strong>SLA Priority:</strong> ${escapeHtml(ticket.prioritySla || ticket.priority || 'High')}</div>
+            <div><strong>Customer / Branch:</strong> ${escapeHtml(ticket.clientName || 'N/A')}</div>
+            <div><strong>Client / AMC Code:</strong> ${escapeHtml(ticket.clientCode || 'N/A')}</div>
+            <div><strong>Site Address:</strong> ${escapeHtml(ticket.address || 'Silchar')}</div>
+            <div><strong>Reported By:</strong> ${escapeHtml(ticket.contactPerson || 'N/A')} (${escapeHtml(ticket.designation || 'Staff')})</div>
+            <div><strong>Contact Phone:</strong> ${escapeHtml(ticket.phone || 'N/A')}</div>
+            <div><strong>Service Category:</strong> ${escapeHtml(ticket.type || 'Breakdown')}</div>
+            <div><strong>Hardware Make/Model:</strong> ${escapeHtml(ticket.hardwareMake || 'N/A')}</div>
+            <div><strong>Serial Number (S/N):</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(ticket.serialNumber || 'N/A')}</span></div>
+            <div><strong>Assigned Engineer:</strong> ${escapeHtml(ticket.assignedTo || 'Silchar Dispatch')}</div>
+            <div><strong>Current Status:</strong> ${escapeHtml(ticket.status || 'Open')}</div>
           </div>
-          ${ticket.resolution ? `<div style="margin-top: 10px;"><strong>Action Taken / Resolution:</strong> ${escapeHtml(ticket.resolution)}</div>` : ''}
+          <div class="box">
+            <div class="label">Reported Malfunction / Breakdown Symptoms:</div>
+            <div>${escapeHtml(ticket.description || 'No details provided.')}</div>
+          </div>
+          ${ticket.resolution ? `<div style="margin-top: 10px;"><strong>Action Taken / Field Resolution:</strong> ${escapeHtml(ticket.resolution)}</div>` : ''}
           <div style="margin-top: 40px; display: flex; justify-content: space-between;">
-            <div>Customer Signature: __________________</div>
-            <div>Engineer Signature: __________________</div>
+            <div>Customer / Branch Manager Signature: __________________</div>
+            <div>Resident Engineer Signature: __________________</div>
           </div>
         </body>
       </html>
@@ -251,6 +272,11 @@ Chincoorie, Silchar, Cachar, Assam - 788007
                   <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                     {ticket.id}
                   </span>
+                  {ticket.clientCode && (
+                    <span className="font-mono text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                      Code: {ticket.clientCode}
+                    </span>
+                  )}
                   <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                     ticket.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' :
                     ticket.status === 'In Progress' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'
@@ -267,9 +293,26 @@ Chincoorie, Silchar, Cachar, Assam - 788007
                   </span>
                 </div>
 
-                <h4 className="text-base font-bold text-slate-900">
-                  {ticket.clientName}
+                <h4 className="text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                  <span>{ticket.clientName}</span>
+                  {ticket.contactPerson && (
+                    <span className="text-xs font-normal text-slate-500">
+                      • {ticket.contactPerson} {ticket.designation ? `(${ticket.designation})` : ''}
+                    </span>
+                  )}
                 </h4>
+
+                {(ticket.hardwareMake || ticket.serialNumber) && (
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 flex-wrap">
+                    {ticket.hardwareMake && <span>🖥️ <strong>Make:</strong> {ticket.hardwareMake}</span>}
+                    {ticket.serialNumber && (
+                      <span className="font-mono text-emerald-700 font-bold">
+                        | S/N: {ticket.serialNumber}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <p className="text-xs sm:text-sm text-slate-600">
                   {ticket.description}
                 </p>
@@ -361,24 +404,59 @@ Chincoorie, Silchar, Cachar, Assam - 788007
             </div>
 
             <form onSubmit={editingTicket ? handleUpdateTicket : handleCreateTicket} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Customer / Branch Name *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Punjab National Bank - Sonai Road Branch"
-                  value={ticketForm.clientName}
-                  onChange={(e) => setTicketForm({ ...ticketForm, clientName: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Customer / Branch Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Punjab National Bank - Sonai Road Branch"
+                    value={ticketForm.clientName}
+                    onChange={(e) => setTicketForm({ ...ticketForm, clientName: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Client / AMC Code</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. PNB-SIL-012"
+                    value={ticketForm.clientCode || ''}
+                    onChange={(e) => setTicketForm({ ...ticketForm, clientCode: e.target.value.toUpperCase() })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contact Person</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Hardware Make & Model</label>
                   <input
                     type="text"
-                    placeholder="e.g. Branch Manager"
+                    placeholder="e.g. Lipi PB2 / TVS MSP 240 / HP LaserJet"
+                    value={ticketForm.hardwareMake || ''}
+                    onChange={(e) => setTicketForm({ ...ticketForm, hardwareMake: e.target.value })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Hardware Serial No (S/N)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. LPB-2023-88741"
+                    value={ticketForm.serialNumber || ''}
+                    onChange={(e) => setTicketForm({ ...ticketForm, serialNumber: e.target.value.toUpperCase() })}
+                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Contact Person & Designation</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Rajib Sharma (Branch Manager)"
                     value={ticketForm.contactPerson}
                     onChange={(e) => setTicketForm({ ...ticketForm, contactPerson: e.target.value })}
                     className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"

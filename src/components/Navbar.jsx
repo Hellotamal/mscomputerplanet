@@ -9,10 +9,11 @@ import {
   ShieldCheck, 
   Sun, 
   Moon,
-  FileText
+  FileText,
+  Headphones
 } from 'lucide-react';
 
-export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onToggleTheme }) {
+export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onToggleTheme, onOpenSupportTicket }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -158,6 +159,16 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
               )}
             </button>
 
+            {/* Log Support Ticket (AMC Breakdown & Incident Log) */}
+            <button
+              onClick={() => onOpenSupportTicket?.()}
+              className="hidden md:inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-semibold px-3 sm:px-3.5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              title="Log AMC Breakdown Call / Service Ticket"
+            >
+              <Headphones className="w-4 h-4" />
+              <span>Log Ticket</span>
+            </button>
+
             <button
               onClick={() => onOpenQuote()}
               className="hidden sm:inline-flex items-center gap-2 bg-gradient-to-r from-brand-blue to-emerald-600 hover:from-slate-900 hover:to-emerald-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0"
@@ -209,6 +220,16 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
                       <span>Switch to Night Mode (Dark)</span>
                     </>
                   )}
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenSupportTicket?.();
+                  }}
+                  className="w-full text-center bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold py-2.5 rounded-xl shadow flex items-center justify-center gap-2 text-sm"
+                >
+                  <Headphones className="w-4 h-4" />
+                  <span>Log Support / Breakdown Ticket</span>
                 </button>
                 <button
                   onClick={() => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
-import { MessageSquare, Phone, ArrowUp, Sun, Moon, Share2 } from 'lucide-react';
+import { MessageSquare, Phone, ArrowUp, Sun, Moon, Share2, Headphones } from 'lucide-react';
 
-export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onOpenShare }) {
+export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onOpenShare, onOpenSupportTicket }) {
   const [showScroll, setShowScroll] = useState(false);
 
   useEffect(() => {
@@ -54,6 +54,20 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onO
           </button>
         )}
 
+        {/* Log Support Ticket Quick Trigger */}
+        {onOpenSupportTicket && (
+          <button
+            onClick={onOpenSupportTicket}
+            className="group flex items-center gap-2 px-3.5 py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-xl hover:shadow-amber-500/25 transition transform hover:-translate-y-1"
+            title="Log AMC Breakdown Call / Service Ticket"
+          >
+            <Headphones className="w-5 h-5 text-white" />
+            <span className="text-xs font-bold max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300">
+              Log Ticket
+            </span>
+          </button>
+        )}
+
         {/* WhatsApp Direct */}
         <a
           href={BUSINESS_INFO.whatsappLink}
@@ -70,10 +84,10 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onO
       </div>
 
       {/* Sticky Bottom Bar on Mobile Devices */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-2.5 px-4 flex items-center justify-between gap-2 shadow-2xl">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-2 px-3 flex items-center justify-between gap-1.5 shadow-2xl">
         <button
           onClick={onToggleTheme}
-          className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-amber-400 flex items-center justify-center"
+          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-amber-400 flex items-center justify-center shrink-0"
           title={`Switch to ${theme === 'dark' ? 'Day' : 'Night'} Mode`}
           aria-label="Toggle Theme"
         >
@@ -83,7 +97,7 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onO
         {onOpenShare && (
           <button
             onClick={onOpenShare}
-            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-teal-600 dark:text-teal-400 flex items-center justify-center"
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0"
             title="Share with Contacts"
             aria-label="Share Business Profile"
           >
@@ -93,27 +107,28 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onO
 
         <a
           href={`tel:${BUSINESS_INFO.phoneRaw}`}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-800"
+          className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800 flex items-center justify-center shrink-0"
+          title="Call Office"
         >
           <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span>Call</span>
         </a>
 
-        <a
-          href={BUSINESS_INFO.whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-md"
-        >
-          <MessageSquare className="w-4 h-4" />
-          <span>WhatsApp</span>
-        </a>
+        {onOpenSupportTicket && (
+          <button
+            onClick={onOpenSupportTicket}
+            className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-md truncate"
+            title="Log Support Ticket"
+          >
+            <Headphones className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Ticket</span>
+          </button>
+        )}
 
         <button
           onClick={() => onOpenQuote()}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-2.5 rounded-xl bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-bold shadow-md"
+          className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 text-xs font-bold shadow-md truncate"
         >
-          <span>Get Quote</span>
+          <span className="truncate">Quote</span>
         </button>
       </div>
     </>

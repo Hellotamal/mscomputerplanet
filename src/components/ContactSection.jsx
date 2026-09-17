@@ -7,10 +7,11 @@ import {
   Clock, 
   CheckCircle2, 
   MessageSquare, 
-  ExternalLink
+  ExternalLink,
+  Headphones
 } from 'lucide-react';
 
-export default function ContactSection() {
+export default function ContactSection({ onOpenSupportTicket }) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -138,6 +139,27 @@ export default function ContactSection() {
                   </div>
                 </div>
               </div>
+
+              {/* Emergency AMC Breakdown Call Trigger */}
+              {onOpenSupportTicket && (
+                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-bold text-amber-900 dark:text-amber-300">
+                      AMC Breakdown / Hardware Malfunction?
+                    </div>
+                    <div className="text-[11px] text-amber-800/80 dark:text-amber-400">
+                      Direct case ID generation with instant engineer WhatsApp ping.
+                    </div>
+                  </div>
+                  <button
+                    onClick={onOpenSupportTicket}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs shadow transition transform hover:-translate-y-0.5"
+                  >
+                    <Headphones className="w-3.5 h-3.5" />
+                    <span>Log Ticket</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Registration Summary Box */}

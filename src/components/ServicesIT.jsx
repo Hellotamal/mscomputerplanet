@@ -14,7 +14,8 @@ import {
   Gauge,
   HeartHandshake,
   SlidersHorizontal,
-  UserCheck
+  UserCheck,
+  Headphones
 } from 'lucide-react';
 
 const iconMap = {
@@ -32,7 +33,7 @@ const iconMap = {
   UserCheck
 };
 
-export default function ServicesIT({ onOpenQuote }) {
+export default function ServicesIT({ onOpenQuote, onOpenSupportTicket }) {
   return (
     <section id="services-it" className="py-20 bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -132,6 +133,28 @@ export default function ServicesIT({ onOpenQuote }) {
               );
             })}
           </div>
+
+          {/* AMC Customer Support Quick Trigger Banner */}
+          {onOpenSupportTicket && (
+            <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-800/40 -mx-4 -mb-4 sm:-mx-8 sm:-mb-8 p-6 sm:p-8 rounded-b-3xl">
+              <div>
+                <h4 className="text-base font-bold text-amber-400 flex items-center gap-2">
+                  <Headphones className="w-5 h-5" />
+                  <span>Enrolled AMC Branch or Corporate Client facing a breakdown?</span>
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-300 mt-1">
+                  Log your breakdown call with your Client Code and Hardware Serial No. for 2–4 hr priority engineer dispatch.
+                </p>
+              </div>
+              <button
+                onClick={onOpenSupportTicket}
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs sm:text-sm font-bold shadow-lg transition transform hover:-translate-y-0.5"
+              >
+                <Headphones className="w-4 h-4" />
+                <span>Log Breakdown Ticket</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>

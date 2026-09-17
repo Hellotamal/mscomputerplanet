@@ -7,10 +7,11 @@ import {
   PhoneCall, 
   Calculator, 
   Cpu, 
-  CheckCircle
+  CheckCircle,
+  Headphones
 } from 'lucide-react';
 
-export default function Hero({ onOpenQuote }) {
+export default function Hero({ onOpenQuote, onOpenSupportTicket }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'it', 'solar'
 
   return (
@@ -92,6 +93,16 @@ export default function Hero({ onOpenQuote }) {
               <span>Request Instant Quote</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            {onOpenSupportTicket && (
+              <button
+                onClick={onOpenSupportTicket}
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl text-sm sm:text-base font-semibold text-amber-300 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900/60 hover:border-amber-400 transition shadow-sm"
+              >
+                <Headphones className="w-4 h-4 text-amber-400" />
+                <span>Log Support Ticket</span>
+              </button>
+            )}
 
             <a
               href="#solar-calculator"
