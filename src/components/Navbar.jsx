@@ -31,6 +31,7 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
     { name: 'Solar Calculator', href: '#solar-calculator' },
     { name: 'Products', href: '#products' },
     { name: 'Clientele', href: '#clientele' },
+    { name: 'B2B Platforms', href: '#b2b-platforms' },
     { name: 'Hall of Fame', href: '#gallery' },
     { name: '100 KM Coverage', href: '#service-area' },
     { name: 'Contact', href: '#contact' },

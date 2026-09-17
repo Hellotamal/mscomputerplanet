@@ -109,6 +109,49 @@ export default function Hero({ onOpenQuote }) {
               <span>Direct Call</span>
             </a>
           </div>
+
+          {/* Marketplace & B2B Trust Badges Banner */}
+          <div className="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs">
+            <a 
+              href="#b2b-platforms" 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition"
+            >
+              <span className="text-amber-400 font-bold">4.9 ★</span>
+              <span>Google Verified</span>
+              <span className="text-[10px] text-emerald-400 font-semibold">(120+ Reviews)</span>
+            </a>
+
+            <a 
+              href="#b2b-platforms" 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="font-semibold">IndiaMART TrustSEAL</span>
+            </a>
+
+            <a 
+              href="#b2b-platforms" 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition"
+            >
+              <span className="text-amber-400 font-bold">5.0 ★</span>
+              <span>Justdial Preferred</span>
+            </a>
+
+            <a 
+              href="#b2b-platforms" 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700/80 transition"
+            >
+              <span className="text-sky-400 font-bold">GeM</span>
+              <span>Govt MSME Vendor</span>
+            </a>
+
+            <a 
+              href="#b2b-platforms" 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 transition"
+            >
+              <span className="font-semibold">Omnis Trades Solar Partner</span>
+            </a>
+          </div>
         </div>
 
         {/* Dual Cards Interactive Showcase */}

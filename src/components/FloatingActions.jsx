@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
-import { MessageSquare, Phone, ArrowUp, Sun, Moon } from 'lucide-react';
+import { MessageSquare, Phone, ArrowUp, Sun, Moon, Share2 } from 'lucide-react';
 
-export default function FloatingActions({ onOpenQuote, theme, onToggleTheme }) {
+export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onOpenShare }) {
   const [showScroll, setShowScroll] = useState(false);
 
   useEffect(() => {
@@ -17,6 +17,18 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme }) {
     <>
       {/* Floating Action Buttons for Desktop / Tablet */}
       <div className="fixed bottom-6 right-6 z-40 hidden sm:flex flex-col items-end gap-3">
+        {/* Share & Refer Hub Button */}
+        {onOpenShare && (
+          <button
+            onClick={onOpenShare}
+            className="w-10 h-10 rounded-full bg-slate-900 dark:bg-slate-800 text-teal-400 border border-slate-700/80 flex items-center justify-center shadow-lg hover:scale-110 transition transform hover:bg-slate-800"
+            title="Share M/S Computer Planet on WhatsApp, LinkedIn & Social Media"
+            aria-label="Share Business Profile"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Quick Day / Night Toggle Floating Button */}
         <button
           onClick={onToggleTheme}
@@ -67,6 +79,17 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme }) {
         >
           {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
         </button>
+
+        {onOpenShare && (
+          <button
+            onClick={onOpenShare}
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-teal-600 dark:text-teal-400 flex items-center justify-center"
+            title="Share with Contacts"
+            aria-label="Share Business Profile"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+        )}
 
         <a
           href={`tel:${BUSINESS_INFO.phoneRaw}`}

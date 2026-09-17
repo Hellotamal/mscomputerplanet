@@ -118,5 +118,74 @@ export const BUSINESS_INFO = {
         sla: "Turnkey Project Engineering & Scheduled AMC"
       }
     ]
+  },
+  marketplaceProfiles: [
+    {
+      id: "google_business",
+      platform: "Google Business & Maps",
+      rating: "4.9 ★★★★★",
+      reviewsCount: "120+ Verified Reviews",
+      status: "Top-Rated Local Business",
+      badge: "Google Top Rated",
+      tagline: "#1 Verified IT AMC & Solar EPC Provider in Silchar",
+      url: "https://www.google.com/maps/search/?api=1&query=M%2FS+Computer+Planet+Silchar+Assam",
+      color: "from-blue-600 to-emerald-600",
+      cta: "View on Google Maps"
+    },
+    {
+      id: "indiamart",
+      platform: "IndiaMART",
+      rating: "TrustSEAL Verified",
+      reviewsCount: "Active B2B Supplier",
+      status: "Verified B2B Seller",
+      badge: "TrustSEAL Verified",
+      tagline: "Commercial Solar Power Plants, Inverters & Computer Hardware",
+      url: "https://www.indiamart.com/ms-computer-planet/",
+      color: "from-emerald-600 to-teal-700",
+      cta: "View IndiaMART Catalog"
+    },
+    {
+      id: "justdial",
+      platform: "Justdial",
+      rating: "4.9 / 5.0",
+      reviewsCount: "Top Search Ranking",
+      status: "Preferred Vendor",
+      badge: "Justdial 5-Star Preferred",
+      tagline: "Top Solar Panel Dealers & Computer Maintenance in Silchar",
+      url: "https://www.justdial.com/Silchar/Computer-Planet/03842",
+      color: "from-amber-500 to-orange-600",
+      cta: "Check on Justdial"
+    },
+    {
+      id: "tradeindia",
+      platform: "TradeIndia / TradeMart",
+      rating: "Certified Exporter/Distributor",
+      reviewsCount: "B2B National Network",
+      status: "Certified Vendor",
+      badge: "TradeIndia Certified",
+      tagline: "Bulk IT Peripherals, Solar Panels, Batteries & Turnkey Projects",
+      url: "https://www.tradeindia.com/Seller/ms-computer-planet/",
+      color: "from-indigo-600 to-blue-700",
+      cta: "Explore TradeMart"
+    },
+    {
+      id: "gem",
+      platform: "Government e-Marketplace (GeM)",
+      rating: "Registered MSME Vendor",
+      reviewsCount: "Public Procurement Ready",
+      status: "Govt Portal Listed",
+      badge: "GeM MSME Supplier",
+      tagline: "Authorized Vendor for Bank, PSU & State Govt IT/Solar Procurement",
+      url: "https://gem.gov.in/",
+      color: "from-slate-800 to-slate-950",
+      cta: "GeM Tender Inquiries"
+    }
+  ],
+  socialChannels: {
+    whatsapp: "https://wa.me/918638083712?text=Hello%20M/S%20Computer%20Planet,%20I%20found%20you%20online%20and%20would%20like%20to%20request%20a%20commercial%20quote.",
+    linkedin: "https://www.linkedin.com/company/mscomputerplanet",
+    facebook: "https://www.facebook.com/mscomputerplanet",
+    youtube: "https://www.youtube.com/@mscomputerplanet",
+    googleReview: "https://www.google.com/maps/search/?api=1&query=M%2FS+Computer+Planet+Silchar+Assam"
   }
 };

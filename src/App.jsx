@@ -15,12 +15,15 @@ import OmnisPartnership from './components/OmnisPartnership';
 import LocalSEOSection from './components/LocalSEOSection';
 import FounderProfile from './components/FounderProfile';
 import GalleryHallOfFame from './components/GalleryHallOfFame';
+import B2BMarketplaceHub from './components/B2BMarketplaceHub';
+import SocialShareModal from './components/SocialShareModal';
 import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteInitialData, setQuoteInitialData] = useState({});
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [isErpMode, setIsErpMode] = useState(() => {
     return window.location.hash === '#erp';
   });
@@ -82,6 +85,14 @@ export default function App() {
     setQuoteInitialData({});
   };
 
+  const handleOpenShare = () => {
+    setShareModalOpen(true);
+  };
+
+  const handleCloseShare = () => {
+    setShareModalOpen(false);
+  };
+
   const handleOpenERP = () => {
     window.location.hash = 'erp';
     setIsErpMode(true);
@@ -126,6 +137,7 @@ export default function App() {
         <SolarCalculator onOpenQuote={handleOpenQuote} />
         <ProductsCatalog onOpenQuote={handleOpenQuote} />
         <ClienteleTrack />
+        <B2BMarketplaceHub onOpenQuote={handleOpenQuote} onOpenShare={handleOpenShare} />
         <FounderProfile onOpenQuote={handleOpenQuote} />
         <GalleryHallOfFame onOpenQuote={handleOpenQuote} />
         <LocalSEOSection onOpenQuote={handleOpenQuote} />
@@ -142,11 +154,18 @@ export default function App() {
         initialData={quoteInitialData}
       />
 
+      {/* Omnichannel Social Share & Referral Modal */}
+      <SocialShareModal
+        isOpen={shareModalOpen}
+        onClose={handleCloseShare}
+      />
+
       {/* Floating & Sticky Action Bars */}
       <FloatingActions 
         onOpenQuote={handleOpenQuote}
         theme={theme}
         onToggleTheme={toggleTheme}
+        onOpenShare={handleOpenShare}
       />
     </div>
   );
