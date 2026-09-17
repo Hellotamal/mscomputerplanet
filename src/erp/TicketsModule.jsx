@@ -12,7 +12,8 @@ import {
   X,
   Printer,
   Edit2,
-  Trash2
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 
 export default function TicketsModule({ tickets, setTickets }) {
@@ -20,6 +21,33 @@ export default function TicketsModule({ tickets, setTickets }) {
   const [filterStatus, setFilterStatus] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingTicket, setEditingTicket] = useState(null);
+
+  const handleSendTicketWhatsApp = (ticket) => {
+    const rawPhone = (ticket.phone || '').replace(/[^0-9]/g, '');
+    const phone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+
+    const message = `*M/S COMPUTER PLANET - SERVICE TICKET UPDATE*
+---------------------------------------------
+*Ticket ID:* ${ticket.id}
+*Client:* ${ticket.clientName}
+*Reported Date:* ${ticket.reportedDate}
+*Priority:* ${ticket.priority} SLA
+*Assigned Engineer:* ${ticket.assignedTo}
+*Current Status:* ${ticket.status}
+---------------------------------------------
+*Issue Description:*
+${ticket.description}
+${ticket.resolution ? `\n*Resolution Details:*\n${ticket.resolution}\n` : ''}
+---------------------------------------------
+*Support Contact:* +91-8638083712
+Chincoorie, Silchar, Cachar, Assam - 788007
+*M/S COMPUTER PLANET (Banking IT & Solar AMC)*`;
+
+    const targetUrl = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(targetUrl, '_blank');
+  };
 
   const [ticketForm, setTicketForm] = useState({
     clientName: '',
@@ -296,6 +324,15 @@ export default function TicketsModule({ tickets, setTickets }) {
                   title="Remove Ticket"
                 >
                   <Trash2 className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={() => handleSendTicketWhatsApp(ticket)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-sm"
+                  title="Notify Client / Engineer via WhatsApp"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">WhatsApp</span>
                 </button>
 
                 <button

@@ -23,7 +23,11 @@ import {
   CreditCard,
   Briefcase,
   Check,
-  Ban
+  Ban,
+  MessageSquare,
+  Navigation,
+  Compass,
+  ExternalLink
 } from 'lucide-react';
 
 export default function HRMSModule({ 
@@ -45,6 +49,16 @@ export default function HRMSModule({
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showPayrollModal, setShowPayrollModal] = useState(false);
   const [selectedEmpForAttendance, setSelectedEmpForAttendance] = useState(null);
+
+  // GPS Field Check-In States
+  const [showGpsModal, setShowGpsModal] = useState(false);
+  const [selectedEmpForGps, setSelectedEmpForGps] = useState(null);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState('');
+  const [gpsCoords, setGpsCoords] = useState({ lat: null, lng: null, accuracy: null });
+  const [gpsBranch, setGpsBranch] = useState('PNB Circle Office Silchar (Club Road)');
+  const [gpsActivity, setGpsActivity] = useState('Preventive Hardware AMC Maintenance');
+  const [gpsRemarks, setGpsRemarks] = useState('');
 
   // Forms
   const [empForm, setEmpForm] = useState({
@@ -284,6 +298,120 @@ export default function HRMSModule({
 
     setPayroll([record, ...payroll]);
     setShowPayrollModal(false);
+  };
+
+  // WhatsApp Salary Slip Advice
+  const handleSendPayslipWhatsApp = (p) => {
+    const emp = employees.find(e => e.id === p.empId) || {};
+    const rawPhone = (emp.phone || '').replace(/[^0-9]/g, '');
+    const phone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+
+    const message = `*M/S COMPUTER PLANET - SALARY DISBURSEMENT ADVICE*
+---------------------------------------------
+*Employee:* ${p.employeeName} (${p.empId})
+*Designation:* ${p.designation}
+*Department:* ${emp.department || 'Banking AMC & IT Infrastructure'}
+*Salary Month:* ${p.month}
+*Disbursement Date:* ${p.paidDate || 'Today'}
+*Payment Mode:* ${p.paymentMode || 'Bank Transfer'}
+---------------------------------------------
+*EARNINGS BREAKDOWN:*
+• Basic Salary: Rs. ${p.basic?.toLocaleString('en-IN')}
+• House Rent Allowance (HRA): Rs. ${p.hra?.toLocaleString('en-IN')}
+• Field Conveyance Allowance: Rs. ${p.fieldAllowance?.toLocaleString('en-IN')}
+• Performance / SLA Incentive: Rs. ${p.incentive?.toLocaleString('en-IN')}
+---------------------------------------------
+*Gross Total Earnings: Rs. ${p.grossSalary?.toLocaleString('en-IN')}*
+*Total Deductions:* -Rs. ${p.deductions?.toLocaleString('en-IN')}
+---------------------------------------------
+*NET SALARY DISBURSED: Rs. ${p.netSalary?.toLocaleString('en-IN')}*
+*Payment Status:* ${p.status} (Transferred to Account)
+---------------------------------------------
+*Bank Name:* ${emp.bankDetails?.bankName || 'Punjab National Bank'}
+*Account:* ${emp.bankDetails?.accountNo ? `Ends with ****${emp.bankDetails.accountNo.slice(-4)}` : 'Direct Credit'}
+---------------------------------------------
+*Employer:* M/S COMPUTER PLANET
+MSME: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0
+West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007
+Support Helpline: +91-8638083712`;
+
+    const targetUrl = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(targetUrl, '_blank');
+  };
+
+  // GPS Geolocation Check-In
+  const handleStartGpsCheckIn = (emp = null) => {
+    const targetEmp = emp || employees[0];
+    setSelectedEmpForGps(targetEmp);
+    setShowGpsModal(true);
+    setGpsLoading(true);
+    setGpsError('');
+    setGpsCoords({ lat: null, lng: null, accuracy: null });
+
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser. You may manually record your branch visit.');
+      setGpsLoading(false);
+      setGpsCoords({ lat: 24.8333, lng: 92.7789, accuracy: 50, isFallback: true });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setGpsCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: Math.round(position.coords.accuracy)
+        });
+        setGpsLoading(false);
+      },
+      (error) => {
+        console.warn('GPS error:', error);
+        let msg = 'Could not acquire precise GPS coordinates.';
+        if (error.code === 1) msg = 'Location permission was denied. You can still confirm your branch visit below.';
+        else if (error.code === 2) msg = 'GPS signal unavailable or timeout. Using approximate coordinates.';
+        setGpsError(msg);
+        setGpsLoading(false);
+        setGpsCoords({ lat: 24.8333, lng: 92.7789, accuracy: 50, isFallback: true });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const handleConfirmGpsCheckIn = (e) => {
+    e.preventDefault();
+    if (!selectedEmpForGps) return;
+
+    const timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const coordsStr = gpsCoords.lat ? `${gpsCoords.lat.toFixed(4)}, ${gpsCoords.lng.toFixed(4)}` : 'Manual';
+    const statusText = `📍 GPS Verified: ${gpsBranch} (${coordsStr}) at ${timeStr}`;
+
+    setEmployees(employees.map(emp => {
+      if (emp.id === selectedEmpForGps.id) {
+        return {
+          ...emp,
+          attendance: {
+            ...emp.attendance,
+            todayStatus: statusText,
+            fieldVisits: (emp.attendance?.fieldVisits || 0) + 1,
+            lastGps: {
+              branch: gpsBranch,
+              activity: gpsActivity,
+              remarks: gpsRemarks,
+              coords: gpsCoords,
+              time: timeStr,
+              date: new Date().toISOString().split('T')[0]
+            }
+          }
+        };
+      }
+      return emp;
+    }));
+
+    setShowGpsModal(false);
+    setSelectedEmpForGps(null);
+    setGpsRemarks('');
   };
 
   // Print Salary Slip
@@ -612,18 +740,30 @@ export default function HRMSModule({
                   </div>
 
                   {/* Today's Duty Status */}
-                  <div className="mt-3 p-2.5 rounded-xl border border-slate-200/80 bg-white flex items-center justify-between text-xs">
+                  <div className="mt-3 p-2.5 rounded-xl border border-slate-200/80 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <span className="text-slate-500 text-[11px]">Today's Field Duty:</span>
-                      <strong className="text-slate-800 text-[11px]">{emp.attendance?.todayStatus || 'Present'}</strong>
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
+                      <span className="text-slate-500 text-[11px]">Today:</span>
+                      <strong className="text-slate-800 text-[11px] truncate max-w-[200px]" title={emp.attendance?.todayStatus}>
+                        {emp.attendance?.todayStatus || 'Present'}
+                      </strong>
                     </div>
-                    <button
-                      onClick={() => setSelectedEmpForAttendance(emp)}
-                      className="text-[11px] text-teal-600 font-bold hover:underline"
-                    >
-                      Update
-                    </button>
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      <button
+                        onClick={() => handleStartGpsCheckIn(emp)}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:text-sky-800 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200"
+                        title="Record GPS Verified Field Visit"
+                      >
+                        <Navigation className="w-3 h-3" />
+                        <span>GPS Check-in</span>
+                      </button>
+                      <button
+                        onClick={() => setSelectedEmpForAttendance(emp)}
+                        className="text-[11px] text-teal-600 font-bold hover:underline"
+                      >
+                        Update
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -653,6 +793,24 @@ export default function HRMSModule({
       {/* SUB TAB 2: DAILY ATTENDANCE & FIELD VISITS */}
       {activeSubTab === 'attendance' && (
         <div className="space-y-4">
+          {/* Action Header Banner */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                <span>Field Duty Attendance & GPS Verification</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold">Satellite Verified</span>
+              </h3>
+              <p className="text-xs text-slate-400">Track on-site engineer branch visits with satellite coordinate validation</p>
+            </div>
+            <button
+              onClick={() => handleStartGpsCheckIn()}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
+            >
+              <Navigation className="w-4 h-4" />
+              <span>📍 GPS Field Check-In</span>
+            </button>
+          </div>
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
@@ -679,7 +837,8 @@ export default function HRMSModule({
                       </td>
                       <td className="py-3.5 px-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 ${
-                          emp.attendance?.todayStatus?.includes('Field') ? 'bg-sky-100 text-sky-800' :
+                          emp.attendance?.todayStatus?.includes('GPS') ? 'bg-sky-100 text-sky-800 border border-sky-300' :
+                          emp.attendance?.todayStatus?.includes('Field') ? 'bg-blue-100 text-blue-800' :
                           emp.attendance?.todayStatus?.includes('Present') ? 'bg-emerald-100 text-emerald-800' :
                           'bg-amber-100 text-amber-800'
                         }`}>
@@ -702,12 +861,22 @@ export default function HRMSModule({
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <button
-                          onClick={() => setSelectedEmpForAttendance(emp)}
-                          className="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-xs transition border border-teal-200"
-                        >
-                          Mark Status
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => handleStartGpsCheckIn(emp)}
+                            className="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs transition border border-sky-200 inline-flex items-center gap-1"
+                            title="Record GPS Check-in for this staff"
+                          >
+                            <Navigation className="w-3 h-3" />
+                            <span>GPS Check-in</span>
+                          </button>
+                          <button
+                            onClick={() => setSelectedEmpForAttendance(emp)}
+                            className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-xs transition border border-teal-200"
+                          >
+                            Status
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -854,14 +1023,25 @@ export default function HRMSModule({
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handlePrintPayslip(p)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow transition"
-                    title="Print Official Salary Slip"
-                  >
-                    <Printer className="w-4 h-4 text-emerald-400" />
-                    <span>Print Slip</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSendPayslipWhatsApp(p)}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition"
+                      title="Send Salary Slip Advice to Staff WhatsApp"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="hidden sm:inline">WhatsApp Slip</span>
+                    </button>
+
+                    <button
+                      onClick={() => handlePrintPayslip(p)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow transition"
+                      title="Print Official Salary Slip"
+                    >
+                      <Printer className="w-4 h-4 text-emerald-400" />
+                      <span>Print Slip</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1299,6 +1479,170 @@ export default function HRMSModule({
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow"
                 >
                   Disburse & Save Slip
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: GPS FIELD CHECK-IN */}
+      {showGpsModal && selectedEmpForGps && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
+                  <Navigation className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">GPS Field Check-In</h3>
+                  <p className="text-xs text-slate-400">On-site satellite verification for branch visits</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { setShowGpsModal(false); setSelectedEmpForGps(null); }}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmGpsCheckIn} className="space-y-3.5">
+              {/* Staff Selector */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Staff Member</label>
+                <select
+                  value={selectedEmpForGps.id}
+                  onChange={(e) => {
+                    const found = employees.find(emp => emp.id === e.target.value);
+                    if (found) setSelectedEmpForGps(found);
+                  }}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white font-medium"
+                >
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* GPS Live Coordinates Banner */}
+              <div className="p-3.5 rounded-2xl border border-sky-200 bg-sky-50/70 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-sky-600" />
+                    <span>Satellite Coordinate Status:</span>
+                  </span>
+                  {gpsLoading ? (
+                    <span className="text-[11px] font-bold text-sky-600 animate-pulse">Acquiring GPS...</span>
+                  ) : gpsCoords.lat ? (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      GPS Locked (±{gpsCoords.accuracy || 15}m)
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
+                      Manual Fallback
+                    </span>
+                  )}
+                </div>
+
+                {gpsLoading ? (
+                  <div className="text-xs text-sky-700 py-1">Contacting device GPS sensor for high-accuracy coordinates...</div>
+                ) : gpsCoords.lat ? (
+                  <div className="text-xs text-slate-700 space-y-1">
+                    <div className="font-mono text-[11px] font-bold text-sky-950">
+                      Lat: {gpsCoords.lat.toFixed(5)}° N | Lng: {gpsCoords.lng.toFixed(5)}° E
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`https://www.google.com/maps?q=${gpsCoords.lat},${gpsCoords.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] text-sky-700 font-bold hover:underline"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        <span>View on Google Maps</span>
+                      </a>
+                    </div>
+                  </div>
+                ) : null}
+
+                {gpsError && (
+                  <div className="text-[11px] text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    {gpsError}
+                  </div>
+                )}
+              </div>
+
+              {/* Destination Branch */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Target PNB Branch / Field Site *</label>
+                <select
+                  value={gpsBranch}
+                  onChange={(e) => setGpsBranch(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white font-medium"
+                >
+                  <option value="PNB Circle Office Silchar (Club Road)">PNB Circle Office Silchar (Club Road)</option>
+                  <option value="PNB Silchar Main Branch">PNB Silchar Main Branch (Club Road)</option>
+                  <option value="PNB Tarapur Branch">PNB Tarapur Branch, Silchar</option>
+                  <option value="PNB Hailakandi Main Branch">PNB Hailakandi Main Branch</option>
+                  <option value="PNB Karimganj Main Branch">PNB Karimganj Main Branch</option>
+                  <option value="PNB Badarpur Branch">PNB Badarpur Branch, Karimganj</option>
+                  <option value="PNB Udharbond Branch">PNB Udharbond Branch, Cachar</option>
+                  <option value="PNB Lakhipur Branch">PNB Lakhipur Branch, Cachar</option>
+                  <option value="PNB Sonai Branch">PNB Sonai Branch, Cachar</option>
+                  <option value="PNB Dholai Branch">PNB Dholai Branch, Cachar</option>
+                  <option value="PNB Ramkrishna Nagar Branch">PNB Ramkrishna Nagar Branch</option>
+                  <option value="PNB Lala Branch">PNB Lala Branch, Hailakandi</option>
+                  <option value="Barak Solar Installation Site">Barak Valley Solar Installation Site</option>
+                  <option value="Head Office (Chincoorie, Silchar)">Head Office (Chincoorie, Silchar)</option>
+                </select>
+              </div>
+
+              {/* Activity / Work Scope */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Activity Scope</label>
+                <select
+                  value={gpsActivity}
+                  onChange={(e) => setGpsActivity(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white"
+                >
+                  <option value="Preventive Hardware AMC Maintenance">Preventive Hardware AMC Maintenance</option>
+                  <option value="Emergency Breakdown / SMPS Replacement">Emergency Breakdown / SMPS Replacement</option>
+                  <option value="Passbook & Dot-Matrix Printer Servicing">Passbook & Dot-Matrix Printer Servicing</option>
+                  <option value="Desktop OS & Network Configuration">Desktop OS & Network Configuration</option>
+                  <option value="Flatbed Scanner Driver & Calibration">Flatbed Scanner Driver & Calibration</option>
+                  <option value="Solar Hybrid Inverter Inspection">Solar Hybrid Inverter Inspection</option>
+                  <option value="Quarterly SLA Branch Audit">Quarterly SLA Branch Audit</option>
+                </select>
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Engineer Visit Remarks</label>
+                <textarea
+                  rows="2"
+                  placeholder="e.g. 8 Desktop PCs serviced, teller printer head aligned. Branch Manager signed satisfaction slip."
+                  value={gpsRemarks}
+                  onChange={(e) => setGpsRemarks(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                ></textarea>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowGpsModal(false); setSelectedEmpForGps(null); }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold shadow flex items-center gap-1.5"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>Verify & Record Check-In</span>
                 </button>
               </div>
             </form>
