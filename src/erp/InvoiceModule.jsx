@@ -416,48 +416,51 @@ export default function InvoiceModule({ invoices, setInvoices }) {
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {invForm.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
+                    <div key={idx} className="flex flex-wrap sm:flex-nowrap items-center gap-2 p-2.5 sm:p-0 bg-white sm:bg-transparent rounded-xl sm:rounded-none border sm:border-0 border-slate-200 shadow-sm sm:shadow-none">
                       <input
                         type="text"
                         placeholder="Item Description"
                         required
                         value={item.desc}
                         onChange={(e) => handleItemChange(idx, 'desc', e.target.value)}
-                        className="flex-grow px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
+                        className="w-full sm:flex-grow px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
                       />
-                      <input
-                        type="text"
-                        placeholder="HSN"
-                        value={item.hsn}
-                        onChange={(e) => handleItemChange(idx, 'hsn', e.target.value)}
-                        className="w-16 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
-                      />
-                      <input
-                        type="number"
-                        min="1"
-                        placeholder="Qty"
-                        value={item.qty}
-                        onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
-                        className="w-14 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-center"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Rate ₹"
-                        value={item.rate}
-                        onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
-                        className="w-24 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-right"
-                      />
-                      {invForm.items.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItemRow(idx)}
-                          className="p-1.5 text-rose-500 hover:text-rose-700"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <input
+                          type="text"
+                          placeholder="HSN"
+                          value={item.hsn}
+                          onChange={(e) => handleItemChange(idx, 'hsn', e.target.value)}
+                          className="w-20 sm:w-16 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
+                        />
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Qty"
+                          value={item.qty}
+                          onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
+                          className="w-16 sm:w-14 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-center"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Rate ₹"
+                          value={item.rate}
+                          onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
+                          className="flex-grow sm:flex-grow-0 sm:w-24 px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-right"
+                        />
+                        {invForm.items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItemRow(idx)}
+                            className="p-1.5 text-rose-500 hover:text-rose-700 shrink-0"
+                            title="Remove Item"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

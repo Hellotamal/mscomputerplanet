@@ -136,42 +136,44 @@ export default function ERPApp({ onExit }) {
     { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null },
     { id: 'amc', name: 'AMC Contracts', icon: Building2 },
     { id: 'inventory', name: 'Inventory & Spares', icon: Package },
-    { id: 'invoices', name: 'GST Billing & Invoices', icon: FileText },
+    { id: 'invoices', name: 'GST Invoices', icon: FileText },
     { id: 'solar', name: 'Solar Projects', icon: SunMedium },
     { id: 'settings', name: 'Data & Settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col antialiased">
+    <div className="min-h-screen bg-slate-100 flex flex-col antialiased text-slate-800">
       {/* ERP Top Header */}
-      <header className="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+          {/* Left: Exit to Website and Brand */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={onExit}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold"
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5 text-xs font-semibold shrink-0"
               title="Return to Public Website"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Website</span>
             </button>
 
-            <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
+            <div className="h-5 w-px bg-slate-800 hidden sm:block"></div>
 
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base tracking-tight text-white">
+            <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white truncate">
                 M/S COMPUTER PLANET
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="hidden md:inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
                 ERP Operations
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={handleExportBackup}
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition"
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition"
               title="Backup all data to JSON file"
             >
               <Download className="w-3.5 h-3.5 text-emerald-400" />
@@ -183,14 +185,14 @@ export default function ERPApp({ onExit }) {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-xs font-semibold border border-rose-800/60 transition"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Log Out</span>
+              <span className="hidden sm:inline">Log Out</span>
             </button>
           </div>
         </div>
 
-        {/* Navigation Tabs Bar */}
-        <div className="bg-slate-850 border-t border-slate-800 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+        {/* Navigation Tabs Bar - Seamless Dark Slate Background with no-scrollbar */}
+        <div className="bg-slate-900 border-t border-slate-800/80 px-3 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-2 no-scrollbar">
             {navTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -198,16 +200,16 @@ export default function ERPApp({ onExit }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition ${
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition ${
                     isActive
                       ? 'bg-emerald-600 text-white shadow'
                       : 'text-slate-400 hover:text-white hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span>{tab.name}</span>
                   {tab.badge && (
-                    <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px] flex items-center justify-center">
+                    <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[10px]">
                       {tab.badge}
                     </span>
                   )}
@@ -219,35 +221,35 @@ export default function ERPApp({ onExit }) {
       </header>
 
       {/* Main ERP Workspace Area */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {/* Business Welcome Banner */}
-            <div className="bg-gradient-to-r from-slate-900 via-brand-blue to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-              <div>
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            <div className="bg-gradient-to-br from-slate-900 via-brand-blue to-slate-950 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border border-slate-800">
+              <div className="max-w-2xl">
+                <span className="text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">
                   Internal Operations Centre
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black mt-1">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">
                   Welcome to Computer Planet ERP
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
                   Manage Punjab National Bank branch service calls, post office AMCs, stock levels of computer & solar spares,
                   and generate GST-compliant tax invoices directly from your website.
                 </p>
               </div>
 
-              <div className="flex gap-3 shrink-0">
+              <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
                 <button
                   onClick={() => setActiveTab('pnb_assets')}
-                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center gap-1.5"
+                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
                 >
                   <Landmark className="w-4 h-4" />
                   <span>PNB Asset Register (543)</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('tickets')}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow"
+                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition"
                 >
                   View Active Tickets
                 </button>
@@ -255,14 +257,14 @@ export default function ERPApp({ onExit }) {
             </div>
 
             {/* Official PNB Silchar Circle Highlight Card */}
-            <div className="bg-white rounded-3xl p-6 border-2 border-blue-100 shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
                 <div>
                   <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
                     <Landmark className="w-4 h-4 text-blue-600" />
                     <span>Active Banking AMC Highlight</span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">
                     PNB Circle Office Silchar — 543 Total Managed Hardware Assets
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -271,43 +273,43 @@ export default function ERPApp({ onExit }) {
                 </div>
                 <button
                   onClick={() => setActiveTab('pnb_assets')}
-                  className="inline-flex items-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
+                  className="inline-flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
                 >
                   <span>Open Full Branch Matrix</span>
                   <span>→</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-4">
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">Desktops</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.desktops}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-4">
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Desktops</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.desktops}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">LaserJet</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.laserjetPrinters}</div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">LaserJet</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.laserjetPrinters}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">Passbook</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.passbookPrinters}</div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Passbook</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.passbookPrinters}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">HS Scanners</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.highSpeedScanners}</div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">HS Scanners</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.highSpeedScanners}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">Flat Scanners</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.scanners}</div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Flat Scanners</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.scanners}</div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase">Cash Receipt</div>
-                  <div className="text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.cashReceiptPrinters}</div>
+                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Cash Receipt</div>
+                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.cashReceiptPrinters}</div>
                 </div>
               </div>
             </div>
 
             {/* 4 Primary Operational Counters */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               <div
                 onClick={() => setActiveTab('amc')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
@@ -382,9 +384,9 @@ export default function ERPApp({ onExit }) {
             </div>
 
             {/* Quick Operational Shortcuts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
               {/* Recent Open Tickets */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                     <Wrench className="w-4 h-4 text-emerald-600" />
@@ -397,14 +399,14 @@ export default function ERPApp({ onExit }) {
                     View All →
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {tickets.slice(0, 3).map((t) => (
                     <div key={t.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between gap-3 text-xs">
-                      <div>
-                        <div className="font-bold text-slate-900">{t.clientName}</div>
-                        <div className="text-slate-500 truncate max-w-sm">{t.description}</div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-slate-900 truncate">{t.clientName}</div>
+                        <div className="text-slate-500 truncate">{t.description}</div>
                       </div>
-                      <span className={`px-2 py-0.5 rounded font-bold shrink-0 ${
+                      <span className={`px-2 py-0.5 rounded font-bold shrink-0 text-[11px] ${
                         t.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                       }`}>
                         {t.status}
@@ -415,27 +417,27 @@ export default function ERPApp({ onExit }) {
               </div>
 
               {/* Quick Legal Credentials Reference */}
-              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
                 <h3 className="font-bold text-slate-900 text-sm mb-4 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-sky-600" />
                   <span>Business Legal Credentials (For Invoicing)</span>
                 </h3>
-                <div className="space-y-2.5 text-xs text-slate-700">
-                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                <div className="space-y-2 text-xs text-slate-700">
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
                     <span className="text-slate-500">MSME Registration:</span>
                     <strong className="font-mono text-slate-900">UDYAM-AS-05-0019941</strong>
                   </div>
-                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
                     <span className="text-slate-500">GSTIN Identification:</span>
                     <strong className="font-mono text-slate-900">18ASTPR6755J1Z0</strong>
                   </div>
-                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
                     <span className="text-slate-500">Trade License:</span>
                     <strong className="text-slate-900">Silchar Municipal Authority</strong>
                   </div>
-                  <div className="flex justify-between p-2.5 bg-slate-50 rounded-xl">
+                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
                     <span className="text-slate-500">Registered Office:</span>
-                    <span className="text-slate-700 font-medium">West Kachudharam, Chincoorie, Silchar</span>
+                    <span className="text-slate-700 font-medium truncate ml-2">West Kachudharam, Chincoorie, Silchar</span>
                   </div>
                 </div>
               </div>
@@ -453,7 +455,7 @@ export default function ERPApp({ onExit }) {
         {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Backup and Restore */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm">
               <h3 className="text-base font-bold text-slate-900 mb-2">
                 ERP Data Backup & Restore
               </h3>
@@ -485,7 +487,7 @@ export default function ERPApp({ onExit }) {
             </div>
 
             {/* Change Access PIN */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm">
               <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
                 <KeyRound className="w-4 h-4 text-emerald-600" />
                 <span>Change Staff Access PIN</span>

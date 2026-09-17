@@ -240,7 +240,7 @@ export default function SolarProjectsModule({ solarProjects, setSolarProjects })
       {/* Add / Edit Project Modal */}
       {(showAddModal || editingProject) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900">
                 {editingProject ? `Edit Project: ${editingProject.id}` : 'New Solar Installation Project'}

@@ -309,46 +309,46 @@ export default function PNBAssetModule() {
       </div>
 
       {/* 7 Summary Hardware Counter Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2.5 sm:gap-3">
         <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Assets</div>
-          <div className="text-2xl font-black text-slate-900 font-mono mt-1">{grandTotals.total}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 truncate">Total Assets</div>
+          <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono mt-1">{grandTotals.total}</div>
           <div className="text-[10px] text-emerald-600 font-medium mt-0.5">{branches.length} Locations</div>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700">Desktops</div>
-          <div className="text-2xl font-black text-sky-900 font-mono mt-1">{grandTotals.desktop}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-sky-700 truncate">Desktops</div>
+          <div className="text-xl sm:text-2xl font-black text-sky-900 font-mono mt-1">{grandTotals.desktop}</div>
           <div className="text-[10px] text-sky-700 font-medium mt-0.5">Workstations</div>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-700">LaserJet</div>
-          <div className="text-2xl font-black text-indigo-900 font-mono mt-1">{grandTotals.laserjet}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-700 truncate">LaserJet</div>
+          <div className="text-xl sm:text-2xl font-black text-indigo-900 font-mono mt-1">{grandTotals.laserjet}</div>
           <div className="text-[10px] text-indigo-700 font-medium mt-0.5">Printers</div>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">Passbook</div>
-          <div className="text-2xl font-black text-amber-900 font-mono mt-1">{grandTotals.passbook}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700 truncate">Passbook</div>
+          <div className="text-xl sm:text-2xl font-black text-amber-900 font-mono mt-1">{grandTotals.passbook}</div>
           <div className="text-[10px] text-amber-700 font-medium mt-0.5">Printers</div>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-700">HS Scanners</div>
-          <div className="text-2xl font-black text-purple-900 font-mono mt-1">{grandTotals.hsScanner}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-700 truncate">HS Scanners</div>
+          <div className="text-xl sm:text-2xl font-black text-purple-900 font-mono mt-1">{grandTotals.hsScanner}</div>
           <div className="text-[10px] text-purple-700 font-medium mt-0.5">High Speed</div>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-rose-700">Flat Scanners</div>
-          <div className="text-2xl font-black text-rose-900 font-mono mt-1">{grandTotals.scanner}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-rose-700 truncate">Flat Scanners</div>
+          <div className="text-xl sm:text-2xl font-black text-rose-900 font-mono mt-1">{grandTotals.scanner}</div>
           <div className="text-[10px] text-rose-700 font-medium mt-0.5">Flatbed</div>
         </div>
 
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Cash Receipt</div>
-          <div className="text-2xl font-black text-emerald-900 font-mono mt-1">{grandTotals.cashReceipt}</div>
+        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center col-span-2 sm:col-span-1">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 truncate">Cash Receipt</div>
+          <div className="text-xl sm:text-2xl font-black text-emerald-900 font-mono mt-1">{grandTotals.cashReceipt}</div>
           <div className="text-[10px] text-emerald-700 font-medium mt-0.5">Teller Printers</div>
         </div>
       </div>
@@ -390,18 +390,18 @@ export default function PNBAssetModule() {
           <table className="w-full text-left text-xs sm:text-sm">
             <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
               <tr>
-                <th className="py-3 px-3 text-center">#</th>
-                <th className="py-3 px-3">BE</th>
-                <th className="py-3 px-4">Branch Name</th>
-                <th className="py-3 px-3 text-center">Sol ID</th>
-                <th className="py-3 px-3 text-right">Desktop</th>
-                <th className="py-3 px-3 text-right">Passbook</th>
-                <th className="py-3 px-3 text-right">LaserJet</th>
-                <th className="py-3 px-3 text-right">Scanner</th>
-                <th className="py-3 px-3 text-right">HS Scan</th>
-                <th className="py-3 px-3 text-right">Cash Rcpt</th>
-                <th className="py-3 px-4 text-right font-black text-slate-900">Total</th>
-                <th className="py-3 px-4 text-center">Actions</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">#</th>
+                <th className="py-3 px-3 whitespace-nowrap">BE</th>
+                <th className="py-3 px-4 whitespace-nowrap">Branch Name</th>
+                <th className="py-3 px-3 text-center whitespace-nowrap">Sol ID</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">Desktop</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">Passbook</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">LaserJet</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">Scanner</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">HS Scan</th>
+                <th className="py-3 px-3 text-right whitespace-nowrap">Cash Rcpt</th>
+                <th className="py-3 px-4 text-right font-black text-slate-900 whitespace-nowrap">Total</th>
+                <th className="py-3 px-4 text-center whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

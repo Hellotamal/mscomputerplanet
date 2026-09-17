@@ -182,13 +182,13 @@ export default function TicketsModule({ tickets, setTickets }) {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl text-xs font-semibold text-slate-600">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl text-xs font-semibold text-slate-600 overflow-x-auto no-scrollbar">
             {['All', 'Open', 'In Progress', 'Resolved'].map(status => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-3 py-1.5 rounded-lg transition ${
+                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition ${
                   filterStatus === status ? 'bg-white text-slate-900 shadow-sm' : 'hover:text-slate-900'
                 }`}
               >
@@ -202,7 +202,7 @@ export default function TicketsModule({ tickets, setTickets }) {
               resetForm();
               setShowAddModal(true);
             }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Add Ticket</span>
@@ -314,7 +314,7 @@ export default function TicketsModule({ tickets, setTickets }) {
       {/* Add / Edit Ticket Modal */}
       {(showAddModal || editingTicket) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900">
                 {editingTicket ? `Edit Ticket: ${editingTicket.id}` : 'Create New Service Ticket'}
