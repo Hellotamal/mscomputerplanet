@@ -1,29 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { BUSINESS_INFO } from '../data/businessInfo';
-import { X, Send, CheckCircle, Shield, MessageSquare, Phone, Mail } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, MessageSquare } from 'lucide-react';
 
 export default function QuoteModal({ isOpen, onClose, initialData = {} }) {
+  if (!isOpen) return null;
+  return <QuoteModalDialog onClose={onClose} initialData={initialData} />;
+}
+
+function QuoteModalDialog({ onClose, initialData = {} }) {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     orgName: '',
-    serviceCategory: 'IT Support & AMC',
-    details: '',
+    serviceCategory: initialData.category || 'IT Support & AMC',
+    details: initialData.notes || (initialData.serviceName ? `Interested in: ${initialData.serviceName}` : ''),
     systemCount: '5-15',
     solarCapacity: '3 kW'
   });
-
-  useEffect(() => {
-    if (initialData.serviceName || initialData.category) {
-      setFormData(prev => ({
-        ...prev,
-        serviceCategory: initialData.category || prev.serviceCategory,
-        details: initialData.notes || (initialData.serviceName ? `Interested in: ${initialData.serviceName}` : '')
-      }));
-    }
-  }, [initialData, isOpen]);
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();

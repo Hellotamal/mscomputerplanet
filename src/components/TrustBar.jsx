@@ -1,6 +1,6 @@
 import React from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
-import { ShieldCheck, CheckCircle2, Award, Building2, Landmark, Mail, Sun } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Award, Landmark, Mail, Sun } from 'lucide-react';
 
 export default function TrustBar() {
   const trustItems = [

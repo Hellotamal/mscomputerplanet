@@ -35,25 +35,26 @@ export const DEFAULT_PIN_HASH = "5e54d50521ff6facd09017c3e7c9625dd414c0acf7fced2
 export function checkBruteForceLockout() {
   try {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}lockout`);
-    if (!raw) return { isLocked: false, remainingSeconds: 0, attempts: 0 };
+    if (!raw) return { isLocked: false, remainingSeconds: 0, lockoutRemainingMinutes: 0, attempts: 0 };
 
     const { lockedUntil, attempts } = JSON.parse(raw);
     const now = Date.now();
 
     if (lockedUntil && now < lockedUntil) {
       const remainingSeconds = Math.ceil((lockedUntil - now) / 1000);
-      return { isLocked: true, remainingSeconds, attempts };
+      const lockoutRemainingMinutes = Math.ceil(remainingSeconds / 60);
+      return { isLocked: true, remainingSeconds, lockoutRemainingMinutes, attempts };
     }
 
     // Lockout expired, reset lockout state
     if (lockedUntil && now >= lockedUntil) {
       localStorage.removeItem(`${STORAGE_PREFIX}lockout`);
-      return { isLocked: false, remainingSeconds: 0, attempts: 0 };
+      return { isLocked: false, remainingSeconds: 0, lockoutRemainingMinutes: 0, attempts: 0 };
     }
 
-    return { isLocked: false, remainingSeconds: 0, attempts: attempts || 0 };
-  } catch (e) {
-    return { isLocked: false, remainingSeconds: 0, attempts: 0 };
+    return { isLocked: false, remainingSeconds: 0, lockoutRemainingMinutes: 0, attempts: attempts || 0 };
+  } catch {
+    return { isLocked: false, remainingSeconds: 0, lockoutRemainingMinutes: 0, attempts: 0 };
   }
 }
 
@@ -76,20 +77,25 @@ export function recordFailedAttempt() {
       })
     );
 
+    const remainingSeconds = lockedUntil ? Math.ceil((lockedUntil - Date.now()) / 1000) : 0;
+    const lockoutRemainingMinutes = Math.ceil(remainingSeconds / 60);
+
     return {
       isLocked: newAttempts >= MAX_ATTEMPTS,
       remainingAttempts: Math.max(0, MAX_ATTEMPTS - newAttempts),
+      remainingSeconds,
+      lockoutRemainingMinutes,
       lockedUntil
     };
-  } catch (e) {
-    return { isLocked: false, remainingAttempts: 1, lockedUntil: null };
+  } catch {
+    return { isLocked: false, remainingAttempts: 1, remainingSeconds: 0, lockoutRemainingMinutes: 0, lockedUntil: null };
   }
 }
 
 export function resetFailedAttempts() {
   try {
     localStorage.removeItem(`${STORAGE_PREFIX}lockout`);
-  } catch (e) {}
+  } catch {}
 }
 
 // 4. Cryptographic Session Token & Inactivity Guard
@@ -128,7 +134,7 @@ export function validateSecureSession() {
     sessionStorage.setItem(`${STORAGE_PREFIX}session`, JSON.stringify(session));
 
     return { isValid: true, user: session.user };
-  } catch (e) {
+  } catch {
     terminateSecureSession();
     return { isValid: false, user: null };
   }
@@ -141,7 +147,7 @@ export function updateSessionActivity() {
     const session = JSON.parse(raw);
     session.lastActive = Date.now();
     sessionStorage.setItem(`${STORAGE_PREFIX}session`, JSON.stringify(session));
-  } catch (e) {}
+  } catch {}
 }
 
 export function terminateSecureSession() {
@@ -149,7 +155,7 @@ export function terminateSecureSession() {
     sessionStorage.removeItem(`${STORAGE_PREFIX}session`);
     sessionStorage.removeItem("mcp_erp_authenticated");
     sessionStorage.removeItem("mcp_erp_current_user");
-  } catch (e) {}
+  } catch {}
 }
 
 // 5. LocalStorage Payload Obfuscation & Defense Against Plaintext Peeking
@@ -159,7 +165,7 @@ export function encryptStorageData(data) {
     // Base64 + custom entropy salt rotation
     const encoded = btoa(encodeURIComponent(jsonStr));
     return `__SEC_v1_${encoded}`;
-  } catch (e) {
+  } catch {
     return JSON.stringify(data);
   }
 }
@@ -174,14 +180,27 @@ export function decryptStorageData(storedVal, fallback) {
     }
     // Backward compatibility for raw JSON
     return JSON.parse(storedVal);
-  } catch (e) {
+  } catch {
     return fallback;
   }
 }
 
+// 6. Unique ID Generator (Pure external helper)
+export function generateEntityId(prefix = 'ID') {
+  return `${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
 // 6. Safe JSON Import Validator (Anti-Prototype Pollution)
-export function sanitizeImportPayload(jsonStr) {
-  if (!jsonStr || typeof jsonStr !== 'string') return null;
+export function sanitizeImportPayload(payload) {
+  if (!payload) return null;
+  let jsonStr;
+  try {
+    jsonStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  } catch (err) {
+    console.error("Failed to serialize payload for sanitization", err);
+    return null;
+  }
+
   if (jsonStr.length > 20 * 1024 * 1024) { // Max 20MB guard
     throw new Error('Backup payload exceeds maximum allowable size (20MB).');
   }

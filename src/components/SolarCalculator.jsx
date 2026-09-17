@@ -8,8 +8,7 @@ import {
   Maximize2, 
   Sparkles, 
   Leaf,
-  ArrowRight,
-  ShieldAlert
+  ArrowRight
 } from 'lucide-react';
 
 export default function SolarCalculator({ onOpenQuote }) {

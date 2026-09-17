@@ -8,10 +8,7 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight, 
-  ShieldCheck, 
-  Users, 
   Landmark, 
-  Award,
   ArrowRight
 } from 'lucide-react';
 import { GALLERY_ITEMS } from '../data/galleryData';

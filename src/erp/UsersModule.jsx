@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import { 
-  Users, 
   UserPlus, 
   ShieldCheck, 
   Search, 
-  Filter, 
   Lock, 
   Eye, 
   EyeOff, 
   Edit2, 
   Trash2, 
   X, 
-  CheckCircle2, 
-  AlertCircle, 
   Phone, 
   MapPin, 
-  KeyRound,
-  ShieldAlert
+  KeyRound
 } from 'lucide-react';
 import { ROLE_DEFINITIONS } from './erpStorage';
 
@@ -34,7 +29,7 @@ const ALL_MODULES = [
   { id: 'settings', label: 'Data Backup & Settings' }
 ];
 
-export default function UsersModule({ users, setUsers, currentUser }) {
+export default function UsersModule({ users, setUsers, currentUser: _currentUser }) {
   const [search, setSearch] = useState('');
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);

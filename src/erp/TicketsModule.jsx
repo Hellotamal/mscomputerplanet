@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
-import { escapeHtml } from './erpSecurity';
+import { escapeHtml, generateEntityId } from './erpSecurity';
 import { 
-  Wrench, 
   Plus, 
   Search, 
-  Filter, 
-  Clock, 
-  CheckCircle2, 
-  AlertTriangle, 
   User, 
   Phone, 
   X,
@@ -81,7 +76,7 @@ Chincoorie, Silchar, Cachar, Assam - 788007
 
     const created = {
       ...ticketForm,
-      id: `TCK-${Math.floor(1000 + Math.random() * 9000)}`,
+      id: generateEntityId('TCK'),
       status: 'Open',
       reportedDate: new Date().toISOString().split('T')[0]
     };

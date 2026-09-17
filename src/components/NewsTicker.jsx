@@ -1,9 +1,8 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LOCAL_NEWS_DATA, NEWS_CATEGORIES } from '../data/localNewsData';
 import { 
   Sun, 
   Cpu, 
-  Landmark, 
   Radio, 
   Play, 
   Pause, 
@@ -11,14 +10,12 @@ import {
   X, 
   Newspaper, 
   ChevronRight, 
-  Sparkles,
-  Search,
-  CheckCircle2
+  Search
 } from 'lucide-react';
 
 export default function NewsTicker({ onOpenQuote }) {
   const [isPaused, setIsPaused] = useState(false);
-  const [newsList, setNewsList] = useState(LOCAL_NEWS_DATA);
+  const [newsList] = useState(LOCAL_NEWS_DATA);
   const [selectedNews, setSelectedNews] = useState(null);
   const [activeCategory, setActiveCategory] = useState(NEWS_CATEGORIES.ALL);
   const [isAllModalOpen, setIsAllModalOpen] = useState(false);

@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { PRODUCTS_LIST } from '../data/productsServices';
-import { BUSINESS_INFO } from '../data/businessInfo';
 import { 
   Package, 
-  Cpu, 
-  SunMedium, 
-  Check, 
   MessageSquare, 
-  ArrowUpRight,
-  Shield,
-  Layers
+  ArrowUpRight, 
+  Shield 
 } from 'lucide-react';
 
 export default function ProductsCatalog({ onOpenQuote }) {

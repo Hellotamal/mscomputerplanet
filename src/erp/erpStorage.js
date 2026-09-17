@@ -1201,7 +1201,56 @@ export const INITIAL_TRANSACTIONS = [
     tax: 0,
     narration: "Withdrew cash from PNB Current Account for office petty cash buffer."
   }
+];export const INITIAL_AUDIT_LOGS = [
+  {
+    id: "AUD-2026-001",
+    timestamp: "2026-09-18T01:30:00.000Z",
+    action: "SYSTEM_INITIALIZE",
+    category: "Security & Governance",
+    user: "Amio Sinha (Administrator)",
+    details: "ERP Workspace integrity check & SHA-256 cryptographic security shield verified."
+  },
+  {
+    id: "AUD-2026-002",
+    timestamp: "2026-09-17T18:45:00.000Z",
+    action: "ACCOUNTS_VOUCHER_POST",
+    category: "Financial Ledger",
+    user: "Amio Sinha",
+    details: "Posted AMC Payment Receipt Voucher VCH-2026-001 for ₹1,21,250 (PNB Silchar Circle)."
+  },
+  {
+    id: "AUD-2026-003",
+    timestamp: "2026-09-17T16:20:00.000Z",
+    action: "CLIENT_ENROLL",
+    category: "Client Directory",
+    user: "Resident Engineer - Debashis",
+    details: "Enrolled Cachar College Silchar Computer Lab under Annual Maintenance Contract."
+  }
 ];
+
+export function getAuditLogs() {
+  return loadErpData("audit_logs", INITIAL_AUDIT_LOGS);
+}
+
+export function recordAuditLog(action, category, details, user = "Authorized Administrator") {
+  try {
+    const current = loadErpData("audit_logs", INITIAL_AUDIT_LOGS);
+    const newEntry = {
+      id: `AUD-${Date.now().toString().slice(-6)}`,
+      timestamp: new Date().toISOString(),
+      action,
+      category: category || "System Operation",
+      user: typeof user === 'string' ? user : (user?.name || user?.username || 'Authorized User'),
+      details: details || "Administrative activity recorded."
+    };
+    const updated = [newEntry, ...(Array.isArray(current) ? current : [])].slice(0, 100);
+    saveErpData("audit_logs", updated);
+    return newEntry;
+  } catch (err) {
+    console.error("Failed to record audit log", err);
+    return null;
+  }
+}
 
 export function exportAllErpData() {
   const backup = {
@@ -1220,15 +1269,15 @@ export function exportAllErpData() {
     invoices: loadErpData("invoices", INITIAL_INVOICES),
     quotations: loadErpData("quotations", INITIAL_QUOTATIONS),
     solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
-    pnbAssets: loadErpData("pnb_assets", null)
+    pnbAssets: loadErpData("pnb_assets", null),
+    auditLogs: loadErpData("audit_logs", INITIAL_AUDIT_LOGS)
   };
   return JSON.stringify(backup, null, 2);
 }
 
 export function importAllErpData(jsonString) {
   try {
-    const raw = JSON.parse(jsonString);
-    const data = sanitizeImportPayload(raw);
+    const data = sanitizeImportPayload(jsonString);
     if (!data) {
       console.error("Payload validation failed: Malformed or untrusted structure");
       return false;
@@ -1247,6 +1296,9 @@ export function importAllErpData(jsonString) {
     if (data.quotations && Array.isArray(data.quotations)) saveErpData("quotations", data.quotations);
     if (data.solarProjects && Array.isArray(data.solarProjects)) saveErpData("solar_projects", data.solarProjects);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
+    if (data.auditLogs && Array.isArray(data.auditLogs)) saveErpData("audit_logs", data.auditLogs);
+    
+    recordAuditLog("SYSTEM_RESTORE", "Data Management", "System data successfully restored from verified JSON backup.");
     return true;
   } catch (err) {
     console.error("Invalid ERP backup file", err);

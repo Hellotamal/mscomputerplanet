@@ -3,13 +3,10 @@ import {
   Award, 
   Sparkles, 
   Quote, 
-  CheckCircle2, 
   ShieldCheck, 
   PhoneCall, 
   MessageSquare, 
-  ExternalLink,
-  Sun,
-  Cpu,
+  Sun, 
   HeartHandshake
 } from 'lucide-react';
 import { BUSINESS_INFO } from '../data/businessInfo';

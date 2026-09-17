@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { escapeHtml } from './erpSecurity';
+import { getAuditLogs } from './erpStorage';
 import { 
   FileText, 
   Download, 
   Printer, 
   Search, 
-  Filter, 
-  Calendar, 
-  CheckCircle2, 
-  TrendingUp, 
   IndianRupee, 
   Building2, 
   SunMedium, 
@@ -19,7 +16,7 @@ import {
   FileSpreadsheet, 
   Layers,
   ArrowDownToLine,
-  HelpCircle
+  ShieldCheck
 } from 'lucide-react';
 
 export default function ReportsModule({
@@ -196,6 +193,43 @@ export default function ReportsModule({
         'Disbursement Status': p.status || 'Pending'
       }))
     },
+    {
+      id: 'employees_directory',
+      title: 'Staff & Resident Engineers Master Register',
+      category: 'hrms',
+      categoryName: 'Human Resources (HRMS)',
+      icon: Users,
+      description: 'Master record of all technical staff, resident banking engineers, solar field technicians, departments, and active status.',
+      getData: () => employees.map(e => ({
+        'Employee ID': e.id,
+        'Full Name': e.name || 'N/A',
+        'Designation': e.designation || 'N/A',
+        'Department': e.department || 'N/A',
+        'Employment Type': e.employmentType || 'Full-time',
+        'Contact Phone': e.phone || 'N/A',
+        'Assigned Circle': e.assignedCircle || 'Silchar',
+        'Monthly Salary (₹)': e.monthlySalary || 0,
+        'Employment Status': e.status || 'Active'
+      }))
+    },
+    {
+      id: 'leaves_register',
+      title: 'Staff Leave & Absence Management Register',
+      category: 'hrms',
+      categoryName: 'Human Resources (HRMS)',
+      icon: Users,
+      description: 'Record of employee leave applications, leave categories, date ranges, approval status, and remarks.',
+      getData: () => leaves.map(l => ({
+        'Leave ID': l.id || 'N/A',
+        'Employee Name': l.employeeName || 'N/A',
+        'Leave Type': l.leaveType || 'Casual Leave',
+        'Start Date': l.startDate || 'N/A',
+        'End Date': l.endDate || 'N/A',
+        'Total Days': l.days || 1,
+        'Approval Status': l.status || 'Approved',
+        'Reason': l.reason || 'N/A'
+      }))
+    },
 
     // Accounts & Finance
     {
@@ -236,6 +270,23 @@ export default function ReportsModule({
         'Total Valuation (₹)': (Number(i.stock || 0) * Number(i.sellPrice || 0)),
         'Storage Shelf': i.location || 'Shelf A'
       }))
+    },
+    // Security & IT Audit Trail
+    {
+      id: 'security_audit_log',
+      title: 'IT Auditor & Security Compliance Audit Trail',
+      category: 'security',
+      categoryName: 'Security & Audit',
+      icon: ShieldCheck,
+      description: 'Timestamped immutable log of administrative actions, user logins, data restorations, and financial postings.',
+      getData: () => getAuditLogs().map(log => ({
+        'Log ID': log.id,
+        'Timestamp (UTC)': log.timestamp,
+        'Action Event': log.action,
+        'Domain Category': log.category,
+        'User / Operator': log.user,
+        'Audit Details': log.details
+      }))
     }
   ];
 
@@ -247,7 +298,8 @@ export default function ReportsModule({
     { id: 'service', name: 'Service & Maintenance' },
     { id: 'hrms', name: 'Human Resources (HRMS)' },
     { id: 'accounts', name: 'Accounts & Finance' },
-    { id: 'inventory', name: 'Inventory & Spares' }
+    { id: 'inventory', name: 'Inventory & Spares' },
+    { id: 'security', name: 'Security & IT Audit' }
   ];
 
   const filteredReports = reportDefinitions.filter(r => {

@@ -3,15 +3,11 @@ import { BUSINESS_INFO } from '../data/businessInfo';
 import { 
   Server, 
   SunMedium, 
-  ShieldCheck, 
-  Zap, 
   ArrowRight, 
   PhoneCall, 
   Calculator, 
   Cpu, 
-  CheckCircle,
-  BatteryCharging,
-  TrendingDown
+  CheckCircle
 } from 'lucide-react';
 
 export default function Hero({ onOpenQuote }) {

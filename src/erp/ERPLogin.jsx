@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { verifyTerminalPinAsync, authenticateUserCredentialsAsync } from './erpStorage';
+import { verifyTerminalPinAsync, authenticateUserCredentialsAsync, recordAuditLog } from './erpStorage';
 import { 
   checkBruteForceLockout, 
   recordFailedAttempt, 
@@ -14,11 +14,7 @@ import {
   Clock, 
   User, 
   Eye, 
-  EyeOff, 
-  ShieldAlert,
-  ChevronRight,
-  RefreshCw,
-  CheckCircle2
+  EyeOff
 } from 'lucide-react';
 
 export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
@@ -43,14 +39,14 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
       const status = checkBruteForceLockout();
       setLockoutState(status);
       if (status.isLocked) {
-        setCountdownSeconds(status.lockoutRemainingMinutes * 60);
+        setCountdownSeconds(status.remainingSeconds || (status.lockoutRemainingMinutes ? status.lockoutRemainingMinutes * 60 : 600));
       } else {
         setCountdownSeconds(0);
       }
     };
 
     checkStatus();
-    const interval = setInterval(checkStatus, 10000);
+    const interval = setInterval(checkStatus, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -84,14 +80,16 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
 
       if (res.success) {
         resetFailedAttempts();
+        recordAuditLog("TERMINAL_PIN_SUCCESS", "Authentication", "Terminal Security PIN verified successfully.");
         setError('');
         sessionStorage.setItem("mcp_erp_terminal_unlocked", "true");
         setStep(2);
       } else {
         const updated = recordFailedAttempt();
         setLockoutState(updated);
+        recordAuditLog("TERMINAL_PIN_FAILED", "Authentication", `Failed PIN attempt. Remaining: ${updated.remainingAttempts}`);
         if (updated.isLocked) {
-          setCountdownSeconds(updated.lockoutRemainingMinutes * 60);
+          setCountdownSeconds(updated.remainingSeconds || 600);
           setError("Security Lockout: 5 invalid attempts detected. Terminal locked for 10 minutes.");
         } else {
           setError(
@@ -121,13 +119,15 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
 
       if (res.success) {
         resetFailedAttempts();
+        recordAuditLog("USER_LOGIN_SUCCESS", "Authentication", `User '${res.user?.name || res.user?.username}' authenticated.`, res.user);
         setError('');
         onLoginSuccess(res.user);
       } else {
         const updated = recordFailedAttempt();
         setLockoutState(updated);
+        recordAuditLog("USER_LOGIN_FAILED", "Authentication", `Failed login for username '${username}'. Remaining: ${updated.remainingAttempts}`);
         if (updated.isLocked) {
-          setCountdownSeconds(updated.lockoutRemainingMinutes * 60);
+          setCountdownSeconds(updated.remainingSeconds || 600);
           setError("Security Lockout: 5 invalid attempts detected. Terminal locked for 10 minutes.");
         } else {
           setError(

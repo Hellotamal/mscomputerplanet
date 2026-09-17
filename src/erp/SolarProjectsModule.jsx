@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  SunMedium, 
   Plus, 
   Search, 
   MapPin, 
-  CheckCircle2, 
-  Clock, 
-  Zap, 
   Calendar,
   X,
   Edit2,

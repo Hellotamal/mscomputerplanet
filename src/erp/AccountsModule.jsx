@@ -5,7 +5,6 @@ import {
   IndianRupee, 
   Plus, 
   Search, 
-  Filter, 
   Printer, 
   Trash2, 
   Edit2, 
@@ -13,12 +12,7 @@ import {
   ArrowDownLeft, 
   RefreshCw, 
   Calendar, 
-  CheckCircle2, 
   X, 
-  Building2, 
-  CreditCard, 
-  Wallet, 
-  FileText, 
   Send, 
   TrendingUp, 
   TrendingDown,
@@ -80,7 +74,7 @@ const PAYMENT_MODES = [
   'Net Banking (Challan)'
 ];
 
-export default function AccountsModule({ transactions = [], setTransactions, currentUser }) {
+export default function AccountsModule({ transactions = [], setTransactions, currentUser: _currentUser }) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');

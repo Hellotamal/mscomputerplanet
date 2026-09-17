@@ -4,7 +4,6 @@ import {
   X, 
   ExternalLink, 
   ShieldCheck, 
-  Layers, 
   Wrench, 
   PackageCheck, 
   ReceiptText, 

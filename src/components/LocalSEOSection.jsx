@@ -7,16 +7,11 @@ import {
   ChevronUp, 
   HelpCircle, 
   Navigation, 
-  ShieldCheck, 
-  PhoneCall, 
-  FileText,
-  Sparkles,
-  SunMedium,
-  Cpu
+  PhoneCall 
 } from 'lucide-react';
 import { BUSINESS_INFO } from '../data/businessInfo';
 
-export const LOCAL_FAQS = [
+const LOCAL_FAQS = [
   {
     q: "How can homeowners and commercial businesses in Silchar and Barak Valley claim the PM Surya Ghar subsidy?",
     a: "Under the PM Surya Ghar Muft Bijli Yojana, residential consumers can receive up to ₹78,000 in direct central government financial assistance for rooftop solar systems (up to 3 kWp and above). As the official Channel & Solar EPC Consultant Partner of Omnis Trades, M/S Computer Planet provides complete turnkey assistance: we conduct the 3D shadow analysis site survey, submit the APDCL feasibility application, install MNRE-compliant Tier-1 bifacial panels, coordinate bi-directional net meter testing, and guide you until the subsidy is credited directly into your bank account."

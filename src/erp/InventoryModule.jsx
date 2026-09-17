@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Package, 
   Plus, 
   Search, 
   AlertTriangle, 
-  TrendingUp, 
-  ArrowUpRight, 
-  ArrowDownRight,
-  SlidersHorizontal,
-  X,
-  Edit2,
-  Trash2
+  X, 
+  Edit2, 
+  Trash2 
 } from 'lucide-react';
 
 export default function InventoryModule({ inventory, setInventory }) {

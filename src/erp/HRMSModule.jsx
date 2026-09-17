@@ -4,36 +4,26 @@ import { escapeHtml } from './erpSecurity';
 import { loadErpData, saveErpData, INITIAL_FIELD_VISITS } from './erpStorage';
 import { 
   Users, 
-  UserCheck, 
   Calendar, 
   CalendarDays, 
-  FileText, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
   Plus, 
   Search, 
-  Filter, 
   Printer, 
   Building2, 
   Phone, 
-  Mail, 
   MapPin, 
   IndianRupee, 
   Edit2, 
   Trash2, 
   X, 
-  CreditCard,
-  Briefcase,
-  Check,
-  Ban,
-  MessageSquare,
-  Navigation,
-  Compass,
-  ExternalLink,
-  RotateCcw,
-  Tag,
-  CheckCircle
+  Briefcase, 
+  Check, 
+  Ban, 
+  MessageSquare, 
+  Navigation, 
+  Compass, 
+  ExternalLink, 
+  RotateCcw
 } from 'lucide-react';
 
 export default function HRMSModule({ 
@@ -43,7 +33,7 @@ export default function HRMSModule({
   setLeaves, 
   payroll, 
   setPayroll,
-  currentUser,
+  currentUser: _currentUser,
   activeSubTab: externalSubTab,
   onSubTabChange
 }) {

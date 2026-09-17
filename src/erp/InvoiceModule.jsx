@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
-import { BUSINESS_INFO } from '../data/businessInfo';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
-import { escapeHtml } from './erpSecurity';
+import { escapeHtml, generateEntityId } from './erpSecurity';
 import { 
-  FileText, 
   Plus, 
   Search, 
   Printer, 
   Trash2, 
-  CheckCircle2, 
-  Building, 
-  IndianRupee,
-  X,
-  Edit2,
-  MessageSquare,
-  QrCode
+  X, 
+  Edit2, 
+  MessageSquare 
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -132,7 +126,7 @@ Support Helpline: +91-8638083712`;
 
     const created = {
       ...invForm,
-      id: `INV-2024-${Math.floor(100 + Math.random() * 900)}`
+      id: generateEntityId('INV-2026')
     };
 
     setInvoices([created, ...invoices]);

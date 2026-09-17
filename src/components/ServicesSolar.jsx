@@ -10,10 +10,7 @@ import {
   CheckCircle2, 
   ArrowRight,
   Calculator,
-  Leaf,
-  Sun,
-  IndianRupee,
-  Lightbulb
+  Leaf
 } from 'lucide-react';
 
 const iconMap = {

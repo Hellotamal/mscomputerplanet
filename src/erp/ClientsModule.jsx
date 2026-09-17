@@ -3,29 +3,22 @@ import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
 import { escapeHtml } from './erpSecurity';
 import PNBAssetModule from './PNBAssetModule';
 import { 
-  Building2, 
   Landmark, 
   Search, 
   Plus, 
   Edit2, 
   Trash2, 
   Phone, 
-  Mail, 
   MapPin, 
   Calendar, 
-  IndianRupee, 
   Printer, 
-  CheckCircle2, 
   X, 
   Filter, 
   SunMedium, 
   Wrench, 
   ShoppingBag, 
-  ChevronRight, 
-  ExternalLink,
-  Layers,
-  ArrowRight,
-  ShieldCheck,
+  Layers, 
+  ArrowRight, 
   AlertCircle
 } from 'lucide-react';
 

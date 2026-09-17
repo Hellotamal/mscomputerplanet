@@ -5,11 +5,9 @@ import {
   Mail, 
   MapPin, 
   Clock, 
-  Send, 
   CheckCircle2, 
   MessageSquare, 
-  ExternalLink,
-  ShieldCheck
+  ExternalLink
 } from 'lucide-react';
 
 export default function ContactSection() {

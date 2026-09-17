@@ -1,5 +1,4 @@
 import React from 'react';
-import { BUSINESS_INFO } from '../data/businessInfo';
 import { 
   Landmark, 
   Mail, 

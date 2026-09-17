@@ -11,9 +11,7 @@ import {
   Plus,
   Edit2,
   Trash2,
-  X,
-  CheckCircle, 
-  Filter
+  X
 } from 'lucide-react';
 
 export default function PNBAssetModule() {

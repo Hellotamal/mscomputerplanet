@@ -4,21 +4,15 @@ import NewsTicker from './NewsTicker';
 import { 
   Phone, 
   Mail, 
-  MapPin, 
   Menu, 
   X, 
   ShieldCheck, 
-  Server, 
   Sun, 
   Moon,
-  Calculator, 
-  Layers, 
-  FileText, 
-  MessageSquare,
-  ExternalLink
+  FileText
 } from 'lucide-react';
 
-export default function Navbar({ onOpenQuote, onOpenERP, theme, onToggleTheme }) {
+export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onToggleTheme }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 

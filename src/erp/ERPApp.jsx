@@ -12,13 +12,12 @@ import {
   INITIAL_EMPLOYEES,
   INITIAL_LEAVES,
   INITIAL_PAYROLL,
-  INITIAL_FIELD_VISITS,
   INITIAL_CLIENTS,
   INITIAL_TRANSACTIONS,
   exportAllErpData,
   importAllErpData,
-  getErpPin,
-  setErpPin
+  setErpPin,
+  recordAuditLog
 } from './erpStorage';
 import { 
   generateSecureSession, 
@@ -54,39 +53,33 @@ import {
   Download, 
   Upload, 
   ShieldCheck, 
-  TrendingUp, 
   IndianRupee,
   Layers,
   KeyRound,
   CheckCircle2,
   Landmark,
-  Monitor,
-  Printer,
   Users,
   UserCheck,
   Briefcase,
-  ChevronLeft,
   ChevronRight,
   ChevronDown,
   Menu,
   X,
   MapPin,
   Calendar,
-  CalendarDays,
   FileSpreadsheet,
-  ShoppingBag,
-  CreditCard,
-  Wallet
+  ShoppingBag
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
   const [currentUser, setCurrentUser] = useState(() => {
     const session = validateSecureSession();
-    return session ? session.user : null;
+    return session && session.isValid ? session.user : null;
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!validateSecureSession();
+    const session = validateSecureSession();
+    return session && session.isValid;
   });
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -115,8 +108,9 @@ export default function ERPApp({ onExit }) {
 
     const sessionChecker = setInterval(() => {
       const activeSession = validateSecureSession();
-      if (!activeSession) {
+      if (!activeSession || !activeSession.isValid) {
         terminateSecureSession();
+        recordAuditLog("SESSION_AUTO_LOCK", "Security", "Session automatically locked after 15 minutes of idle inactivity.");
         sessionStorage.removeItem("mcp_erp_terminal_unlocked");
         setCurrentUser(null);
         setIsAuthenticated(false);

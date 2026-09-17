@@ -147,10 +147,8 @@ export default function OmnisPartnership({ onOpenQuote }) {
 
                 {/* 4 Track-Record Metrics */}
                 <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/80">
-                  {keyMetrics.map((m, idx) => {
-                    const Icon = m.icon;
-                    return (
-                      <div key={idx} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800 text-center">
+                  {keyMetrics.map((m, idx) => (
+                    <div key={idx} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800 text-center">
                         <div className={`text-xl sm:text-2xl font-black font-mono ${m.color} mb-0.5`}>
                           {m.value}
                         </div>
@@ -158,8 +156,7 @@ export default function OmnisPartnership({ onOpenQuote }) {
                           {m.label}
                         </div>
                       </div>
-                    );
-                  })}
+                  ))}
                 </div>
               </div>
 

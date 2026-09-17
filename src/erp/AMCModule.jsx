@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
+import { generateEntityId } from './erpSecurity';
 import { 
-  Building2, 
   Plus, 
   Search, 
   Calendar, 
-  ShieldCheck, 
-  CheckCircle2, 
-  AlertCircle,
-  IndianRupee,
-  Landmark,
-  X,
-  Edit2,
+  X, 
+  Edit2, 
   Trash2
 } from 'lucide-react';
 
@@ -50,7 +45,7 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
 
     const created = {
       ...amcForm,
-      id: `AMC-2024-${Math.floor(100 + Math.random() * 900)}`,
+      id: generateEntityId('AMC-2026'),
       branchCount: Number(amcForm.branchCount) || 1,
       deviceCount: Number(amcForm.deviceCount) || 1,
       annualValue: Number(amcForm.annualValue) || 0,

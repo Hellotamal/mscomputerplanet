@@ -8,11 +8,10 @@ import {
   Sun, 
   Cpu, 
   ArrowUp, 
-  CheckCircle,
   ExternalLink
 } from 'lucide-react';
 
-export default function Footer({ onOpenERP }) {
+export default function Footer({ onOpenERP: _onOpenERP }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

@@ -1,33 +1,23 @@
 import React, { useState } from 'react';
 import { getCompanyPrintHeaderHtml } from '../data/companyLogo';
-import { escapeHtml } from './erpSecurity';
+import { escapeHtml, generateEntityId } from './erpSecurity';
 import { 
   ClipboardList, 
   Plus, 
   Search, 
-  Filter, 
   Printer, 
   Trash2, 
   Edit2, 
   Copy, 
   MessageSquare, 
   FileText, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
   X, 
-  Calendar, 
   Building2, 
-  IndianRupee, 
-  ArrowRightCircle, 
   CheckCircle, 
-  Send,
-  HelpCircle,
-  TrendingUp,
   Tag
 } from 'lucide-react';
 
-export function numberToIndianWords(num) {
+function numberToIndianWords(num) {
   if (!num || isNaN(num) || num === 0) return 'Zero Rupees Only';
   const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
@@ -67,7 +57,7 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
   const [editingQuote, setEditingQuote] = useState(null);
 
   // Form State
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     id: '',
     date: new Date().toISOString().split('T')[0],
     validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -87,7 +77,7 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
     gstRate: 18,
     terms: DEFAULT_TERMS,
     notes: ''
-  });
+  }));
 
   const calculateSubtotal = (items) => {
     return (items || []).reduce((acc, item) => acc + ((Number(item.qty) || 0) * (Number(item.rate) || 0)), 0);
@@ -250,7 +240,7 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
     );
     if (!confirmConvert) return;
 
-    const newInvoiceId = `INV-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const newInvoiceId = generateEntityId('INV-2026');
     const newInvoice = {
       id: newInvoiceId,
       invoiceDate: new Date().toISOString().split('T')[0],
@@ -644,7 +634,7 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
 
                   {/* Items summary */}
                   <div className="text-xs text-slate-500 line-clamp-2">
-                    {q.items.map((it, idx) => `${it.desc} (${it.qty} ${it.unit || 'Nos'})`).join(' • ')}
+                    {q.items.map(it => `${it.desc} (${it.qty} ${it.unit || 'Nos'})`).join(' • ')}
                   </div>
 
                   {q.notes && (
