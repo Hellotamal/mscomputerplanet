@@ -135,8 +135,6 @@ export default function Footer() {
             <span>MSME Reg: {BUSINESS_INFO.legal.udyamRegNo}</span>
             <span>•</span>
             <span>GST: {BUSINESS_INFO.legal.gstin}</span>
-            <span>•</span>
-            <span>Hosted via Cloudflare Pages</span>
           </div>
         </div>
       </div>
