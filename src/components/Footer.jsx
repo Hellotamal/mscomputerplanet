@@ -9,10 +9,11 @@ import {
   Cpu, 
   ArrowUp, 
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Lock
 } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ onOpenERP }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -45,7 +46,7 @@ export default function Footer() {
               Proudly servicing government bodies, banking circles, and commercial businesses across Silchar & Barak Valley.
             </p>
 
-            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5 font-mono">
+            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5 font-mono mb-4">
               <div className="flex items-center gap-2 text-emerald-400">
                 <ShieldCheck className="w-4 h-4 shrink-0" />
                 <span>UDYAM: {BUSINESS_INFO.legal.udyamRegNo}</span>
@@ -55,6 +56,15 @@ export default function Footer() {
                 <span>GSTIN: {BUSINESS_INFO.legal.gstin}</span>
               </div>
             </div>
+
+            {/* Backend ERP Access Button */}
+            <button
+              onClick={onOpenERP}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition"
+            >
+              <Lock className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Backend Operations (ERP Portal)</span>
+            </button>
           </div>
 
           {/* IT Services Links */}
@@ -113,13 +123,20 @@ export default function Footer() {
               </div>
             </address>
 
-            <div className="mt-5">
+            <div className="mt-5 flex items-center gap-3">
               <button
                 onClick={scrollToTop}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white hover:border-slate-700 transition"
               >
                 <ArrowUp className="w-3.5 h-3.5" />
                 <span>Back to Top</span>
+              </button>
+              <button
+                onClick={onOpenERP}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-xs text-emerald-400 hover:text-emerald-300 hover:border-slate-700 transition font-medium"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                <span>ERP Portal</span>
               </button>
             </div>
           </div>
@@ -135,6 +152,11 @@ export default function Footer() {
             <span>MSME Reg: {BUSINESS_INFO.legal.udyamRegNo}</span>
             <span>•</span>
             <span>GST: {BUSINESS_INFO.legal.gstin}</span>
+            <span>•</span>
+            <button onClick={onOpenERP} className="text-emerald-500 hover:underline inline-flex items-center gap-1 font-semibold">
+              <Lock className="w-3 h-3" />
+              <span>ERP Staff Portal</span>
+            </button>
           </div>
         </div>
       </div>

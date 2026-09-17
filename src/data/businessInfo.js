@@ -27,6 +27,7 @@ export const BUSINESS_INFO = {
   },
   whatsappLink: "https://wa.me/918638083712?text=Hello%20M/S%20Computer%20Planet,%20I%20would%20like%20to%20inquire%20about%20your%20IT%20and%20Renewable%20Energy%20services.",
   googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=West+Kachudharam+Chincoorie+Silchar+Cachar+Assam+788007",
+  erpUrl: "https://erp.mscomputerplanet.com",
   operatingHours: "Mon - Sat: 9:00 AM - 8:00 PM | Priority Emergency Support: 24/7 for AMC Partners",
   clienteleHighlights: [
     {

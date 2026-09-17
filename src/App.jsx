@@ -10,11 +10,13 @@ import ClienteleTrack from './components/ClienteleTrack';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import QuoteModal from './components/QuoteModal';
+import ERPModal from './components/ERPModal';
 import FloatingActions from './components/FloatingActions';
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteInitialData, setQuoteInitialData] = useState({});
+  const [erpModalOpen, setErpModalOpen] = useState(false);
 
   const handleOpenQuote = (data = {}) => {
     setQuoteInitialData(data);
@@ -26,10 +28,18 @@ export default function App() {
     setQuoteInitialData({});
   };
 
+  const handleOpenERP = () => {
+    setErpModalOpen(true);
+  };
+
+  const handleCloseERP = () => {
+    setErpModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
       {/* Top Navigation */}
-      <Navbar onOpenQuote={handleOpenQuote} />
+      <Navbar onOpenQuote={handleOpenQuote} onOpenERP={handleOpenERP} />
 
       {/* Main Content */}
       <main className="flex-grow">
@@ -44,13 +54,19 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenERP={handleOpenERP} />
 
       {/* Quote & Estimate Modal */}
       <QuoteModal
         isOpen={quoteModalOpen}
         onClose={handleCloseQuote}
         initialData={quoteInitialData}
+      />
+
+      {/* Backend Operations & ERP Gateway Modal */}
+      <ERPModal
+        isOpen={erpModalOpen}
+        onClose={handleCloseERP}
       />
 
       {/* Floating & Sticky Action Bars */}
