@@ -23,6 +23,7 @@ const ALL_MODULES = [
   { id: 'dashboard', label: 'Dashboard & Metrics' },
   { id: 'crm', label: 'CRM & Sales Funnel' },
   { id: 'engineering', label: 'Engineering & BOQ Sizing' },
+  { id: 'itsm', label: 'IT Support / ITSM Suite (11 Tools)' },
   { id: 'clients', label: 'Clients & Assets Register' },
   { id: 'pnb_assets', label: 'PNB Asset Register (543)' },
   { id: 'tickets', label: 'Service Tickets' },

@@ -16,6 +16,7 @@ import {
   INITIAL_TRANSACTIONS,
   INITIAL_LEADS,
   INITIAL_ENGINEERING_DESIGNS,
+  INITIAL_ITSM_DATA,
   exportAllErpData,
   importAllErpData,
   setErpPin,
@@ -29,6 +30,7 @@ import {
 } from './erpSecurity';
 import CRMModule from './CRMModule';
 import EngineeringModule from './EngineeringModule';
+import ITSMModule from './ITSMModule';
 import TicketsModule from './TicketsModule';
 import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
@@ -74,7 +76,8 @@ import {
   FileSpreadsheet,
   ShoppingBag,
   Target,
-  Calculator
+  Calculator,
+  Server
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -146,6 +149,7 @@ export default function ERPApp({ onExit }) {
   const [transactions, setTransactions] = useState(() => loadErpData("transactions", INITIAL_TRANSACTIONS));
   const [leads, setLeads] = useState(() => loadErpData("leads", INITIAL_LEADS));
   const [engineeringDesigns, setEngineeringDesigns] = useState(() => loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
+  const [itsmData, setItsmData] = useState(() => loadErpData("itsm_data", INITIAL_ITSM_DATA));
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
@@ -162,6 +166,7 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("transactions", transactions); }, [transactions]);
   useEffect(() => { saveErpData("leads", leads); }, [leads]);
   useEffect(() => { saveErpData("engineering_designs", engineeringDesigns); }, [engineeringDesigns]);
+  useEffect(() => { saveErpData("itsm_data", itsmData); }, [itsmData]);
 
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
@@ -213,6 +218,7 @@ export default function ERPApp({ onExit }) {
         setTransactions(loadErpData("transactions", INITIAL_TRANSACTIONS));
         setLeads(loadErpData("leads", INITIAL_LEADS));
         setEngineeringDesigns(loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
+        setItsmData(loadErpData("itsm_data", INITIAL_ITSM_DATA));
         alert("ERP Data successfully restored from backup!");
       } else {
         alert("Invalid backup file format or security policy violation.");
@@ -295,6 +301,18 @@ export default function ERPApp({ onExit }) {
           icon: Calculator, 
           badge: engineeringDesigns.length, 
           badgeColor: 'bg-teal-500 text-slate-950' 
+        }
+      ]
+    },
+    {
+      title: "11. IT Support & ITSM",
+      items: [
+        { 
+          id: 'itsm', 
+          name: 'IT Support / ITSM', 
+          icon: Server, 
+          badge: '11 Tools', 
+          badgeColor: 'bg-blue-600 text-white' 
         }
       ]
     },
@@ -761,6 +779,15 @@ export default function ERPApp({ onExit }) {
                     <span>Solar BOQ ({engineeringDesigns.length})</span>
                   </button>
                 )}
+                {hasTabPermission('itsm') && (
+                  <button
+                    onClick={() => setActiveTab('itsm')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Server className="w-4 h-4 text-blue-200" />
+                    <span>ITSM Suite (11)</span>
+                  </button>
+                )}
                 {hasTabPermission('clients') && (
                   <button
                     onClick={() => setActiveTab('clients')}
@@ -1023,6 +1050,16 @@ export default function ERPApp({ onExit }) {
             quotations={quotations}
             setQuotations={setQuotations}
             setActiveTab={setActiveTab}
+            currentUser={currentUser}
+          />
+        )}
+
+        {activeTab === 'itsm' && (
+          <ITSMModule 
+            itsmData={itsmData}
+            setItsmData={setItsmData}
+            tickets={tickets}
+            setTickets={setTickets}
             currentUser={currentUser}
           />
         )}

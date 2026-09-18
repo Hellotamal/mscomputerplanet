@@ -504,16 +504,75 @@ export const INITIAL_ENGINEERING_DESIGNS = [
   }
 ];
 
+export const INITIAL_ITSM_DATA = {
+  serviceCatalog: [
+    { id: 'SRV-01', title: 'New Workstation / Laptop Provisioning', category: 'Hardware', slaHours: 24, description: 'Complete setup of Core i5/i7 PC, SSD imaging, Windows 11 Pro, domain join, and banking printer drivers.' },
+    { id: 'SRV-02', title: 'Banking Passbook / LaserJet Printer Repair', category: 'Hardware', slaHours: 4, description: 'Fix paper jam, roller replacement, printhead realignment, or logic board troubleshooting.' },
+    { id: 'SRV-03', title: 'Tally Prime Multi-User / Cloud Connection', category: 'Software', slaHours: 4, description: 'Configure Tally Gateway server, port 9000 firewall rules, and client license syncing.' },
+    { id: 'SRV-04', title: 'Corporate Email Password Reset & 2FA', category: 'Email & Access', slaHours: 2, description: 'Secure password reset, MFA token regeneration, and Outlook configuration.' },
+    { id: 'SRV-05', title: 'Network Switch / LAN Port Activation', category: 'Network', slaHours: 4, description: 'Patch panel crimping, Cat6 continuity testing, and VLAN tag assignment.' },
+    { id: 'SRV-06', title: 'Solar Inverter WiFi Logger & Cloud Setup', category: 'Solar IT', slaHours: 8, description: 'Reconfigure inverter Datalogger IP, Wi-Fi antenna pairing, and monitoring cloud portal.' }
+  ],
+  hardware: [
+    { id: 'HW-101', tag: 'MCP-PC-042', make: 'HP', model: 'ProDesk 400 G7 SFF', type: 'Desktop PC', serial: 'HP-SN-8829104', location: 'PNB Silchar Main Branch (Teller 2)', ip: '192.168.10.42', cpu: 'Core i5 10th Gen', ram: '16GB DDR4', storage: '512GB NVMe SSD', os: 'Windows 11 Pro OEM', purchaseDate: '2023-04-10', warrantyUntil: '2026-04-09', status: 'Active', user: 'Bank Teller 2' },
+    { id: 'HW-102', tag: 'MCP-PRN-018', make: 'HP', model: 'LaserJet Pro M404dn', type: 'Laser Printer', serial: 'VNC8821092', location: 'PNB Tarapur Branch', ip: '192.168.12.25', cpu: 'N/A', ram: '256MB', storage: 'N/A', os: 'Firmware 2024.1', purchaseDate: '2022-11-15', warrantyUntil: '2025-11-14', status: 'Active', user: 'Branch Operations' },
+    { id: 'HW-103', tag: 'MCP-PB-009', make: 'Epson', model: 'PLQ-30 Passbook Printer', type: 'Passbook Printer', serial: 'EP-PLQ-44910', location: 'Assam Gramin Vikash Bank Silchar', ip: 'USB Direct', cpu: 'N/A', ram: 'N/A', storage: 'N/A', os: 'Epson ESC/P2', purchaseDate: '2023-08-20', warrantyUntil: '2026-08-19', status: 'Active', user: 'Passbook Kiosk' },
+    { id: 'HW-104', tag: 'MCP-SRV-001', make: 'Dell', model: 'PowerEdge T150 Tower Server', type: 'Database Server', serial: 'DELL-TAG-7X892', location: 'M/S Computer Planet HQ Server Room', ip: '192.168.1.5', cpu: 'Intel Xeon E-2314 4-Core', ram: '32GB ECC DDR4', storage: '2x 2TB SATA Enterprise RAID-1', os: 'Windows Server 2022 Standard', purchaseDate: '2023-01-12', warrantyUntil: '2028-01-11', status: 'Active', user: 'Central Tally / ERP Host' },
+    { id: 'HW-105', tag: 'MCP-LAP-023', make: 'Lenovo', model: 'ThinkPad E14 Gen 4', type: 'Laptop', serial: 'LN-TP-992144', location: 'Field Tech Deployment', ip: 'DHCP WiFi', cpu: 'Core i5 12th Gen', ram: '16GB DDR4', storage: '512GB SSD', os: 'Windows 11 Pro', purchaseDate: '2023-09-01', warrantyUntil: '2026-08-31', status: 'Active', user: 'Debashis Roy (IT Lead)' }
+  ],
+  software: [
+    { id: 'SW-01', name: 'Tally Prime Gold (Multi-User)', category: 'ERP / Accounting', publisher: 'Tally Solutions', licenseKey: '7829-9941-2041-8819', totalSeats: 10, allocatedSeats: 8, expiryDate: '2027-03-31', renewalCost: 18000, status: 'Active', host: 'MCP-SRV-001' },
+    { id: 'SW-02', name: 'Microsoft 365 Business Standard', category: 'Productivity & Office', publisher: 'Microsoft', licenseKey: 'MS-O365-CP-SUB-2026', totalSeats: 15, allocatedSeats: 14, expiryDate: '2026-11-30', renewalCost: 28500, status: 'Active', host: 'Cloud SaaS' },
+    { id: 'SW-03', name: 'Seqrite Endpoint Security Enterprise', category: 'Cybersecurity / Antivirus', publisher: 'Quick Heal Technologies', licenseKey: 'SEQR-AS-8819-2201-9944', totalSeats: 50, allocatedSeats: 46, expiryDate: '2026-12-15', renewalCost: 32000, status: 'Active', host: 'Central Cloud Console' },
+    { id: 'SW-04', name: 'Windows 11 Pro 64-Bit OEM', category: 'Operating System', publisher: 'Microsoft', licenseKey: 'W11P-XXXX-XXXX-99544', totalSeats: 30, allocatedSeats: 28, expiryDate: 'Perpetual', renewalCost: 0, status: 'Active', host: 'Client PCs' }
+  ],
+  network: [
+    { id: 'NET-01', name: 'HQ Core Gateway Router', make: 'MikroTik', model: 'RB4011iGS+RM', ip: '192.168.1.1', subnet: '255.255.255.0', location: 'Server Rack Silchar', isp: 'BSNL Bharat Fibre (300 Mbps Static)', status: 'Online', uptime: '99.94%' },
+    { id: 'NET-02', name: 'HQ Distribution Switch', make: 'D-Link', model: 'DGS-1210-28 24-Port Gigabit Smart', ip: '192.168.1.2', subnet: '255.255.255.0', location: 'Rack Unit 3', isp: 'Internal LAN', status: 'Online', uptime: '100.0%' },
+    { id: 'NET-03', name: 'Secondary Failover WAN', make: 'TP-Link', model: 'Archer C80 Dual-WAN', ip: '192.168.2.1', subnet: '255.255.255.0', location: 'Operations Room', isp: 'Airtel Xstream Fibre (200 Mbps Backup)', status: 'Standby / Online', uptime: '99.82%' },
+    { id: 'NET-04', name: 'PNB Tarapur Branch Router', make: 'Cisco', model: 'C1111-4P Integrated Services', ip: '10.14.88.1', subnet: '255.255.255.240', location: 'Tarapur Branch PNB', isp: 'RailTel MPLS VPN', status: 'Online', uptime: '99.98%' }
+  ],
+  email: [
+    { id: 'EML-01', name: 'Tamal Roy (Proprietor)', email: 'admin@mscomputerplanet.com', provider: 'Google Workspace', quotaUsedGb: 8.4, quotaTotalGb: 30, mfaEnabled: true, status: 'Active', role: 'Super Admin' },
+    { id: 'EML-02', name: 'Customer Support Desk', email: 'support@mscomputerplanet.com', provider: 'Google Workspace', quotaUsedGb: 14.2, quotaTotalGb: 30, mfaEnabled: true, status: 'Active', role: 'Support Group' },
+    { id: 'EML-03', name: 'Debashis Roy (IT Service)', email: 'service@mscomputerplanet.com', provider: 'Google Workspace', quotaUsedGb: 4.8, quotaTotalGb: 30, mfaEnabled: true, status: 'Active', role: 'Field Engineering' },
+    { id: 'EML-04', name: 'Accounts & Billing Dept', email: 'accounts@mscomputerplanet.com', provider: 'Google Workspace', quotaUsedGb: 6.1, quotaTotalGb: 30, mfaEnabled: true, status: 'Active', role: 'Finance' },
+    { id: 'EML-05', name: 'Solar Project Engineering', email: 'solar@mscomputerplanet.com', provider: 'Google Workspace', quotaUsedGb: 3.5, quotaTotalGb: 30, mfaEnabled: false, status: 'Active', role: 'Solar Technical' }
+  ],
+  domains: [
+    { id: 'DOM-01', domain: 'mscomputerplanet.com', registrar: 'GoDaddy India', expiryDate: '2027-08-14', sslIssuer: "Let's Encrypt Authority X3", sslExpiryDate: '2026-12-28', nameservers: 'ns1.digitalocean.com, ns2.digitalocean.com', ipTarget: '159.89.164.22', httpStatus: 200, autoRenew: true, notes: 'Primary business domain & client portal.' },
+    { id: 'DOM-02', domain: 'computerplanet.org.in', registrar: 'Hostinger India', expiryDate: '2027-02-20', sslIssuer: 'DigiCert Global Root CA', sslExpiryDate: '2027-01-15', nameservers: 'ns1.dns-parking.com', ipTarget: '31.170.160.10', httpStatus: 200, autoRenew: true, notes: 'Redirects to main domain.' }
+  ],
+  access: [
+    { id: 'ACC-01', system: 'Central Server WinServer RDP', hostIp: '192.168.1.5:3389', username: 'Administrator', accessLevel: 'Root / Full Admin', mfaRequired: true, lastRotated: '2026-08-01', status: 'Secured' },
+    { id: 'ACC-02', system: 'MikroTik RouterOS WinBox Console', hostIp: '192.168.1.1:8291', username: 'mcp_netadmin', accessLevel: 'Network Admin', mfaRequired: true, lastRotated: '2026-07-15', status: 'Secured' },
+    { id: 'ACC-03', system: 'Seqrite Cloud Antivirus Portal', hostIp: 'https://cloud.seqrite.com', username: 'secadmin@mscomputerplanet.com', accessLevel: 'Security Admin', mfaRequired: true, lastRotated: '2026-09-01', status: 'Secured' },
+    { id: 'ACC-04', system: 'Hikvision HQ CCTV NVR Console', hostIp: '192.168.1.200:8000', username: 'admin', accessLevel: 'Camera Supervisor', mfaRequired: false, lastRotated: '2026-06-10', status: 'Active' }
+  ],
+  vendors: [
+    { id: 'VND-01', name: 'HP India Sales & Service', category: 'Desktops & Printers OEM', tollFree: '1800 258 7170', email: 'in.contact@hp.com', silcharHub: 'Trident Computers, Central Road, Silchar', rmaPortal: 'https://support.hp.com/in-en', accountManager: 'Subrata Sen (+91 98300 22109)', notes: 'Direct ASP authorization for Barak Valley banking call dispatches.' },
+    { id: 'VND-02', name: 'Dell Technologies India', category: 'Enterprise Servers & Storage', tollFree: '1800 425 4026', email: 'india_support@dell.com', silcharHub: 'Guwahati Regional Spare Depot (24-48 Hr dispatch)', rmaPortal: 'https://www.dell.com/support', accountManager: 'Ranjan Barua (+91 94350 88210)', notes: 'Next Business Day (NBD) on-site warranty partner.' },
+    { id: 'VND-03', name: 'D-Link India Ltd', category: 'Networking & Switches', tollFree: '1800 233 0000', email: 'helpdesk@dlink.co.in', silcharHub: 'G.S. Road Guwahati / Kolkata Hub', rmaPortal: 'https://dlink.co.in/support', accountManager: 'Amitava Ghosh (+91 98311 44102)', notes: 'Lifetime warranty replacement on DGS managed switch series.' },
+    { id: 'VND-04', name: 'Schneider Electric / APC India', category: 'Online UPS & Power Infrastructure', tollFree: '1800 103 0011', email: 'customercare.in@se.com', silcharHub: 'Aurotech Power, Premtola, Silchar', rmaPortal: 'https://www.apc.com/in/en/support', accountManager: 'Pranab Das (+91 94351 77123)', notes: 'Battery calibration and Smart-UPS inverter PCB replacement.' }
+  ],
+  amcPm: [
+    { id: 'PM-2026-01', branch: 'PNB Silchar Main Branch (005100)', circle: 'Silchar', engineer: 'Debashis Roy', scheduledQuarter: 'Q3-2026 (Jul-Sep)', scheduledDate: '2026-09-10', completionDate: '2026-09-10', status: 'Completed', tasks: ['Blower dusting of 8 PCs', 'LaserJet fuser inspection', 'Antivirus signature 2026.09 update', 'UPS battery voltage 13.6V check'], branchStampReceived: true },
+    { id: 'PM-2026-02', branch: 'PNB Tarapur Branch (082900)', circle: 'Silchar', engineer: 'Debashis Roy', scheduledQuarter: 'Q3-2026 (Jul-Sep)', scheduledDate: '2026-09-14', completionDate: '2026-09-14', status: 'Completed', tasks: ['Passbook printer head lubrication', 'Switch port cable tagging', 'OS disk cleanup'], branchStampReceived: true },
+    { id: 'PM-2026-03', branch: 'PNB Hailakandi Main Branch (021100)', circle: 'Hailakandi', engineer: 'Rahul Sharma', scheduledQuarter: 'Q3-2026 (Jul-Sep)', scheduledDate: '2026-09-22', completionDate: '', status: 'Scheduled', tasks: ['Full hardware audit of 12 branch units', 'SMPS capacitor check', 'High-speed scanner glass cleaning'], branchStampReceived: false },
+    { id: 'PM-2026-04', branch: 'PNB Karimganj Town Branch (034200)', circle: 'Karimganj', engineer: 'Debashis Roy', scheduledQuarter: 'Q3-2026 (Jul-Sep)', scheduledDate: '2026-09-26', completionDate: '', status: 'Scheduled', tasks: ['Quarterly PM servicing for 14 terminal assets', 'LAN ping test to Circle Gateway'], branchStampReceived: false }
+  ]
+};
+
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
     description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "crm", "engineering", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
+    defaultPermissions: ["dashboard", "crm", "engineering", "itsm", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
   },
   {
     role: "Resident IT Service Engineer",
     description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
-    defaultPermissions: ["dashboard", "engineering", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
+    defaultPermissions: ["dashboard", "engineering", "itsm", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
   },
   {
     role: "Accounts & GST Billing Officer",
@@ -533,7 +592,7 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Support Desk & Customer Coordinator",
     description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
-    defaultPermissions: ["dashboard", "crm", "engineering", "tickets", "quotations", "amc"]
+    defaultPermissions: ["dashboard", "crm", "engineering", "itsm", "tickets", "quotations", "amc"]
   }
 ];
 
@@ -1657,6 +1716,7 @@ export function exportAllErpData() {
     invoices: loadErpData("invoices", INITIAL_INVOICES),
     quotations: loadErpData("quotations", INITIAL_QUOTATIONS),
     engineeringDesigns: loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS),
+    itsmData: loadErpData("itsm_data", INITIAL_ITSM_DATA),
     solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
     pnbAssets: loadErpData("pnb_assets", null),
     auditLogs: loadErpData("audit_logs", INITIAL_AUDIT_LOGS)
@@ -1685,6 +1745,7 @@ export function importAllErpData(jsonString) {
     if (data.invoices && Array.isArray(data.invoices)) saveErpData("invoices", data.invoices);
     if (data.quotations && Array.isArray(data.quotations)) saveErpData("quotations", data.quotations);
     if (data.engineeringDesigns && Array.isArray(data.engineeringDesigns)) saveErpData("engineering_designs", data.engineeringDesigns);
+    if (data.itsmData && typeof data.itsmData === 'object') saveErpData("itsm_data", data.itsmData);
     if (data.solarProjects && Array.isArray(data.solarProjects)) saveErpData("solar_projects", data.solarProjects);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     if (data.auditLogs && Array.isArray(data.auditLogs)) saveErpData("audit_logs", data.auditLogs);
