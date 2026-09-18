@@ -57,7 +57,6 @@ import EmployeePortalModule from './EmployeePortalModule';
 import WorkflowModule from './WorkflowModule';
 import MISModule from './MISModule';
 import ERPLogin from './ERPLogin';
-import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
   LayoutDashboard, 
   Wrench, 
@@ -94,7 +93,8 @@ import {
   ShoppingCart,
   FolderOpen,
   CheckSquare,
-  TrendingUp
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -811,289 +811,422 @@ export default function ERPApp({ onExit }) {
         <main className="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
         {activeTab === 'dashboard' && (
           <div className="space-y-6 sm:space-y-8">
-            {/* Business Welcome Banner */}
-            <div className="bg-gradient-to-br from-slate-900 via-brand-blue to-slate-950 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 shadow-xl flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 border border-slate-800">
-              <div className="max-w-2xl">
-                <span className="text-[11px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">
-                  Internal Operations Centre
-                </span>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">
-                  Welcome to Computer Planet ERP
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
-                  Manage Punjab National Bank branch service calls, post office AMCs, stock levels of computer & solar spares,
-                  and generate GST-compliant tax invoices directly from your website.
-                </p>
-              </div>
+            {/* Executive Hero Banner */}
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-800 relative overflow-hidden">
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-3">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>17 Enterprise Domains Active • Computer Planet ERP Suite</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+                    Welcome back, {currentUser?.name?.split(' ')[0] || 'Administrator'}
+                  </h1>
+                  <p className="text-slate-300 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+                    Barak Valley operations hub: Managing 50 PNB branches, Solar EPC installations with APDCL Net Metering, multi-depot stock, and commercial financials.
+                  </p>
 
-              <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
-                {hasTabPermission('crm') && (
+                  <div className="flex flex-wrap items-center gap-4 mt-4 text-xs font-mono text-slate-400">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 50 PNB Branches Online
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1.5 text-teal-300 font-semibold">
+                      <Zap className="w-3.5 h-3.5" /> {solarProjects.reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0) + enterpriseProjects.filter(p => p.category === 'Solar EPC').reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0)} kWp Solar Fleet
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1.5 text-sky-300 font-semibold">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Encrypted Session
+                    </span>
+                  </div>
+                </div>
+
+                {/* Quick Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                   <button
                     onClick={() => setActiveTab('crm')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                    className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition"
                   >
                     <Target className="w-4 h-4 text-violet-200" />
-                    <span>CRM Funnel ({activeLeadsCount})</span>
+                    <span>CRM Lead ({activeLeadsCount})</span>
                   </button>
-                )}
-                {hasTabPermission('engineering') && (
+
                   <button
                     onClick={() => setActiveTab('engineering')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                    className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition"
                   >
                     <Calculator className="w-4 h-4 text-teal-200" />
-                    <span>Solar BOQ ({engineeringDesigns.length})</span>
+                    <span>Solar Sizing</span>
                   </button>
-                )}
-                {hasTabPermission('itsm') && (
-                  <button
-                    onClick={() => setActiveTab('itsm')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                  >
-                    <Server className="w-4 h-4 text-blue-200" />
-                    <span>ITSM Suite (11)</span>
-                  </button>
-                )}
-                {hasTabPermission('clients') && (
-                  <button
-                    onClick={() => setActiveTab('clients')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                  >
-                    <Landmark className="w-4 h-4" />
-                    <span>Clients & Assets ({clients.length})</span>
-                  </button>
-                )}
-                {hasTabPermission('accounts') && (
-                  <button
-                    onClick={() => setActiveTab('accounts')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                  >
-                    <IndianRupee className="w-4 h-4" />
-                    <span>Accounts Ledger</span>
-                  </button>
-                )}
-                {hasTabPermission('reports') && (
-                  <button
-                    onClick={() => setActiveTab('reports')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                  >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span>Reports Centre</span>
-                  </button>
-                )}
-                {hasTabPermission('tickets') && (
-                  <button
-                    onClick={() => setActiveTab('tickets')}
-                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition"
-                  >
-                    Active Tickets
-                  </button>
-                )}
-              </div>
-            </div>
 
-            {/* Official PNB Silchar Circle Highlight Card */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
-                    <Landmark className="w-4 h-4 text-blue-600" />
-                    <span>Active Banking AMC Highlight</span>
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                    PNB Circle Office Silchar — 543 Total Managed Hardware Assets
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Branchwise total counts across 50 branches, regional currency chests & PLP office under AMC support.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setActiveTab('pnb_assets')}
-                  className="inline-flex items-center justify-center gap-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow transition shrink-0"
-                >
-                  <span>Open Full Branch Matrix</span>
-                  <span>→</span>
-                </button>
-              </div>
+                  <button
+                    onClick={() => setActiveTab('projects')}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition"
+                  >
+                    <Briefcase className="w-4 h-4 text-emerald-200" />
+                    <span>Projects ({enterpriseProjects.length})</span>
+                  </button>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-4">
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Desktops</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.desktops}</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">LaserJet</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.laserjetPrinters}</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Passbook</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.passbookPrinters}</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">HS Scanners</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.highSpeedScanners}</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Flat Scanners</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.scanners}</div>
-                </div>
-                <div className="p-3 bg-slate-50 rounded-xl text-center min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase truncate">Cash Receipt</div>
-                  <div className="text-lg sm:text-xl font-black text-slate-900 font-mono mt-0.5">{PNB_SUMMARY_METRICS.cashReceiptPrinters}</div>
+                  <button
+                    onClick={() => setActiveTab('mis')}
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition"
+                  >
+                    <TrendingUp className="w-4 h-4 text-indigo-200" />
+                    <span>MIS Cockpit</span>
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* 5 Primary Operational Counters */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+            {/* 4 Core Financial & Fleet KPI Command Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {/* Card 1: Revenue & Pipeline */}
               <div
-                onClick={() => setActiveTab('crm')}
+                onClick={() => setActiveTab('invoices')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Sales Pipeline</span>
-                  <div className="p-2 rounded-xl bg-violet-50 text-violet-600 group-hover:scale-110 transition-transform">
-                    <Target className="w-5 h-5" />
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross Invoiced Revenue</span>
+                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
+                    <IndianRupee className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="text-2xl font-black text-slate-900 font-mono">
-                  ₹{totalPipelineVal.toLocaleString('en-IN')}
+                  ₹{invoices.reduce((acc, inv) => acc + (Number(inv.grandTotal || inv.totalAmount) || 0), 0).toLocaleString('en-IN')}
                 </div>
-                <div className="text-xs text-violet-600 font-medium mt-2">
-                  {activeLeadsCount} Leads in Funnel
+                <div className="text-xs text-emerald-600 font-medium mt-2 flex items-center justify-between">
+                  <span>{invoices.length} Tax Invoices</span>
+                  <span className="font-mono text-slate-500">Pipeline: ₹{(totalPipelineVal / 100000).toFixed(1)}L</span>
                 </div>
               </div>
 
+              {/* Card 2: Banking AMC & 50 Branches */}
               <div
                 onClick={() => setActiveTab('amc')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Annual AMC Value</span>
-                  <div className="p-2 rounded-xl bg-sky-50 text-sky-600 group-hover:scale-110 transition-transform">
-                    <Building2 className="w-5 h-5" />
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Banking AMC Fleet</span>
+                  <div className="p-2 rounded-xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
+                    <Landmark className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="text-2xl font-black text-slate-900 font-mono">
                   ₹{totalAmcRevenue.toLocaleString('en-IN')}
                 </div>
-                <div className="text-xs text-sky-600 font-medium mt-2">
-                  {amcContracts.length} Active Contracts
+                <div className="text-xs text-blue-600 font-medium mt-2 flex items-center justify-between">
+                  <span>50 PNB Branches</span>
+                  <span className="font-mono text-slate-500">543 Devices</span>
                 </div>
               </div>
 
+              {/* Card 3: Solar EPC Installed */}
               <div
-                onClick={() => setActiveTab('tickets')}
+                onClick={() => setActiveTab('projects')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Pending Service Calls</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Solar EPC Deployed</span>
                   <div className="p-2 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-110 transition-transform">
-                    <Wrench className="w-5 h-5" />
+                    <SunMedium className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="text-2xl font-black text-slate-900 font-mono">
-                  {openTicketsCount}
+                  {totalSolarKw + enterpriseProjects.filter(p => p.category === 'Solar EPC').reduce((acc, p) => acc + (Number(p.capacityKw) || 0), 0)} <span className="text-sm font-sans font-normal text-slate-500">kWp</span>
                 </div>
-                <div className="text-xs text-amber-600 font-medium mt-2">
-                  Under 2-4 Hr Priority SLA
+                <div className="text-xs text-amber-600 font-medium mt-2 flex items-center justify-between">
+                  <span>Grid-Tied + Hybrid</span>
+                  <span className="font-mono text-slate-500">APDCL Net Meter</span>
                 </div>
               </div>
 
+              {/* Card 4: Inventory & Depots */}
               <div
                 onClick={() => setActiveTab('inventory')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Stock Valuation</span>
-                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110 transition-transform">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Warehouse Stock</span>
+                  <div className="p-2 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-110 transition-transform">
                     <Package className="w-5 h-5" />
                   </div>
                 </div>
                 <div className="text-2xl font-black text-slate-900 font-mono">
                   ₹{totalInventoryVal.toLocaleString('en-IN')}
                 </div>
-                <div className="text-xs text-emerald-600 font-medium mt-2">
-                  {inventory.length} Hardware & Solar SKUs
-                </div>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('solar')}
-                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Solar Capacity</span>
-                  <div className="p-2 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-110 transition-transform">
-                    <SunMedium className="w-5 h-5" />
-                  </div>
-                </div>
-                <div className="text-2xl font-black text-slate-900 font-mono">
-                  {totalSolarKw} <span className="text-sm font-sans font-normal text-slate-500">kWp</span>
-                </div>
-                <div className="text-xs text-teal-600 font-medium mt-2">
-                  {solarProjects.length} Active Solar Deployments
+                <div className="text-xs text-teal-600 font-medium mt-2 flex items-center justify-between">
+                  <span>{inventory.length} Active SKUs</span>
+                  <span className="font-mono text-slate-500">3 Depots</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Operational Shortcuts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
-              {/* Recent Open Tickets */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                    <Wrench className="w-4 h-4 text-emerald-600" />
-                    <span>Recent Support Incidents</span>
-                  </h3>
+            {/* Active Operations Matrix (Two Columns) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Column 1 & 2: Active Projects & EPC Progress */}
+              <div className="lg:col-span-2 bg-white rounded-2xl sm:rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-emerald-600" />
+                      <span>Active Projects & EPC Execution Status</span>
+                    </h3>
+                    <p className="text-xs text-slate-500">Solar grid installations and banking IT network infrastructure in Barak Valley.</p>
+                  </div>
                   <button
-                    onClick={() => setActiveTab('tickets')}
+                    onClick={() => setActiveTab('projects')}
                     className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
                   >
-                    View All →
+                    View All Projects →
                   </button>
                 </div>
-                <div className="space-y-2.5">
-                  {tickets.slice(0, 3).map((t) => (
-                    <div key={t.id} className="p-3 bg-slate-50 rounded-xl flex items-center justify-between gap-3 text-xs">
-                      <div className="min-w-0">
-                        <div className="font-bold text-slate-900 truncate">{t.clientName}</div>
-                        <div className="text-slate-500 truncate">{t.description}</div>
+
+                <div className="space-y-3">
+                  {enterpriseProjects.slice(0, 4).map(project => (
+                    <div
+                      key={project.id}
+                      onClick={() => setActiveTab('projects')}
+                      className="p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 transition cursor-pointer space-y-2 border border-slate-200/60 text-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0 pr-2">
+                          <span className="font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded text-[10px]">
+                            {project.id}
+                          </span>
+                          <strong className="text-slate-900 truncate">{project.title}</strong>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] shrink-0 ${
+                          project.progress >= 80 ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {project.progress}% Done
+                        </span>
                       </div>
-                      <span className={`px-2 py-0.5 rounded font-bold shrink-0 text-[11px] ${
-                        t.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                      }`}>
-                        {t.status}
-                      </span>
+
+                      <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-500" 
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-500">
+                        <span>Client: <strong className="text-slate-700">{project.client}</strong></span>
+                        <span className="font-mono">Budget: ₹{(project.budget / 100000).toFixed(2)}L</span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Quick Legal Credentials Reference */}
-              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-sm">
-                <h3 className="font-bold text-slate-900 text-sm mb-4 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-sky-600" />
-                  <span>Business Legal Credentials (For Invoicing)</span>
-                </h3>
-                <div className="space-y-2 text-xs text-slate-700">
-                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-500">MSME Registration:</span>
-                    <strong className="font-mono text-slate-900">UDYAM-AS-05-0019941</strong>
+              {/* Column 3: Approvals & Service Incidents */}
+              <div className="space-y-6">
+                {/* Governance Approvals Card */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                      <CheckSquare className="w-4 h-4 text-amber-500" />
+                      <span>Pending Approvals ({workflowApprovals.filter(a => a.status === 'Pending').length})</span>
+                    </h4>
+                    <button
+                      onClick={() => setActiveTab('workflow')}
+                      className="text-[11px] font-bold text-amber-600 hover:text-amber-700"
+                    >
+                      Hub →
+                    </button>
                   </div>
-                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-500">GSTIN Identification:</span>
-                    <strong className="font-mono text-slate-900">18ASTPR6755J1Z0</strong>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-500">Trade License:</span>
-                    <strong className="text-slate-900">Silchar Municipal Authority</strong>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-slate-500">Registered Office:</span>
-                    <span className="text-slate-700 font-medium truncate ml-2">West Kachudharam, Chincoorie, Silchar</span>
+
+                  <div className="space-y-2 text-xs">
+                    {workflowApprovals.slice(0, 3).map(wf => (
+                      <div key={wf.id} className="p-2.5 bg-slate-50 rounded-xl space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] font-bold text-slate-500">{wf.type}</span>
+                          <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                            wf.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                          }`}>
+                            {wf.status}
+                          </span>
+                        </div>
+                        <div className="font-semibold text-slate-800 truncate">{wf.title}</div>
+                        <div className="flex justify-between items-center text-[10px] text-slate-400 pt-0.5">
+                          <span>By {wf.requestedBy.split(' ')[0]}</span>
+                          <span className="font-mono font-bold text-slate-700">₹{wf.amount?.toLocaleString('en-IN') || 'N/A'}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
+
+                {/* Priority Service Calls */}
+                <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h4 className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                      <Wrench className="w-4 h-4 text-rose-500" />
+                      <span>Support Incidents ({openTicketsCount} Open)</span>
+                    </h4>
+                    <button
+                      onClick={() => setActiveTab('tickets')}
+                      className="text-[11px] font-bold text-rose-600 hover:text-rose-700"
+                    >
+                      Tickets →
+                    </button>
+                  </div>
+
+                  <div className="space-y-2 text-xs">
+                    {tickets.slice(0, 3).map(t => (
+                      <div key={t.id} className="p-2.5 bg-slate-50 rounded-xl space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] font-bold text-slate-600">{t.id}</span>
+                          <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                            t.priority === 'Critical' ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {t.priority}
+                          </span>
+                        </div>
+                        <div className="font-bold text-slate-900 truncate">{t.clientName}</div>
+                        <div className="text-[11px] text-slate-500 truncate">{t.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Enterprise 17-Domain Quick Navigation Hub */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+              <div>
+                <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-indigo-600" />
+                  <span>Enterprise 17-Domain Operational Matrix</span>
+                </h3>
+                <p className="text-xs text-slate-500">Quick-launch any operational pillar across Computer Planet enterprise architecture.</p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
+                <button onClick={() => setActiveTab('crm')} className="p-3 rounded-xl bg-slate-50 hover:bg-violet-50 hover:border-violet-200 border border-slate-200 text-left transition group">
+                  <Target className="w-5 h-5 text-violet-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">1. CRM & Leads</div>
+                  <div className="text-[10px] text-slate-400">7-Stage Funnel</div>
+                </button>
+
+                <button onClick={() => setActiveTab('quotations')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
+                  <ClipboardList className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">2. Sales & Quotes</div>
+                  <div className="text-[10px] text-slate-400">GST Estimates</div>
+                </button>
+
+                <button onClick={() => setActiveTab('engineering')} className="p-3 rounded-xl bg-slate-50 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 text-left transition group">
+                  <Calculator className="w-5 h-5 text-teal-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">3. Engineering</div>
+                  <div className="text-[10px] text-slate-400">Solar Sizing & BOQ</div>
+                </button>
+
+                <button onClick={() => setActiveTab('projects')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
+                  <Briefcase className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">4. Projects & EPC</div>
+                  <div className="text-[10px] text-slate-400">Gantt Milestones</div>
+                </button>
+
+                <button onClick={() => setActiveTab('procurement')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
+                  <ShoppingCart className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">5. Procurement</div>
+                  <div className="text-[10px] text-slate-400">PO & QC GRN</div>
+                </button>
+
+                <button onClick={() => setActiveTab('inventory')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
+                  <Package className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">6. Warehouses</div>
+                  <div className="text-[10px] text-slate-400">3 Depots & Serials</div>
+                </button>
+
+                <button onClick={() => setActiveTab('vendors')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
+                  <Truck className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">7. Vendors & OEMs</div>
+                  <div className="text-[10px] text-slate-400">Waaree, HP, D-Link</div>
+                </button>
+
+                <button onClick={() => setActiveTab('invoices')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
+                  <FileText className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">8. GST Invoicing</div>
+                  <div className="text-[10px] text-slate-400">Tax Invoices & Accounts</div>
+                </button>
+
+                <button onClick={() => setActiveTab('tickets')} className="p-3 rounded-xl bg-slate-50 hover:bg-rose-50 hover:border-rose-200 border border-slate-200 text-left transition group">
+                  <Wrench className="w-5 h-5 text-rose-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">9. AMC Service</div>
+                  <div className="text-[10px] text-slate-400">2-4 Hr Banking SLA</div>
+                </button>
+
+                <button onClick={() => setActiveTab('pnb_assets')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
+                  <Landmark className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">10. Assets Matrix</div>
+                  <div className="text-[10px] text-slate-400">543 PNB Assets</div>
+                </button>
+
+                <button onClick={() => setActiveTab('hrms')} className="p-3 rounded-xl bg-slate-50 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 text-left transition group">
+                  <Users className="w-5 h-5 text-teal-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">11. Staff HRMS</div>
+                  <div className="text-[10px] text-slate-400">Attendance & Payslips</div>
+                </button>
+
+                <button onClick={() => setActiveTab('itsm')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
+                  <Server className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">12. ITSM Suite</div>
+                  <div className="text-[10px] text-slate-400">11 Specialized Tools</div>
+                </button>
+
+                <button onClick={() => setActiveTab('documents')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
+                  <FolderOpen className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">13. DMS Vault</div>
+                  <div className="text-[10px] text-slate-400">APDCL, Test Reports</div>
+                </button>
+
+                <button onClick={() => setActiveTab('customer_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-sky-50 hover:border-sky-200 border border-slate-200 text-left transition group">
+                  <ShieldCheck className="w-5 h-5 text-sky-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">14a. Client Portal</div>
+                  <div className="text-[10px] text-slate-400">Ticket & Invoices</div>
+                </button>
+
+                <button onClick={() => setActiveTab('employee_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
+                  <UserCheck className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">14b. Staff Desk</div>
+                  <div className="text-[10px] text-slate-400">Geo Punch & DA Log</div>
+                </button>
+
+                <button onClick={() => setActiveTab('workflow')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border border-slate-200 text-left transition group">
+                  <CheckSquare className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">15. Approvals</div>
+                  <div className="text-[10px] text-slate-400">PO & Expense Sign-off</div>
+                </button>
+
+                <button onClick={() => setActiveTab('mis')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
+                  <TrendingUp className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">16. MIS Cockpit</div>
+                  <div className="text-[10px] text-slate-400">Aging & Board Review</div>
+                </button>
+
+                <button onClick={() => setActiveTab('users')} className="p-3 rounded-xl bg-slate-50 hover:bg-slate-200 border border-slate-200 text-left transition group">
+                  <ShieldCheck className="w-5 h-5 text-slate-700 mb-1 group-hover:scale-110 transition-transform" />
+                  <div className="font-bold text-slate-900">17. Governance</div>
+                  <div className="text-[10px] text-slate-400">RBAC & Audits</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Legal Credentials Ribbon */}
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+              <div className="flex flex-wrap items-center gap-6">
+                <div>
+                  <span className="text-slate-400">MSME Udyam:</span> <strong className="font-mono text-slate-900">UDYAM-AS-05-0019941</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400">GSTIN ID:</span> <strong className="font-mono text-slate-900">18ASTPR6755J1Z0</strong>
+                </div>
+                <div>
+                  <span className="text-slate-400">Electrical License:</span> <strong className="text-slate-900">Assam PWD Class-I</strong>
+                </div>
+              </div>
+              <div className="text-slate-500 font-medium">
+                West Kachudharam, Chincoorie, Silchar, Assam - 788001
               </div>
             </div>
           </div>
