@@ -11,7 +11,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-export default function Footer({ onOpenERP: _onOpenERP }) {
+export default function Footer({ onOpenERP: _onOpenERP, onOpenLegal }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -155,13 +155,32 @@ export default function Footer({ onOpenERP: _onOpenERP }) {
             © {new Date().getFullYear()} <strong className="text-slate-400">M/S COMPUTER PLANET</strong> ({BUSINESS_INFO.domain}). All rights reserved.
           </div>
           <div className="flex items-center gap-4 flex-wrap">
+            <button
+              onClick={() => onOpenLegal && onOpenLegal('privacy')}
+              className="text-slate-400 hover:text-emerald-400 transition underline underline-offset-2"
+            >
+              Privacy Policy
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => onOpenLegal && onOpenLegal('terms')}
+              className="text-slate-400 hover:text-emerald-400 transition underline underline-offset-2"
+            >
+              Terms of Service
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => onOpenLegal && onOpenLegal('disclaimer')}
+              className="text-slate-400 hover:text-emerald-400 transition underline underline-offset-2"
+            >
+              AdSense & Cookies
+            </button>
+            <span>•</span>
             <span>MSME Reg: {BUSINESS_INFO.legal.udyamRegNo}</span>
             <span>•</span>
             <span>GST: {BUSINESS_INFO.legal.gstin}</span>
             <span>•</span>
             <span className="text-amber-400 font-medium">Channel Partner: Omnis Trades</span>
-            <span>•</span>
-            <span className="text-emerald-400">100 KM Southern Assam Coverage</span>
           </div>
         </div>
       </div>

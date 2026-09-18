@@ -22,12 +22,15 @@ const ERPApp = lazy(() => import('./erp/ERPApp'));
 const QuoteModal = lazy(() => import('./components/QuoteModal'));
 const SupportTicketModal = lazy(() => import('./components/SupportTicketModal'));
 const SocialShareModal = lazy(() => import('./components/SocialShareModal'));
+const LegalModal = lazy(() => import('./components/LegalModal'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteInitialData, setQuoteInitialData] = useState({});
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalActiveTab, setLegalActiveTab] = useState('privacy');
   const [isErpMode, setIsErpMode] = useState(() => {
     return window.location.hash === '#erp';
   });
@@ -105,6 +108,15 @@ export default function App() {
     setShareModalOpen(false);
   };
 
+  const handleOpenLegal = (tab = 'privacy') => {
+    setLegalActiveTab(tab);
+    setLegalModalOpen(true);
+  };
+
+  const handleCloseLegal = () => {
+    setLegalModalOpen(false);
+  };
+
   const handleOpenERP = () => {
     window.location.hash = 'erp';
     setIsErpMode(true);
@@ -163,7 +175,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <Footer onOpenERP={handleOpenERP} />
+      <Footer onOpenERP={handleOpenERP} onOpenLegal={handleOpenLegal} />
 
       {/* Lazy-loaded Interactive Modals */}
       <Suspense fallback={null}>
@@ -184,6 +196,13 @@ export default function App() {
           <SocialShareModal
             isOpen={shareModalOpen}
             onClose={handleCloseShare}
+          />
+        )}
+        {legalModalOpen && (
+          <LegalModal
+            isOpen={legalModalOpen}
+            onClose={handleCloseLegal}
+            initialTab={legalActiveTab}
           />
         )}
       </Suspense>
