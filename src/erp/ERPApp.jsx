@@ -233,8 +233,17 @@ export default function ERPApp({ onExit }) {
   const pendingQuotesCount = quotations.filter(q => q.status === 'Sent' || q.status === 'Draft').length;
   const pendingLeavesCount = leaves.filter(l => l.status === 'Pending').length;
 
+  // Administrator verification check (Proprietor / Full Admin Role)
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.username?.toLowerCase() === 'admin' ||
+      (currentUser.role && currentUser.role.toLowerCase().includes('admin'))
+    )
+  );
+
   // Filter tabs based on currentUser permissions if set
   const hasTabPermission = (tabId) => {
+    if (isAdmin) return true;
     if (!currentUser || !currentUser.permissions || currentUser.permissions.length === 0) return true;
     return currentUser.permissions.includes(tabId);
   };
@@ -358,96 +367,98 @@ export default function ERPApp({ onExit }) {
           </button>
         </div>
 
-        {/* Quick Operations Menu / Fast Access Hub (Exact match to Dashboard Menu) */}
-        <div className="p-3 border-b border-slate-800/80 bg-slate-950/40 shrink-0">
-          <div className="text-[10px] font-bold tracking-wider uppercase text-slate-400 px-1 mb-2 flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>Quick Navigation Hub</span>
-            </span>
-            <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded-full">Core</span>
+        {/* Quick Operations Menu / Fast Access Hub (Restricted: Administrator Only) */}
+        {isAdmin && (
+          <div className="p-3 border-b border-slate-800/80 bg-slate-950/40 shrink-0">
+            <div className="text-[10px] font-bold tracking-wider uppercase text-slate-400 px-1 mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Quick Navigation Hub</span>
+              </span>
+              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded-full">Core</span>
+            </div>
+
+            <div className="space-y-1.5">
+              {/* 1. Clients & Assets Button */}
+              <button
+                onClick={() => { setActiveTab('clients'); setIsSidebarOpen(false); }}
+                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                  activeTab === 'clients'
+                    ? 'bg-amber-400 text-slate-950 font-black ring-2 ring-amber-300 shadow-md shadow-amber-400/25'
+                    : 'bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-500/30'
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Landmark className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-bold truncate">Clients & Assets ({clients.length})</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'clients' ? 'text-slate-950' : 'text-amber-400/70'}`} />
+              </button>
+
+              {/* 2. Accounts Ledger Button */}
+              <button
+                onClick={() => { setActiveTab('accounts'); setIsSidebarOpen(false); }}
+                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                  activeTab === 'accounts'
+                    ? 'bg-teal-600 text-white font-black ring-2 ring-teal-400 shadow-md shadow-teal-600/25'
+                    : 'bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30'
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <IndianRupee className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-bold truncate">Accounts Ledger</span>
+                </div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                  activeTab === 'accounts' ? 'bg-teal-950 text-teal-200' : 'bg-teal-900/60 text-teal-300'
+                }`}>
+                  {transactions.length}
+                </span>
+              </button>
+
+              {/* 3. Reports Centre Button */}
+              <button
+                onClick={() => { setActiveTab('reports'); setIsSidebarOpen(false); }}
+                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                  activeTab === 'reports'
+                    ? 'bg-blue-600 text-white font-black ring-2 ring-blue-400 shadow-md shadow-blue-600/25'
+                    : 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30'
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <FileSpreadsheet className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-bold truncate">Reports Centre</span>
+                </div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                  activeTab === 'reports' ? 'bg-blue-950 text-blue-200' : 'bg-blue-900/60 text-blue-300'
+                }`}>
+                  Audit
+                </span>
+              </button>
+
+              {/* 4. Active Tickets Button */}
+              <button
+                onClick={() => { setActiveTab('tickets'); setIsSidebarOpen(false); }}
+                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                  activeTab === 'tickets'
+                    ? 'bg-emerald-500 text-slate-950 font-black ring-2 ring-emerald-300 shadow-md shadow-emerald-500/25'
+                    : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30'
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Wrench className="w-4 h-4 shrink-0" />
+                  <span className="text-xs font-bold truncate">Active Tickets</span>
+                </div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                  activeTab === 'tickets' 
+                    ? 'bg-slate-950 text-emerald-400' 
+                    : openTicketsCount > 0 ? 'bg-rose-500 text-white' : 'bg-emerald-900/60 text-emerald-300'
+                }`}>
+                  {openTicketsCount > 0 ? `${openTicketsCount} Open` : `${tickets.length}`}
+                </span>
+              </button>
+            </div>
           </div>
-
-          <div className="space-y-1.5">
-            {/* 1. Clients & Assets Button */}
-            <button
-              onClick={() => { setActiveTab('clients'); setIsSidebarOpen(false); }}
-              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                activeTab === 'clients'
-                  ? 'bg-amber-400 text-slate-950 font-black ring-2 ring-amber-300 shadow-md shadow-amber-400/25'
-                  : 'bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-500/30'
-              }`}
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Landmark className="w-4 h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Clients & Assets ({clients.length})</span>
-              </div>
-              <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'clients' ? 'text-slate-950' : 'text-amber-400/70'}`} />
-            </button>
-
-            {/* 2. Accounts Ledger Button */}
-            <button
-              onClick={() => { setActiveTab('accounts'); setIsSidebarOpen(false); }}
-              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                activeTab === 'accounts'
-                  ? 'bg-teal-600 text-white font-black ring-2 ring-teal-400 shadow-md shadow-teal-600/25'
-                  : 'bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30'
-              }`}
-            >
-              <div className="flex items-center gap-2 truncate">
-                <IndianRupee className="w-4 h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Accounts Ledger</span>
-              </div>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                activeTab === 'accounts' ? 'bg-teal-950 text-teal-200' : 'bg-teal-900/60 text-teal-300'
-              }`}>
-                {transactions.length}
-              </span>
-            </button>
-
-            {/* 3. Reports Centre Button */}
-            <button
-              onClick={() => { setActiveTab('reports'); setIsSidebarOpen(false); }}
-              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                activeTab === 'reports'
-                  ? 'bg-blue-600 text-white font-black ring-2 ring-blue-400 shadow-md shadow-blue-600/25'
-                  : 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30'
-              }`}
-            >
-              <div className="flex items-center gap-2 truncate">
-                <FileSpreadsheet className="w-4 h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Reports Centre</span>
-              </div>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                activeTab === 'reports' ? 'bg-blue-950 text-blue-200' : 'bg-blue-900/60 text-blue-300'
-              }`}>
-                Audit
-              </span>
-            </button>
-
-            {/* 4. Active Tickets Button */}
-            <button
-              onClick={() => { setActiveTab('tickets'); setIsSidebarOpen(false); }}
-              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                activeTab === 'tickets'
-                  ? 'bg-emerald-500 text-slate-950 font-black ring-2 ring-emerald-300 shadow-md shadow-emerald-500/25'
-                  : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30'
-              }`}
-            >
-              <div className="flex items-center gap-2 truncate">
-                <Wrench className="w-4 h-4 shrink-0" />
-                <span className="text-xs font-bold truncate">Active Tickets</span>
-              </div>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                activeTab === 'tickets' 
-                  ? 'bg-slate-950 text-emerald-400' 
-                  : openTicketsCount > 0 ? 'bg-rose-500 text-white' : 'bg-emerald-900/60 text-emerald-300'
-              }`}>
-                {openTicketsCount > 0 ? `${openTicketsCount} Open` : `${tickets.length}`}
-              </span>
-            </button>
-          </div>
-        </div>
+        )}
 
         {/* Scrollable Navigation Items & Sub-Menus */}
         <div className="flex-1 overflow-y-auto p-3 space-y-4 no-scrollbar">
@@ -688,33 +699,41 @@ export default function ERPApp({ onExit }) {
               </div>
 
               <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
-                <button
-                  onClick={() => setActiveTab('clients')}
-                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                >
-                  <Landmark className="w-4 h-4" />
-                  <span>Clients & Assets ({clients.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('accounts')}
-                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                >
-                  <IndianRupee className="w-4 h-4" />
-                  <span>Accounts Ledger</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('reports')}
-                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  <span>Reports Centre</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('tickets')}
-                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition"
-                >
-                  Active Tickets
-                </button>
+                {hasTabPermission('clients') && (
+                  <button
+                    onClick={() => setActiveTab('clients')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Landmark className="w-4 h-4" />
+                    <span>Clients & Assets ({clients.length})</span>
+                  </button>
+                )}
+                {hasTabPermission('accounts') && (
+                  <button
+                    onClick={() => setActiveTab('accounts')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <IndianRupee className="w-4 h-4" />
+                    <span>Accounts Ledger</span>
+                  </button>
+                )}
+                {hasTabPermission('reports') && (
+                  <button
+                    onClick={() => setActiveTab('reports')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    <span>Reports Centre</span>
+                  </button>
+                )}
+                {hasTabPermission('tickets') && (
+                  <button
+                    onClick={() => setActiveTab('tickets')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow transition"
+                  >
+                    Active Tickets
+                  </button>
+                )}
               </div>
             </div>
 
