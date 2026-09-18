@@ -5,7 +5,7 @@ import {
   encryptStorageData, 
   decryptStorageData, 
   sanitizeImportPayload 
-} from './erpSecurity';
+} from './erpSecurity.js';
 
 const STORAGE_KEY_PREFIX = "mcp_erp_";
 
@@ -2290,8 +2290,19 @@ export function exportAllErpData() {
 export function importAllErpData(jsonString) {
   try {
     const data = sanitizeImportPayload(jsonString);
-    if (!data) {
+    if (!data || typeof data !== 'object') {
       console.error("Payload validation failed: Malformed or untrusted structure");
+      return false;
+    }
+    const recognizedKeys = [
+      'users', 'employees', 'leaves', 'payroll', 'tickets', 'amc', 'inventory', 
+      'invoices', 'quotations', 'clients', 'transactions', 'leads', 
+      'engineeringDesigns', 'itsmData', 'solarProjects', 'procurementData', 
+      'vendorsData', 'documentsData', 'workflowApprovals'
+    ];
+    const hasAnyRecognizedKey = recognizedKeys.some(k => k in data);
+    if (!hasAnyRecognizedKey) {
+      console.error("Payload validation failed: No recognized ERP collections found in backup payload.");
       return false;
     }
     if (data.users && Array.isArray(data.users)) saveErpData("users", data.users);

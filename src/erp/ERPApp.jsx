@@ -911,6 +911,17 @@ export default function ERPApp({ onExit }) {
                         }
                       </span>
                     )}
+                    {activeTab === 'crm' && 'CRM & Sales Pipeline Hub'}
+                    {activeTab === 'engineering' && 'Engineering & Solar Pre-Sales'}
+                    {activeTab === 'itsm' && 'IT Support / ITSM Suite (11 Modules)'}
+                    {activeTab === 'projects' && 'Projects & EPC Execution'}
+                    {activeTab === 'procurement' && 'Hardware Procurement & POs'}
+                    {activeTab === 'vendors' && 'Vendors & OEM Directory'}
+                    {activeTab === 'documents' && 'Document Management & Vault'}
+                    {activeTab === 'customer_portal' && 'Customer Self-Service Portal'}
+                    {activeTab === 'employee_portal' && 'Employee Self-Service Desk'}
+                    {activeTab === 'workflow' && 'Workflow & Approvals'}
+                    {activeTab === 'mis' && 'MIS & Executive Intelligence Cockpit'}
                     {activeTab === 'settings' && 'Data & Settings'}
                   </span>
                 </div>
