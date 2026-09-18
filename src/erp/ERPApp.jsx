@@ -158,6 +158,8 @@ export default function ERPApp({ onExit }) {
   const [pinChangeMsg, setPinChangeMsg] = useState('');
 
   const handleLoginSuccess = (authenticatedUser) => {
+    // Refresh users from storage in case user was registered or password was reset on login screen
+    setUsers(loadErpData("users", INITIAL_USERS));
     generateSecureSession(authenticatedUser);
     setCurrentUser(authenticatedUser);
     setIsAuthenticated(true);

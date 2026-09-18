@@ -521,6 +521,179 @@ export async function authenticateUserCredentialsAsync(username, password) {
   return { success: true, user };
 }
 
+// -------------------------------------------------------------
+// USERNAME LOOKUP & ACCOUNT RECOVERY
+// -------------------------------------------------------------
+export async function lookupUserAccountAsync(phoneOrName) {
+  if (!phoneOrName || !phoneOrName.trim()) {
+    return { success: false, message: "Please enter your registered phone number or full name." };
+  }
+  const clean = phoneOrName.trim().toLowerCase().replace(/\s+/g, '');
+  const users = loadErpData("users", INITIAL_USERS);
+  
+  const matches = users.filter(u => {
+    if (u.status === "Suspended") return false;
+    const cleanPhone = (u.phone || '').replace(/\D/g, '');
+    const cleanQuery = clean.replace(/\D/g, '');
+    if (cleanQuery && cleanPhone.includes(cleanQuery)) return true;
+    const cleanUName = (u.name || '').toLowerCase().replace(/\s+/g, '');
+    return cleanUName.includes(clean);
+  });
+
+  if (matches.length === 0) {
+    return { success: false, message: "No active user account found matching this phone number or name." };
+  }
+
+  return {
+    success: true,
+    accounts: matches.map(u => ({
+      username: u.username,
+      name: u.name,
+      role: u.role,
+      phone: u.phone || 'N/A'
+    }))
+  };
+}
+
+// -------------------------------------------------------------
+// RESET PASSWORD (WITH TERMINAL SECURITY PIN VERIFICATION)
+// -------------------------------------------------------------
+export async function resetUserPasswordAsync(username, newPassword, authPin) {
+  if (!username || !newPassword) {
+    return { success: false, message: "Please provide your User ID and new password." };
+  }
+  if (!authPin) {
+    return { success: false, message: "Please provide the Terminal Security PIN (99544) to authorize password reset." };
+  }
+  if (newPassword.length < 6) {
+    return { success: false, message: "New password must be at least 6 characters long." };
+  }
+
+  // 1. Verify Terminal Security PIN
+  const pinCheck = await verifyTerminalPinAsync(authPin);
+  if (!pinCheck.success) {
+    return { success: false, message: "Invalid Terminal Security PIN. Authorization denied." };
+  }
+
+  const cleanUser = username.trim().toLowerCase();
+  const users = loadErpData("users", INITIAL_USERS);
+  const userIndex = users.findIndex(u => 
+    (u.username && u.username.toLowerCase() === cleanUser) ||
+    (u.id && u.id.toLowerCase() === cleanUser)
+  );
+
+  if (userIndex === -1) {
+    return { success: false, message: `No user found with User ID '${username}'.` };
+  }
+
+  const user = users[userIndex];
+  if (user.status === "Suspended") {
+    return { success: false, message: "This account has been suspended. Please contact Administrator." };
+  }
+
+  const newHash = await sha256(newPassword);
+  const updatedUser = {
+    ...user,
+    password: newPassword,
+    passwordHash: newHash,
+    lastPasswordReset: new Date().toISOString()
+  };
+
+  const updatedUsers = [...users];
+  updatedUsers[userIndex] = updatedUser;
+  saveErpData("users", updatedUsers);
+
+  recordAuditLog(
+    "PASSWORD_RESET",
+    "Security",
+    `Password reset successfully for User ID '${user.username}' (${user.name}).`,
+    user
+  );
+
+  return { 
+    success: true, 
+    message: "Password has been reset successfully! You can now log in with your new password.",
+    user: updatedUser 
+  };
+}
+
+// -------------------------------------------------------------
+// REGISTER / CREATE NEW STAFF USER (WITH AUTHORIZATION PIN)
+// -------------------------------------------------------------
+export async function registerNewUserAsync(userData, authPin) {
+  const { name, username, password, phone, role, region, pin } = userData;
+
+  if (!name || !name.trim()) {
+    return { success: false, message: "Please enter Full Name." };
+  }
+  if (!username || !username.trim()) {
+    return { success: false, message: "Please enter desired Username / User ID." };
+  }
+  if (!password || password.length < 6) {
+    return { success: false, message: "Password must be at least 6 characters long." };
+  }
+  if (!authPin) {
+    return { success: false, message: "Please provide Terminal Security PIN (99544) to authorize account creation." };
+  }
+
+  // 1. Verify Terminal PIN
+  const pinCheck = await verifyTerminalPinAsync(authPin);
+  if (!pinCheck.success) {
+    return { success: false, message: "Invalid Terminal PIN. Only authorized personnel can create ERP accounts." };
+  }
+
+  const cleanUser = username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  if (cleanUser.length < 3) {
+    return { success: false, message: "Username must be at least 3 alphanumeric characters (letters, numbers, underscores)." };
+  }
+
+  const users = loadErpData("users", INITIAL_USERS);
+  
+  // Check if username already exists
+  if (users.some(u => u.username && u.username.toLowerCase() === cleanUser)) {
+    return { success: false, message: `Username '${cleanUser}' is already taken. Please choose another username.` };
+  }
+
+  const chosenRole = role || ROLE_DEFINITIONS[1].role;
+  const roleObj = ROLE_DEFINITIONS.find(r => r.role === chosenRole) || ROLE_DEFINITIONS[1];
+
+  const userPin = pin && pin.trim() ? pin.trim() : "99544";
+  const passHash = await sha256(password);
+  const pinHash = await sha256(userPin);
+
+  const newUser = {
+    id: `USR-${String(users.length + 1).padStart(3, '0')}`,
+    name: name.trim(),
+    username: cleanUser,
+    password: password,
+    passwordHash: passHash,
+    role: chosenRole,
+    pin: userPin,
+    pinHash: pinHash,
+    phone: phone ? phone.trim() : "",
+    region: region ? region.trim() : "Silchar & Cachar Circle",
+    status: "Active",
+    permissions: roleObj.defaultPermissions || ["dashboard", "tickets", "inventory"],
+    createdAt: new Date().toISOString()
+  };
+
+  const updatedUsers = [...users, newUser];
+  saveErpData("users", updatedUsers);
+
+  recordAuditLog(
+    "USER_REGISTRATION",
+    "Users",
+    `New staff user account created: '${cleanUser}' (${newUser.name}) with role '${chosenRole}'.`,
+    newUser
+  );
+
+  return {
+    success: true,
+    message: `Account for '${cleanUser}' created successfully! You can now log in.`,
+    user: newUser
+  };
+}
+
 // Legacy single-pin authentication method preserved for backwards compatibility
 export async function authenticateErpUserAsync(enteredPin) {
   const inputHash = await sha256(enteredPin);

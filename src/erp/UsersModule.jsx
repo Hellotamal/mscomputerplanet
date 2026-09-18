@@ -11,9 +11,12 @@ import {
   X, 
   Phone, 
   MapPin, 
-  KeyRound
+  KeyRound,
+  RefreshCw,
+  User
 } from 'lucide-react';
-import { ROLE_DEFINITIONS } from './erpStorage';
+import { ROLE_DEFINITIONS, recordAuditLog, saveErpData } from './erpStorage';
+import { sha256 } from './erpSecurity';
 
 const ALL_MODULES = [
   { id: 'dashboard', label: 'Dashboard & Metrics' },
@@ -35,6 +38,12 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [revealedPins, setRevealedPins] = useState({});
+
+  // Reset Password Modal State
+  const [resetModalUser, setResetModalUser] = useState(null);
+  const [resetPasswordInput, setResetPasswordInput] = useState('');
+  const [resetPinInput, setResetPinInput] = useState('');
+  const [showResetPass, setShowResetPass] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -82,9 +91,9 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
     });
   };
 
-  const handleCreateUser = (e) => {
+  const handleCreateUser = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.pin) {
+    if (!formData.name.trim() || !formData.pin.trim()) {
       alert('Please provide Full Name and Staff Access PIN.');
       return;
     }
@@ -94,21 +103,38 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
       return;
     }
 
+    const cleanUsername = (formData.username.trim() || formData.name.toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 12)).toLowerCase();
+
+    if (users.some(u => u.username && u.username.toLowerCase() === cleanUsername)) {
+      alert(`Username '${cleanUsername}' is already taken. Please enter a different User ID.`);
+      return;
+    }
+
     // Check PIN uniqueness (except for shared default PIN 99544)
     if (formData.pin !== '99544' && users.some(u => u.pin === formData.pin)) {
       alert('This custom PIN is already in use by another staff user. Please choose a unique PIN.');
       return;
     }
 
-    const autoUsername = formData.username.trim() || formData.name.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10);
+    const rawPassword = formData.password.trim() || `${cleanUsername}@99544`;
+    const passHash = await sha256(rawPassword);
+    const pinHash = await sha256(formData.pin);
+
     const newUser = {
       ...formData,
-      id: `USR-00${users.length + 1}`,
-      username: autoUsername,
-      password: formData.password || `${autoUsername}@99544`
+      id: `USR-${String(users.length + 1).padStart(3, '0')}`,
+      name: formData.name.trim(),
+      username: cleanUsername,
+      password: rawPassword,
+      passwordHash: passHash,
+      pinHash: pinHash,
+      createdAt: new Date().toISOString()
     };
 
-    setUsers([...users, newUser]);
+    const updated = [...users, newUser];
+    setUsers(updated);
+    saveErpData("users", updated);
+    recordAuditLog("USER_CREATED_ADMIN", "Users", `Admin created user '${cleanUsername}' (${newUser.name}).`);
     setShowAddModal(false);
     resetForm();
   };
@@ -128,10 +154,18 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
     });
   };
 
-  const handleUpdateUser = (e) => {
+  const handleUpdateUser = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.pin) {
+    if (!formData.name.trim() || !formData.pin.trim()) {
       alert('Please provide Full Name and Staff Access PIN.');
+      return;
+    }
+
+    const cleanUsername = (formData.username.trim() || editingUser.username).toLowerCase();
+
+    // Check username collision with other users
+    if (users.some(u => u.id !== editingUser.id && u.username && u.username.toLowerCase() === cleanUsername)) {
+      alert(`Username '${cleanUsername}' is already assigned to another staff member.`);
       return;
     }
 
@@ -141,14 +175,63 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
       return;
     }
 
-    setUsers(users.map(u => u.id === editingUser.id ? {
+    const rawPassword = formData.password.trim() || editingUser.password || `${cleanUsername}@99544`;
+    const passHash = await sha256(rawPassword);
+    const pinHash = await sha256(formData.pin);
+
+    const updated = users.map(u => u.id === editingUser.id ? {
       ...formData,
       id: editingUser.id,
-      password: formData.password || u.password || `${u.username}@99544`
-    } : u));
+      name: formData.name.trim(),
+      username: cleanUsername,
+      password: rawPassword,
+      passwordHash: passHash,
+      pinHash: pinHash
+    } : u);
 
+    setUsers(updated);
+    saveErpData("users", updated);
+    recordAuditLog("USER_UPDATED_ADMIN", "Users", `Admin updated profile for user '${cleanUsername}'.`);
     setEditingUser(null);
     resetForm();
+  };
+
+  // Open Reset Password Modal for a user
+  const handleOpenResetModal = (user) => {
+    setResetModalUser(user);
+    setResetPasswordInput('');
+    setResetPinInput(user.pin || '99544');
+    setShowResetPass(false);
+  };
+
+  const handleResetPasswordAdmin = async (e) => {
+    e.preventDefault();
+    if (!resetModalUser) return;
+    if (!resetPasswordInput || resetPasswordInput.length < 6) {
+      alert('New password must be at least 6 characters long.');
+      return;
+    }
+
+    const passHash = await sha256(resetPasswordInput);
+    const pinVal = resetPinInput.trim() || resetModalUser.pin || '99544';
+    const pinHash = await sha256(pinVal);
+
+    const updated = users.map(u => u.id === resetModalUser.id ? {
+      ...u,
+      password: resetPasswordInput,
+      passwordHash: passHash,
+      pin: pinVal,
+      pinHash: pinHash,
+      lastPasswordReset: new Date().toISOString()
+    } : u);
+
+    setUsers(updated);
+    saveErpData("users", updated);
+    recordAuditLog("PASSWORD_RESET_ADMIN", "Users", `Admin reset credentials for User ID '${resetModalUser.username}' (${resetModalUser.name}).`);
+    alert(`Credentials successfully reset for @${resetModalUser.username}!`);
+    setResetModalUser(null);
+    setResetPasswordInput('');
+    setResetPinInput('');
   };
 
   const handleDeleteUser = (id, name, role) => {
@@ -293,6 +376,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
                       <div className="flex items-center gap-2 flex-wrap">
                         <h4 className="font-bold text-slate-900 text-base">{u.name}</h4>
                         <span className="text-xs font-mono text-slate-400 font-semibold">{u.id}</span>
+                        <span className="text-xs font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 flex items-center gap-1">
+                          <User className="w-3 h-3 text-sky-500" />
+                          <span>@{u.username}</span>
+                        </span>
                       </div>
                       <span className={`inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getRoleBadgeClass(u.role)}`}>
                         {u.role}
@@ -361,7 +448,16 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => handleOpenResetModal(u)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold transition border border-amber-200"
+                  title="Reset Password & Access PIN"
+                >
+                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Reset Password</span>
+                </button>
                 <button
                   onClick={() => handleStartEdit(u)}
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition"
@@ -410,10 +506,36 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
                     required
                     placeholder="e.g. Debashis Roy"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData(prev => ({
+                        ...prev,
+                        name: val,
+                        username: prev.username || val.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10)
+                      }));
+                    }}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    User ID / Username * <span className="text-[10px] text-slate-400 font-normal">(Login ID)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-slate-400 font-mono text-xs">@</span>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. debashis"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '') })}
+                      className="w-full pl-7 pr-3 py-2 text-xs font-mono font-semibold rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Contact Phone</label>
                   <input
@@ -424,22 +546,18 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Operational Role *</label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => handleRoleChange(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
-                >
-                  {ROLE_DEFINITIONS.map(r => (
-                    <option key={r.role} value={r.role}>{r.role}</option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  {ROLE_DEFINITIONS.find(r => r.role === formData.role)?.description}
-                </p>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Operational Role *</label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => handleRoleChange(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+                  >
+                    {ROLE_DEFINITIONS.map(r => (
+                      <option key={r.role} value={r.role}>{r.role}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -553,6 +671,102 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow"
                 >
                   {editingUser ? 'Save User Changes' : 'Create Staff Account'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Reset Password Modal */}
+      {resetModalUser && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Reset Staff Password</h3>
+                  <p className="text-xs text-slate-500">
+                    User: <strong className="text-slate-800">{resetModalUser.name}</strong> (@{resetModalUser.username})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setResetModalUser(null)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleResetPasswordAdmin} className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    New Password * (Min 6 chars)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setResetPasswordInput(`${resetModalUser.username}@99544`)}
+                    className="text-[10px] text-amber-700 hover:underline font-semibold"
+                  >
+                    Set: {resetModalUser.username}@99544
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showResetPass ? "text" : "password"}
+                    required
+                    minLength={6}
+                    placeholder="Enter new password"
+                    value={resetPasswordInput}
+                    onChange={(e) => setResetPasswordInput(e.target.value)}
+                    className="w-full px-3 py-2 pr-9 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPass(!showResetPass)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showResetPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Update Terminal Access PIN (Optional)
+                </label>
+                <input
+                  type="text"
+                  maxLength="8"
+                  placeholder="e.g. 99544"
+                  value={resetPinInput}
+                  onChange={(e) => setResetPinInput(e.target.value.replace(/\D/g, ''))}
+                  className="w-full px-3 py-2 text-xs font-mono tracking-widest rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Staff member can use this personal PIN or the master PIN (99544) to unlock the Step 1 gate.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setResetModalUser(null)}
+                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl shadow transition flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Update Credentials</span>
                 </button>
               </div>
             </form>
