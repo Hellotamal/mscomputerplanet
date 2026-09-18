@@ -94,7 +94,9 @@ import {
   FolderOpen,
   CheckSquare,
   TrendingUp,
-  Zap
+  Zap,
+  Cpu,
+  Sun
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -114,6 +116,7 @@ export default function ERPApp({ onExit }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isClientsExpanded, setIsClientsExpanded] = useState(true);
   const [isHrmsExpanded, setIsHrmsExpanded] = useState(false);
+  const [deptFilter, setDeptFilter] = useState('all'); // 'all' | 'it' | 'solar'
 
   // Inactivity Auto-Lockout (15 minutes idle timeout)
   useEffect(() => {
@@ -304,133 +307,171 @@ export default function ERPApp({ onExit }) {
     return currentUser.permissions.includes(tabId);
   };
 
-  // Left Sidebar Menu & Submenu Navigation Hierarchy
-  const navSections = [
+  // Left Sidebar Navigation Hierarchy - Divided into Two Primary Departments + Enterprise Core
+  const departmentSections = [
     {
-      title: "Core & Intelligence",
-      items: [
-        { id: 'dashboard', name: 'Executive Overview', icon: LayoutDashboard },
-        { id: 'mis', name: '16. MIS & Intelligence', icon: TrendingUp, badge: 'Executive', badgeColor: 'bg-indigo-600 text-white' },
-        { 
-          id: 'workflow', 
-          name: '15. Workflow & Approvals', 
-          icon: CheckSquare, 
-          badge: workflowApprovals.filter(a => a.status === 'Pending').length > 0 ? workflowApprovals.filter(a => a.status === 'Pending').length : null, 
-          badgeColor: 'bg-amber-500 text-slate-950' 
-        }
-      ]
-    },
-    {
-      title: "Commercial & Pre-Sales",
-      items: [
-        { 
-          id: 'crm', 
-          name: '1. CRM & Leads', 
-          icon: Target, 
-          badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
-          badgeColor: 'bg-violet-500 text-white' 
-        },
-        { 
-          id: 'quotations', 
-          name: '2. Sales & Quotations', 
-          icon: ClipboardList, 
-          badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, 
-          badgeColor: 'bg-blue-500 text-white' 
-        },
-        { 
-          id: 'engineering', 
-          name: '3. Engineering & Solar', 
-          icon: Calculator, 
-          badge: engineeringDesigns.length, 
-          badgeColor: 'bg-teal-500 text-slate-950' 
-        }
-      ]
-    },
-    {
-      title: "Operations & Supply-Chain",
-      items: [
-        { 
-          id: 'projects', 
-          name: '4. Projects & EPC Execution', 
-          icon: Briefcase, 
-          badge: enterpriseProjects.length, 
-          badgeColor: 'bg-emerald-500 text-slate-950' 
-        },
-        { 
-          id: 'procurement', 
-          name: '5. Procurement & POs', 
-          icon: ShoppingCart, 
-          badge: procurementData?.purchaseOrders?.length || null, 
-          badgeColor: 'bg-blue-600 text-white' 
-        },
-        { 
-          id: 'inventory', 
-          name: '6. Inventory & Warehouses', 
-          icon: Package, 
-          badge: inventory.length 
-        },
-        { 
-          id: 'vendors', 
-          name: '7. Master Vendor Directory', 
-          icon: Truck, 
-          badge: (vendorsData || []).length 
-        }
-      ]
-    },
-    {
-      title: "Financials & After-Sales",
-      items: [
-        { id: 'invoices', name: '8. Finance & Invoicing', icon: FileText },
-        { id: 'accounts', name: 'Accounts & Ledger', icon: IndianRupee, badge: transactions.length, badgeColor: 'bg-teal-500 text-slate-950' },
-        { id: 'tickets', name: '9. AMC Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null, badgeColor: 'bg-rose-500 text-white' },
-        { id: 'amc', name: 'AMC Contracts', icon: Building2 },
-        { 
-          id: 'clients', 
-          name: '10. Asset Management', 
-          icon: Landmark, 
-          badge: clients.length, 
-          badgeColor: 'bg-emerald-500 text-slate-950',
-          hasSubmenu: true,
-          subExpanded: isClientsExpanded,
-          toggleSubmenu: () => setIsClientsExpanded(!isClientsExpanded),
-          subItems: [
-            { id: 'all_clients', name: 'All Enrolled Clients', icon: Layers, badge: clients.length, isCurrent: activeTab === 'clients' && clientSubCategory === 'All', onSelect: () => { setActiveTab('clients'); setClientSubCategory('All'); } },
-            { id: 'amc_clients', name: 'Banking & AMC', icon: Landmark, badge: clients.filter(c => c.category === 'AMC').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'AMC', onSelect: () => { setActiveTab('clients'); setClientSubCategory('AMC'); } },
-            { id: 'pnb_branch_matrix', name: 'PNB 50-Branch Matrix', icon: Building2, badge: '543', badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'pnb_assets', onSelect: () => { setActiveTab('pnb_assets'); } }
-          ]
-        }
-      ]
-    },
-    {
-      title: "IT Support & Digital Vault",
+      deptId: 'it',
+      deptName: '1. IT & Technology',
+      shortName: 'IT & Tech',
+      badge: 'ITSM & Banking',
+      badgeColor: 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40',
+      headerBg: 'from-cyan-950/80 via-slate-900 to-slate-900 border-cyan-800/40 text-cyan-300',
+      icon: Cpu,
+      themeColor: 'cyan',
+      description: '50 PNB Branches, 543 Assets, ITSM Suite',
       items: [
         { 
           id: 'itsm', 
           name: '12. IT Support / ITSM', 
           icon: Server, 
           badge: '11 Tools', 
-          badgeColor: 'bg-blue-600 text-white' 
+          badgeColor: 'bg-cyan-500 text-slate-950 font-black',
+          dept: 'it'
+        },
+        { 
+          id: 'clients', 
+          name: '10. Asset Management', 
+          icon: Landmark, 
+          badge: clients.length, 
+          badgeColor: 'bg-cyan-500 text-slate-950 font-black',
+          dept: 'it',
+          hasSubmenu: true,
+          subExpanded: isClientsExpanded,
+          toggleSubmenu: () => setIsClientsExpanded(!isClientsExpanded),
+          subItems: [
+            { id: 'all_clients', name: 'All Enrolled Clients', icon: Layers, badge: clients.length, isCurrent: activeTab === 'clients' && clientSubCategory === 'All', onSelect: () => { setActiveTab('clients'); setClientSubCategory('All'); } },
+            { id: 'amc_clients', name: 'Banking & AMC', icon: Landmark, badge: clients.filter(c => c.category === 'AMC').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'AMC', onSelect: () => { setActiveTab('clients'); setClientSubCategory('AMC'); } },
+            { id: 'pnb_branch_matrix', name: 'PNB 50-Branch Matrix', icon: Building2, badge: '543', badgeColor: 'bg-cyan-400 text-slate-950', isCurrent: activeTab === 'pnb_assets', onSelect: () => { setActiveTab('pnb_assets'); } }
+          ]
+        },
+        { 
+          id: 'tickets', 
+          name: '9. AMC Service & Tickets', 
+          icon: Wrench, 
+          badge: openTicketsCount > 0 ? openTicketsCount : null, 
+          badgeColor: 'bg-rose-500 text-white',
+          dept: 'it'
+        },
+        { 
+          id: 'amc', 
+          name: 'Banking AMC Contracts', 
+          icon: Building2,
+          badge: amcContracts.length,
+          dept: 'it'
+        },
+        { 
+          id: 'procurement', 
+          name: '5. Hardware Procurement', 
+          icon: ShoppingCart, 
+          badge: procurementData?.purchaseOrders?.length || null, 
+          badgeColor: 'bg-cyan-600 text-white',
+          dept: 'it'
+        },
+        { 
+          id: 'vendors', 
+          name: '7. IT Vendors & GeM', 
+          icon: Truck, 
+          badge: (vendorsData || []).length,
+          dept: 'it'
+        },
+        { 
+          id: 'customer_portal', 
+          name: '14a. Customer IT Portal', 
+          icon: ShieldCheck,
+          dept: 'it'
+        }
+      ]
+    },
+    {
+      deptId: 'solar',
+      deptName: '2. Renewable Energy',
+      shortName: 'Solar EPC',
+      badge: 'Solar EPC & Power',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+      headerBg: 'from-amber-950/80 via-slate-900 to-slate-900 border-amber-800/40 text-amber-300',
+      icon: Sun,
+      themeColor: 'amber',
+      description: 'Solar Sizing, EPC Execution, APDCL Vault',
+      items: [
+        { 
+          id: 'engineering', 
+          name: '3. Engineering & Pre-Sales', 
+          icon: Calculator, 
+          badge: engineeringDesigns.length, 
+          badgeColor: 'bg-amber-400 text-slate-950 font-black',
+          dept: 'solar'
+        },
+        { 
+          id: 'projects', 
+          name: '4. Projects & EPC Execution', 
+          icon: Briefcase, 
+          badge: enterpriseProjects.length, 
+          badgeColor: 'bg-amber-500 text-slate-950 font-black',
+          dept: 'solar'
         },
         { 
           id: 'documents', 
           name: '13. DMS Compliance Vault', 
           icon: FolderOpen, 
           badge: (documentsData || []).length, 
-          badgeColor: 'bg-indigo-500 text-white' 
+          badgeColor: 'bg-amber-500 text-slate-950 font-black',
+          dept: 'solar'
+        },
+        { 
+          id: 'inventory', 
+          name: '6. Multi-Depot Warehouses', 
+          icon: Package, 
+          badge: inventory.length,
+          dept: 'solar'
+        },
+        { 
+          id: 'quotations', 
+          name: '2. Solar Quotes & Proposals', 
+          icon: ClipboardList, 
+          badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, 
+          badgeColor: 'bg-amber-500 text-slate-950 font-black',
+          dept: 'solar'
         }
       ]
     },
     {
-      title: "Portals & Workforce",
+      deptId: 'core',
+      deptName: 'Corporate & Governance',
+      shortName: 'Corporate Hub',
+      badge: 'Core Suite',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
+      headerBg: 'from-slate-800/80 via-slate-900 to-slate-900 border-slate-700/50 text-slate-200',
+      icon: Layers,
+      themeColor: 'emerald',
+      description: 'Command Overview, Finance, HRMS, Approvals',
       items: [
-        { id: 'customer_portal', name: '14a. Customer Portal Desk', icon: ShieldCheck },
-        { id: 'employee_portal', name: '14b. Employee Staff Desk', icon: UserCheck },
+        { id: 'dashboard', name: 'Executive Overview', icon: LayoutDashboard, dept: 'core' },
+        { id: 'mis', name: '16. MIS & Intelligence', icon: TrendingUp, badge: 'Executive', badgeColor: 'bg-indigo-600 text-white font-bold', dept: 'core' },
+        { 
+          id: 'workflow', 
+          name: '15. Workflow & Approvals', 
+          icon: CheckSquare, 
+          badge: workflowApprovals.filter(a => a.status === 'Pending').length > 0 ? workflowApprovals.filter(a => a.status === 'Pending').length : null, 
+          badgeColor: 'bg-amber-500 text-slate-950 font-black',
+          dept: 'core'
+        },
+        { 
+          id: 'crm', 
+          name: '1. CRM & Leads', 
+          icon: Target, 
+          badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
+          badgeColor: 'bg-violet-500 text-white font-bold',
+          dept: 'core'
+        },
+        { id: 'invoices', name: '8. Finance & Invoicing', icon: FileText, dept: 'core' },
+        { id: 'accounts', name: 'Accounts & Ledger', icon: IndianRupee, badge: transactions.length, badgeColor: 'bg-teal-500 text-slate-950 font-black', dept: 'core' },
         { 
           id: 'hrms', 
           name: '11. Staff HRMS & Payroll', 
           icon: Users, 
           badge: employees.length, 
-          badgeColor: 'bg-emerald-500 text-slate-950',
+          badgeColor: 'bg-emerald-500 text-slate-950 font-black',
+          dept: 'core',
           hasSubmenu: true,
           subExpanded: isHrmsExpanded,
           toggleSubmenu: () => setIsHrmsExpanded(!isHrmsExpanded),
@@ -441,16 +482,12 @@ export default function ERPApp({ onExit }) {
             { id: 'leaves', name: 'Leave Requests', icon: Calendar, badge: pendingLeavesCount > 0 ? pendingLeavesCount : null, badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'hrms' && hrmsSubTab === 'leaves', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('leaves'); } },
             { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'payroll', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('payroll'); } }
           ]
-        }
-      ]
-    },
-    {
-      title: "Governance & Reports",
-      items: [
-        { id: 'reports', name: 'Reports & Export Centre', icon: FileSpreadsheet },
+        },
+        { id: 'employee_portal', name: '14b. Employee Staff Desk', icon: UserCheck, dept: 'core' },
+        { id: 'reports', name: 'Reports & Export Centre', icon: FileSpreadsheet, dept: 'core' },
         ...(isAdmin ? [
-          { id: 'users', name: '17. Staff & Roles RBAC', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' },
-          { id: 'settings', name: 'Data & Settings', icon: Settings }
+          { id: 'users', name: '17. Staff & Roles RBAC', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white font-bold', dept: 'core' },
+          { id: 'settings', name: 'Data & Settings', icon: Settings, dept: 'core' }
         ] : [])
       ]
     }
@@ -495,195 +532,290 @@ export default function ERPApp({ onExit }) {
           </button>
         </div>
 
-        {/* Quick Operations Menu / Fast Access Hub (Restricted: Administrator Only) */}
+        {/* Department Switcher Bar */}
+        <div className="p-2.5 border-b border-slate-800/80 bg-slate-950/50 shrink-0">
+          <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5 px-0.5">
+            <span className="flex items-center gap-1">
+              <Layers className="w-3 h-3 text-emerald-400" />
+              <span>Departments</span>
+            </span>
+            <span className="font-mono text-[9px] text-slate-400">2 Divisions</span>
+          </div>
+          <div className="grid grid-cols-3 gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setDeptFilter('all')}
+              className={`py-1.5 px-1 rounded-lg text-[10px] font-black flex items-center justify-center gap-1 transition ${
+                deptFilter === 'all'
+                  ? 'bg-slate-800 text-white shadow-xs ring-1 ring-slate-700'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-850'
+              }`}
+              title="Show All Departments"
+            >
+              <Layers className="w-3 h-3" />
+              <span>All</span>
+            </button>
+            <button
+              onClick={() => setDeptFilter('it')}
+              className={`py-1.5 px-1 rounded-lg text-[10px] font-black flex items-center justify-center gap-1 transition ${
+                deptFilter === 'it'
+                  ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/30 ring-1 ring-cyan-300'
+                  : 'text-slate-400 hover:text-cyan-300 hover:bg-cyan-950/30'
+              }`}
+              title="Filter IT & Technology Solutions"
+            >
+              <Cpu className="w-3 h-3" />
+              <span>1. IT</span>
+            </button>
+            <button
+              onClick={() => setDeptFilter('solar')}
+              className={`py-1.5 px-1 rounded-lg text-[10px] font-black flex items-center justify-center gap-1 transition ${
+                deptFilter === 'solar'
+                  ? 'bg-amber-500 text-slate-950 shadow-sm shadow-amber-500/30 ring-1 ring-amber-300'
+                  : 'text-slate-400 hover:text-amber-300 hover:bg-amber-950/30'
+              }`}
+              title="Filter Renewable Energy & Solar EPC"
+            >
+              <Sun className="w-3 h-3" />
+              <span>2. Solar</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Operations Hub (Restricted: Administrator Only) */}
         {isAdmin && (
-          <div className="p-3 border-b border-slate-800/80 bg-slate-950/40 shrink-0">
-            <div className="text-[10px] font-bold tracking-wider uppercase text-slate-400 px-1 mb-2 flex items-center justify-between">
+          <div className="p-2.5 border-b border-slate-800/80 bg-slate-950/40 shrink-0">
+            <div className="text-[10px] font-extrabold tracking-wider uppercase text-slate-400 px-1 mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Quick Navigation Hub</span>
+                <span>Fast-Track Hub</span>
               </span>
-              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded-full">Core</span>
+              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.2 rounded-full">Admin</span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               {/* 1. Clients & Assets Button */}
               <button
                 onClick={() => { setActiveTab('clients'); setIsSidebarOpen(false); }}
-                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                className={`p-2 rounded-xl text-left transition flex flex-col justify-between border ${
                   activeTab === 'clients'
-                    ? 'bg-amber-400 text-slate-950 font-black ring-2 ring-amber-300 shadow-md shadow-amber-400/25'
-                    : 'bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-500/30'
+                    ? 'bg-cyan-950/80 border-cyan-400 text-cyan-200 ring-1 ring-cyan-400/40 shadow-xs'
+                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 text-slate-300 hover:text-white'
                 }`}
               >
-                <div className="flex items-center gap-2 truncate">
-                  <Landmark className="w-4 h-4 shrink-0" />
-                  <span className="text-xs font-bold truncate">Clients & Assets ({clients.length})</span>
+                <div className="flex items-center justify-between">
+                  <Landmark className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-cyan-900/60 text-cyan-300 font-mono">
+                    {clients.length}
+                  </span>
                 </div>
-                <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'clients' ? 'text-slate-950' : 'text-amber-400/70'}`} />
+                <div className="text-[11px] font-bold truncate mt-1">Clients & Assets</div>
               </button>
 
-              {/* 2. Accounts Ledger Button */}
-              <button
-                onClick={() => { setActiveTab('accounts'); setIsSidebarOpen(false); }}
-                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                  activeTab === 'accounts'
-                    ? 'bg-teal-600 text-white font-black ring-2 ring-teal-400 shadow-md shadow-teal-600/25'
-                    : 'bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30'
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <IndianRupee className="w-4 h-4 shrink-0" />
-                  <span className="text-xs font-bold truncate">Accounts Ledger</span>
-                </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                  activeTab === 'accounts' ? 'bg-teal-950 text-teal-200' : 'bg-teal-900/60 text-teal-300'
-                }`}>
-                  {transactions.length}
-                </span>
-              </button>
-
-              {/* 3. Reports Centre Button */}
-              <button
-                onClick={() => { setActiveTab('reports'); setIsSidebarOpen(false); }}
-                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
-                  activeTab === 'reports'
-                    ? 'bg-blue-600 text-white font-black ring-2 ring-blue-400 shadow-md shadow-blue-600/25'
-                    : 'bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30'
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <FileSpreadsheet className="w-4 h-4 shrink-0" />
-                  <span className="text-xs font-bold truncate">Reports Centre</span>
-                </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                  activeTab === 'reports' ? 'bg-blue-950 text-blue-200' : 'bg-blue-900/60 text-blue-300'
-                }`}>
-                  Audit
-                </span>
-              </button>
-
-              {/* 4. Active Tickets Button */}
+              {/* 2. Active Tickets Button */}
               <button
                 onClick={() => { setActiveTab('tickets'); setIsSidebarOpen(false); }}
-                className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between shadow-xs ${
+                className={`p-2 rounded-xl text-left transition flex flex-col justify-between border ${
                   activeTab === 'tickets'
-                    ? 'bg-emerald-500 text-slate-950 font-black ring-2 ring-emerald-300 shadow-md shadow-emerald-500/25'
-                    : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30'
+                    ? 'bg-rose-950/80 border-rose-400 text-rose-200 ring-1 ring-rose-400/40 shadow-xs'
+                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 text-slate-300 hover:text-white'
                 }`}
               >
-                <div className="flex items-center gap-2 truncate">
-                  <Wrench className="w-4 h-4 shrink-0" />
-                  <span className="text-xs font-bold truncate">Active Tickets</span>
+                <div className="flex items-center justify-between">
+                  <Wrench className="w-3.5 h-3.5 text-rose-400" />
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black font-mono ${
+                    openTicketsCount > 0 ? 'bg-rose-600 text-white animate-pulse' : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {openTicketsCount > 0 ? `${openTicketsCount} Open` : `${tickets.length}`}
+                  </span>
                 </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                  activeTab === 'tickets' 
-                    ? 'bg-slate-950 text-emerald-400' 
-                    : openTicketsCount > 0 ? 'bg-rose-500 text-white' : 'bg-emerald-900/60 text-emerald-300'
-                }`}>
-                  {openTicketsCount > 0 ? `${openTicketsCount} Open` : `${tickets.length}`}
-                </span>
+                <div className="text-[11px] font-bold truncate mt-1">SLA Tickets</div>
+              </button>
+
+              {/* 3. Accounts Ledger Button */}
+              <button
+                onClick={() => { setActiveTab('accounts'); setIsSidebarOpen(false); }}
+                className={`p-2 rounded-xl text-left transition flex flex-col justify-between border ${
+                  activeTab === 'accounts'
+                    ? 'bg-teal-950/80 border-teal-400 text-teal-200 ring-1 ring-teal-400/40 shadow-xs'
+                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 text-slate-300 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <IndianRupee className="w-3.5 h-3.5 text-teal-400" />
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-teal-900/60 text-teal-300 font-mono">
+                    {transactions.length}
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold truncate mt-1">Accounts Ledger</div>
+              </button>
+
+              {/* 4. Reports Centre Button */}
+              <button
+                onClick={() => { setActiveTab('reports'); setIsSidebarOpen(false); }}
+                className={`p-2 rounded-xl text-left transition flex flex-col justify-between border ${
+                  activeTab === 'reports'
+                    ? 'bg-blue-950/80 border-blue-400 text-blue-200 ring-1 ring-blue-400/40 shadow-xs'
+                    : 'bg-slate-900/80 hover:bg-slate-850 border-slate-800 text-slate-300 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full font-black bg-blue-900/60 text-blue-300 font-mono">
+                    Audit
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold truncate mt-1">Audit Reports</div>
               </button>
             </div>
           </div>
         )}
 
-        {/* Scrollable Navigation Items & Sub-Menus */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-4 no-scrollbar">
-          {navSections.map((section, sIdx) => {
-            const visibleItems = section.items.filter(item => hasTabPermission(item.id));
-            if (visibleItems.length === 0) return null;
+        {/* Scrollable Navigation Items & Department Categorized Cards */}
+        <div className="flex-1 overflow-y-auto p-2.5 space-y-3.5 no-scrollbar">
+          {departmentSections
+            .filter(section => deptFilter === 'all' || section.deptId === deptFilter || section.deptId === 'core')
+            .map((section) => {
+              const visibleItems = section.items.filter(item => hasTabPermission(item.id));
+              if (visibleItems.length === 0) return null;
 
-            return (
-              <div key={sIdx} className="space-y-1">
-                <div className="text-[10px] font-bold tracking-wider uppercase text-slate-500 px-3 py-1">
-                  {section.title}
-                </div>
-
-                <div className="space-y-1">
-                  {visibleItems.map(item => {
-                    const Icon = item.icon;
-                    const isActive = activeTab === item.id;
-
-                    return (
-                      <div key={item.id} className="space-y-1">
-                        <button
-                          onClick={() => {
-                            if (item.hasSubmenu) {
-                              setActiveTab(item.id);
-                              if (item.toggleSubmenu) item.toggleSubmenu();
-                            } else {
-                              setActiveTab(item.id);
-                              setIsSidebarOpen(false);
-                            }
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition group ${
-                            isActive
-                              ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/30 ring-1 ring-emerald-400/40'
-                              : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 truncate">
-                            <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
-                            <span className="truncate">{item.name}</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0 ml-1.5">
-                            {item.badge && (
-                              <span className={`px-1.5 py-0.2 rounded-full font-black text-[10px] ${item.badgeColor || 'bg-amber-500 text-slate-950'}`}>
-                                {item.badge}
-                              </span>
-                            )}
-                            {item.hasSubmenu && (
-                              <span className="text-slate-400 group-hover:text-white">
-                                {item.subExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                              </span>
-                            )}
-                          </div>
-                        </button>
-
-                        {/* Expandable Sub-Menu in the Left Side */}
-                        {item.hasSubmenu && item.subExpanded && (
-                          <div className="mt-1 ml-3.5 pl-2.5 border-l border-slate-800 space-y-1">
-                            {item.subItems.map((sub) => {
-                              const SubIcon = sub.icon;
-                              const isSubActive = sub.isCurrent;
-
-                              return (
-                                <button
-                                  key={sub.id}
-                                  onClick={() => {
-                                    if (sub.onSelect) sub.onSelect();
-                                    setIsSidebarOpen(false);
-                                  }}
-                                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition ${
-                                    isSubActive
-                                      ? 'bg-slate-800 text-emerald-400 font-bold border-l-2 border-emerald-400 shadow-xs'
-                                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2 truncate">
-                                    <SubIcon className={`w-3.5 h-3.5 shrink-0 ${isSubActive ? 'text-emerald-400' : 'text-slate-500'}`} />
-                                    <span className="truncate">{sub.name}</span>
-                                  </div>
-
-                                  {sub.badge && (
-                                    <span className={`px-1.5 py-0.2 rounded-full font-black text-[9px] ${sub.badgeColor || 'bg-slate-800 text-slate-300'}`}>
-                                      {sub.badge}
-                                    </span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
+              return (
+                <div key={section.deptId} className="space-y-1">
+                  {/* Distinct Department Category Header Banner */}
+                  <div className={`px-2.5 py-1.5 rounded-xl bg-gradient-to-r ${section.headerBg} border flex items-center justify-between shadow-xs mb-1.5`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`w-5 h-5 rounded-lg flex items-center justify-center shrink-0 ${
+                        section.themeColor === 'cyan' ? 'bg-cyan-500/20 text-cyan-400' :
+                        section.themeColor === 'amber' ? 'bg-amber-500/20 text-amber-400' :
+                        'bg-emerald-500/20 text-emerald-400'
+                      }`}>
+                        <section.icon className="w-3.5 h-3.5" />
                       </div>
-                    );
-                  })}
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-black uppercase tracking-wider truncate text-white">
+                          {section.deptName}
+                        </div>
+                        <div className="text-[9px] text-slate-400 truncate leading-none mt-0.5">
+                          {section.description}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold shrink-0 ${section.badgeColor}`}>
+                      {section.badge}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    {visibleItems.map(item => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.id;
+
+                      let activeClass = '';
+                      let activeIconColor = '';
+                      let hoverClass = '';
+
+                      if (section.themeColor === 'cyan') {
+                        activeClass = 'bg-gradient-to-r from-cyan-950 via-slate-900 to-slate-900 text-cyan-100 border-l-[3px] border-cyan-400 font-bold shadow-sm shadow-cyan-950/60 ring-1 ring-cyan-500/20';
+                        activeIconColor = 'text-cyan-400';
+                        hoverClass = 'hover:bg-cyan-950/30 hover:text-cyan-200';
+                      } else if (section.themeColor === 'amber') {
+                        activeClass = 'bg-gradient-to-r from-amber-950 via-slate-900 to-slate-900 text-amber-100 border-l-[3px] border-amber-400 font-bold shadow-sm shadow-amber-950/60 ring-1 ring-amber-500/20';
+                        activeIconColor = 'text-amber-400';
+                        hoverClass = 'hover:bg-amber-950/30 hover:text-amber-200';
+                      } else {
+                        activeClass = 'bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 text-emerald-100 border-l-[3px] border-emerald-400 font-bold shadow-sm shadow-emerald-950/60 ring-1 ring-emerald-500/20';
+                        activeIconColor = 'text-emerald-400';
+                        hoverClass = 'hover:bg-slate-850 hover:text-emerald-200';
+                      }
+
+                      return (
+                        <div key={item.id} className="space-y-1">
+                          <button
+                            onClick={() => {
+                              if (item.hasSubmenu) {
+                                setActiveTab(item.id);
+                                if (item.toggleSubmenu) item.toggleSubmenu();
+                              } else {
+                                setActiveTab(item.id);
+                                setIsSidebarOpen(false);
+                              }
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition group ${
+                              isActive
+                                ? activeClass
+                                : `text-slate-300 hover:text-white ${hoverClass}`
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 truncate">
+                              <Icon className={`w-4 h-4 shrink-0 transition-colors ${
+                                isActive ? activeIconColor : 'text-slate-400 group-hover:text-white'
+                              }`} />
+                              <span className="truncate">{item.name}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0 ml-1.5">
+                              {item.badge && (
+                                <span className={`px-1.5 py-0.2 rounded-full font-black text-[10px] ${item.badgeColor || 'bg-amber-500 text-slate-950'}`}>
+                                  {item.badge}
+                                </span>
+                              )}
+                              {item.hasSubmenu && (
+                                <span className="text-slate-400 group-hover:text-white">
+                                  {item.subExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Expandable Sub-Menu in the Left Side */}
+                          {item.hasSubmenu && item.subExpanded && (
+                            <div className={`mt-1 ml-3.5 pl-2.5 border-l space-y-1 ${
+                              section.themeColor === 'cyan' ? 'border-cyan-800/40' :
+                              section.themeColor === 'amber' ? 'border-amber-800/40' :
+                              'border-slate-800'
+                            }`}>
+                              {item.subItems.map((sub) => {
+                                const SubIcon = sub.icon;
+                                const isSubActive = sub.isCurrent;
+
+                                return (
+                                  <button
+                                    key={sub.id}
+                                    onClick={() => {
+                                      if (sub.onSelect) sub.onSelect();
+                                      setIsSidebarOpen(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] transition ${
+                                      isSubActive
+                                        ? section.themeColor === 'cyan'
+                                          ? 'bg-cyan-950/60 text-cyan-300 font-bold border-l-2 border-cyan-400 shadow-xs'
+                                          : 'bg-slate-800 text-emerald-400 font-bold border-l-2 border-emerald-400 shadow-xs'
+                                        : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2 truncate">
+                                      <SubIcon className={`w-3.5 h-3.5 shrink-0 ${
+                                        isSubActive ? (section.themeColor === 'cyan' ? 'text-cyan-400' : 'text-emerald-400') : 'text-slate-500'
+                                      }`} />
+                                      <span className="truncate">{sub.name}</span>
+                                    </div>
+
+                                    {sub.badge && (
+                                      <span className={`px-1.5 py-0.2 rounded-full font-black text-[9px] ${sub.badgeColor || 'bg-slate-800 text-slate-300'}`}>
+                                        {sub.badge}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
 
         {/* Sidebar Footer: User Card & Direct Actions */}
@@ -1091,124 +1223,159 @@ export default function ERPApp({ onExit }) {
               </div>
             </div>
 
-            {/* Enterprise 17-Domain Quick Navigation Hub */}
-            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-indigo-600" />
-                  <span>Enterprise 17-Domain Operational Matrix</span>
-                </h3>
-                <p className="text-xs text-slate-500">Quick-launch any operational pillar across Computer Planet enterprise architecture.</p>
+            {/* Enterprise 17-Domain Operational Matrix Categorized into Two Departments */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-emerald-600" />
+                    <span>Enterprise Operations Matrix by Department</span>
+                  </h3>
+                  <p className="text-xs text-slate-500">Fast access to operational modules organized across Computer Planet's two core divisions.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 flex items-center gap-1">
+                    <Cpu className="w-3 h-3 text-cyan-600" /> Dept 1: IT & Tech
+                  </span>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+                    <Sun className="w-3 h-3 text-amber-600" /> Dept 2: Solar EPC
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 text-xs">
-                <button onClick={() => setActiveTab('crm')} className="p-3 rounded-xl bg-slate-50 hover:bg-violet-50 hover:border-violet-200 border border-slate-200 text-left transition group">
-                  <Target className="w-5 h-5 text-violet-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">1. CRM & Leads</div>
-                  <div className="text-[10px] text-slate-400">7-Stage Funnel</div>
-                </button>
+              {/* Department 1: IT & Technology Solutions */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-cyan-900 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold">
+                      <Cpu className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Department 1: IT & Technology Services</span>
+                    <span className="text-[10px] font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full">50 PNB Branches • ITSM • AMC</span>
+                  </h4>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5 text-xs">
+                  <button onClick={() => setActiveTab('itsm')} className="p-3 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-300 border border-slate-200 text-left transition group">
+                    <Server className="w-5 h-5 text-cyan-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">12. ITSM Suite</div>
+                    <div className="text-[10px] text-slate-400">11 IT Tools</div>
+                  </button>
+                  <button onClick={() => setActiveTab('pnb_assets')} className="p-3 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-300 border border-slate-200 text-left transition group">
+                    <Landmark className="w-5 h-5 text-cyan-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">10. Assets Matrix</div>
+                    <div className="text-[10px] text-slate-400">543 PNB Assets</div>
+                  </button>
+                  <button onClick={() => setActiveTab('tickets')} className="p-3 rounded-xl bg-slate-50 hover:bg-rose-50 hover:border-rose-300 border border-slate-200 text-left transition group">
+                    <Wrench className="w-5 h-5 text-rose-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">9. AMC Service</div>
+                    <div className="text-[10px] text-slate-400">2-4 Hr SLA Calls</div>
+                  </button>
+                  <button onClick={() => setActiveTab('amc')} className="p-3 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-300 border border-slate-200 text-left transition group">
+                    <Building2 className="w-5 h-5 text-cyan-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">AMC Contracts</div>
+                    <div className="text-[10px] text-slate-400">50 Branches</div>
+                  </button>
+                  <button onClick={() => setActiveTab('procurement')} className="p-3 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-300 border border-slate-200 text-left transition group">
+                    <ShoppingCart className="w-5 h-5 text-cyan-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">5. Procurement</div>
+                    <div className="text-[10px] text-slate-400">Hardware PO & GRN</div>
+                  </button>
+                  <button onClick={() => setActiveTab('vendors')} className="p-3 rounded-xl bg-slate-50 hover:bg-cyan-50 hover:border-cyan-300 border border-slate-200 text-left transition group">
+                    <Truck className="w-5 h-5 text-cyan-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">7. IT Vendors</div>
+                    <div className="text-[10px] text-slate-400">HP, D-Link, GeM</div>
+                  </button>
+                  <button onClick={() => setActiveTab('customer_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-sky-50 hover:border-sky-300 border border-slate-200 text-left transition group">
+                    <ShieldCheck className="w-5 h-5 text-sky-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">14a. Client Portal</div>
+                    <div className="text-[10px] text-slate-400">Ticket Self-Service</div>
+                  </button>
+                </div>
+              </div>
 
-                <button onClick={() => setActiveTab('quotations')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
-                  <ClipboardList className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">2. Sales & Quotes</div>
-                  <div className="text-[10px] text-slate-400">GST Estimates</div>
-                </button>
+              {/* Department 2: Renewable Energy & Solar EPC */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-amber-900 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                      <Sun className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Department 2: Renewable Energy & Solar EPC</span>
+                    <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Solar EPC • APDCL • Net Metering</span>
+                  </h4>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 text-xs">
+                  <button onClick={() => setActiveTab('engineering')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <Calculator className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">3. Solar Engineering</div>
+                    <div className="text-[10px] text-slate-400">Sizing & Barak PSH</div>
+                  </button>
+                  <button onClick={() => setActiveTab('projects')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <Briefcase className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">4. Solar EPC Execution</div>
+                    <div className="text-[10px] text-slate-400">Milestones & Handover</div>
+                  </button>
+                  <button onClick={() => setActiveTab('documents')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <FolderOpen className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">13. DMS Solar Vault</div>
+                    <div className="text-[10px] text-slate-400">APDCL, Test Reports</div>
+                  </button>
+                  <button onClick={() => setActiveTab('inventory')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <Package className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">6. Solar Warehouses</div>
+                    <div className="text-[10px] text-slate-400">3 Depots & Panels</div>
+                  </button>
+                  <button onClick={() => setActiveTab('quotations')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <ClipboardList className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">2. Solar Quotations</div>
+                    <div className="text-[10px] text-slate-400">PM Surya Ghar Subsidy</div>
+                  </button>
+                </div>
+              </div>
 
-                <button onClick={() => setActiveTab('engineering')} className="p-3 rounded-xl bg-slate-50 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 text-left transition group">
-                  <Calculator className="w-5 h-5 text-teal-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">3. Engineering</div>
-                  <div className="text-[10px] text-slate-400">Solar Sizing & BOQ</div>
-                </button>
-
-                <button onClick={() => setActiveTab('projects')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
-                  <Briefcase className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">4. Projects & EPC</div>
-                  <div className="text-[10px] text-slate-400">Gantt Milestones</div>
-                </button>
-
-                <button onClick={() => setActiveTab('procurement')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
-                  <ShoppingCart className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">5. Procurement</div>
-                  <div className="text-[10px] text-slate-400">PO & QC GRN</div>
-                </button>
-
-                <button onClick={() => setActiveTab('inventory')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
-                  <Package className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">6. Warehouses</div>
-                  <div className="text-[10px] text-slate-400">3 Depots & Serials</div>
-                </button>
-
-                <button onClick={() => setActiveTab('vendors')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
-                  <Truck className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">7. Vendors & OEMs</div>
-                  <div className="text-[10px] text-slate-400">Waaree, HP, D-Link</div>
-                </button>
-
-                <button onClick={() => setActiveTab('invoices')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
-                  <FileText className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">8. GST Invoicing</div>
-                  <div className="text-[10px] text-slate-400">Tax Invoices & Accounts</div>
-                </button>
-
-                <button onClick={() => setActiveTab('tickets')} className="p-3 rounded-xl bg-slate-50 hover:bg-rose-50 hover:border-rose-200 border border-slate-200 text-left transition group">
-                  <Wrench className="w-5 h-5 text-rose-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">9. AMC Service</div>
-                  <div className="text-[10px] text-slate-400">2-4 Hr Banking SLA</div>
-                </button>
-
-                <button onClick={() => setActiveTab('pnb_assets')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
-                  <Landmark className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">10. Assets Matrix</div>
-                  <div className="text-[10px] text-slate-400">543 PNB Assets</div>
-                </button>
-
-                <button onClick={() => setActiveTab('hrms')} className="p-3 rounded-xl bg-slate-50 hover:bg-teal-50 hover:border-teal-200 border border-slate-200 text-left transition group">
-                  <Users className="w-5 h-5 text-teal-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">11. Staff HRMS</div>
-                  <div className="text-[10px] text-slate-400">Attendance & Payslips</div>
-                </button>
-
-                <button onClick={() => setActiveTab('itsm')} className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 text-left transition group">
-                  <Server className="w-5 h-5 text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">12. ITSM Suite</div>
-                  <div className="text-[10px] text-slate-400">11 Specialized Tools</div>
-                </button>
-
-                <button onClick={() => setActiveTab('documents')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
-                  <FolderOpen className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">13. DMS Vault</div>
-                  <div className="text-[10px] text-slate-400">APDCL, Test Reports</div>
-                </button>
-
-                <button onClick={() => setActiveTab('customer_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-sky-50 hover:border-sky-200 border border-slate-200 text-left transition group">
-                  <ShieldCheck className="w-5 h-5 text-sky-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">14a. Client Portal</div>
-                  <div className="text-[10px] text-slate-400">Ticket & Invoices</div>
-                </button>
-
-                <button onClick={() => setActiveTab('employee_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 text-left transition group">
-                  <UserCheck className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">14b. Staff Desk</div>
-                  <div className="text-[10px] text-slate-400">Geo Punch & DA Log</div>
-                </button>
-
-                <button onClick={() => setActiveTab('workflow')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-200 border border-slate-200 text-left transition group">
-                  <CheckSquare className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">15. Approvals</div>
-                  <div className="text-[10px] text-slate-400">PO & Expense Sign-off</div>
-                </button>
-
-                <button onClick={() => setActiveTab('mis')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-200 border border-slate-200 text-left transition group">
-                  <TrendingUp className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">16. MIS Cockpit</div>
-                  <div className="text-[10px] text-slate-400">Aging & Board Review</div>
-                </button>
-
-                <button onClick={() => setActiveTab('users')} className="p-3 rounded-xl bg-slate-50 hover:bg-slate-200 border border-slate-200 text-left transition group">
-                  <ShieldCheck className="w-5 h-5 text-slate-700 mb-1 group-hover:scale-110 transition-transform" />
-                  <div className="font-bold text-slate-900">17. Governance</div>
-                  <div className="text-[10px] text-slate-400">RBAC & Audits</div>
-                </button>
+              {/* Corporate & Governance Suite */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                      <Layers className="w-3.5 h-3.5" />
+                    </div>
+                    <span>Enterprise Core & Corporate Governance</span>
+                    <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Finance • HRMS • Workflow</span>
+                  </h4>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 text-xs">
+                  <button onClick={() => setActiveTab('crm')} className="p-3 rounded-xl bg-slate-50 hover:bg-violet-50 hover:border-violet-300 border border-slate-200 text-left transition group">
+                    <Target className="w-5 h-5 text-violet-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">1. CRM & Leads</div>
+                    <div className="text-[10px] text-slate-400">7-Stage Funnel</div>
+                  </button>
+                  <button onClick={() => setActiveTab('invoices')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 text-left transition group">
+                    <FileText className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">8. GST Invoicing</div>
+                    <div className="text-[10px] text-slate-400">Tax Invoices & Ledger</div>
+                  </button>
+                  <button onClick={() => setActiveTab('hrms')} className="p-3 rounded-xl bg-slate-50 hover:bg-teal-50 hover:border-teal-300 border border-slate-200 text-left transition group">
+                    <Users className="w-5 h-5 text-teal-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">11. Staff HRMS</div>
+                    <div className="text-[10px] text-slate-400">Attendance & Payslips</div>
+                  </button>
+                  <button onClick={() => setActiveTab('employee_portal')} className="p-3 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 border border-slate-200 text-left transition group">
+                    <UserCheck className="w-5 h-5 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">14b. Staff Desk</div>
+                    <div className="text-[10px] text-slate-400">Geo Punch & DA Log</div>
+                  </button>
+                  <button onClick={() => setActiveTab('workflow')} className="p-3 rounded-xl bg-slate-50 hover:bg-amber-50 hover:border-amber-300 border border-slate-200 text-left transition group">
+                    <CheckSquare className="w-5 h-5 text-amber-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">15. Approvals</div>
+                    <div className="text-[10px] text-slate-400">PO & Expense Sign-off</div>
+                  </button>
+                  <button onClick={() => setActiveTab('mis')} className="p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 border border-slate-200 text-left transition group">
+                    <TrendingUp className="w-5 h-5 text-indigo-600 mb-1 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-slate-900">16. MIS Cockpit</div>
+                    <div className="text-[10px] text-slate-400">Aging & Board Review</div>
+                  </button>
+                </div>
               </div>
             </div>
 
