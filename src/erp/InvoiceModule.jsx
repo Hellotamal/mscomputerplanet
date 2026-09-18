@@ -8,7 +8,8 @@ import {
   Trash2, 
   X, 
   Edit2, 
-  MessageSquare 
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -27,7 +28,7 @@ function numberToIndianWords(num) {
   return 'Rupees ' + str.trim() + ' Only';
 }
 
-export default function InvoiceModule({ invoices, setInvoices }) {
+export default function InvoiceModule({ invoices, setInvoices, isAdmin = false, currentUser: _currentUser = null }) {
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingInv, setEditingInv] = useState(null);
@@ -119,6 +120,10 @@ Support Helpline: +91-8638083712`;
 
   const handleSaveInvoice = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can generate GST Tax Invoices.');
+      return;
+    }
     if (!invForm.clientName || invForm.items.length === 0) {
       alert('Please provide client name and at least one item.');
       return;
@@ -135,18 +140,30 @@ Support Helpline: +91-8638083712`;
   };
 
   const handleStartEdit = (inv) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify GST Tax Invoices.');
+      return;
+    }
     setEditingInv(inv);
     setInvForm({ ...inv });
   };
 
   const handleUpdateInvoice = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify GST Tax Invoices.');
+      return;
+    }
     setInvoices(invoices.map(inv => inv.id === editingInv.id ? { ...invForm, id: editingInv.id } : inv));
     setEditingInv(null);
     resetForm();
   };
 
   const handleDeleteInvoice = (id, clientName) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can remove GST Tax Invoices.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to remove invoice ${id} for ${clientName}?`)) {
       setInvoices(invoices.filter(inv => inv.id !== id));
     }
@@ -347,16 +364,27 @@ Support Helpline: +91-8638083712`;
           />
         </div>
 
-        <button
-          onClick={() => {
-            resetForm();
-            setShowCreateModal(true);
-          }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Create GST Invoice</span>
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={() => {
+              resetForm();
+              setShowCreateModal(true);
+            }}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Create GST Invoice</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => alert("Access Denied: Creating GST Tax Invoices is restricted to Administrator accounts.")}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition"
+            title="Invoice creation restricted to Administrator"
+          >
+            <Lock className="w-4 h-4 text-amber-600" />
+            <span>Create Invoice (Admin Only)</span>
+          </button>
+        )}
       </div>
 
       {/* Invoices List */}
@@ -408,21 +436,33 @@ Support Helpline: +91-8638083712`;
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => handleStartEdit(inv)}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                    title="Edit Invoice"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
+                  {isAdmin ? (
+                    <>
+                      <button
+                        onClick={() => handleStartEdit(inv)}
+                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                        title="Edit Invoice"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
 
-                  <button
-                    onClick={() => handleDeleteInvoice(inv.id, inv.clientName)}
-                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
-                    title="Remove Invoice"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                      <button
+                        onClick={() => handleDeleteInvoice(inv.id, inv.clientName)}
+                        className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                        title="Remove Invoice"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <span
+                      className="p-1.5 px-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold flex items-center gap-1 border border-slate-200"
+                      title="Modifications restricted to Administrator"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-[10px]">Locked</span>
+                    </span>
+                  )}
 
                   <button
                     onClick={() => handleSendInvoiceWhatsApp(inv)}

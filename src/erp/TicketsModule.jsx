@@ -10,10 +10,11 @@ import {
   Printer,
   Edit2,
   Trash2,
-  MessageSquare
+  MessageSquare,
+  Lock
 } from 'lucide-react';
 
-export default function TicketsModule({ tickets, setTickets }) {
+export default function TicketsModule({ tickets, setTickets, isAdmin = false, currentUser: _currentUser = null }) {
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -74,6 +75,10 @@ Chincoorie, Silchar, Cachar, Assam - 788007
 
   const handleCreateTicket = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can create service tickets.');
+      return;
+    }
     if (!ticketForm.clientName || !ticketForm.description) {
       alert('Please provide Client Name and Description.');
       return;
@@ -92,18 +97,30 @@ Chincoorie, Silchar, Cachar, Assam - 788007
   };
 
   const handleStartEdit = (ticket) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit service tickets.');
+      return;
+    }
     setEditingTicket(ticket);
     setTicketForm({ ...ticket });
   };
 
   const handleUpdateTicket = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify service tickets.');
+      return;
+    }
     setTickets(tickets.map(t => t.id === editingTicket.id ? { ...ticketForm, id: editingTicket.id } : t));
     setEditingTicket(null);
     resetForm();
   };
 
   const handleDeleteTicket = (id, clientName) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can remove service tickets.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to remove ticket ${id} (${clientName})?`)) {
       setTickets(tickets.filter(t => t.id !== id));
     }
@@ -130,6 +147,10 @@ Chincoorie, Silchar, Cachar, Assam - 788007
   };
 
   const updateTicketStatus = (id, newStatus) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can change ticket status.');
+      return;
+    }
     setTickets(tickets.map(t => t.id === id ? { ...t, status: newStatus } : t));
   };
 
@@ -242,16 +263,27 @@ Chincoorie, Silchar, Cachar, Assam - 788007
             ))}
           </div>
 
-          <button
-            onClick={() => {
-              resetForm();
-              setShowAddModal(true);
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Ticket</span>
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={() => {
+                resetForm();
+                setShowAddModal(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Ticket</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => alert("Access Denied: Ticket creation is restricted to Administrator accounts. Please contact admin for modifications.")}
+              className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition shrink-0"
+              title="Ticket creation restricted to Administrator"
+            >
+              <Lock className="w-4 h-4 text-amber-600" />
+              <span>Add Ticket (Admin Only)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -340,8 +372,12 @@ Chincoorie, Silchar, Cachar, Assam - 788007
               <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                 <select
                   value={ticket.status}
+                  disabled={!isAdmin}
                   onChange={(e) => updateTicketStatus(ticket.id, e.target.value)}
-                  className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className={`px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none ${
+                    !isAdmin ? 'opacity-70 cursor-not-allowed bg-slate-100' : 'focus:ring-2 focus:ring-emerald-500'
+                  }`}
+                  title={!isAdmin ? 'Status modification restricted to Administrator' : 'Change Ticket Status'}
                 >
                   <option value="Open">Open</option>
                   <option value="In Progress">In Progress</option>
@@ -349,21 +385,33 @@ Chincoorie, Silchar, Cachar, Assam - 788007
                   <option value="Closed">Closed</option>
                 </select>
 
-                <button
-                  onClick={() => handleStartEdit(ticket)}
-                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                  title="Edit Ticket"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
+                {isAdmin ? (
+                  <>
+                    <button
+                      onClick={() => handleStartEdit(ticket)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                      title="Edit Ticket"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
 
-                <button
-                  onClick={() => handleDeleteTicket(ticket.id, ticket.clientName)}
-                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
-                  title="Remove Ticket"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                    <button
+                      onClick={() => handleDeleteTicket(ticket.id, ticket.clientName)}
+                      className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                      title="Remove Ticket"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <span
+                    className="p-1.5 px-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold flex items-center gap-1 border border-slate-200"
+                    title="Modifications restricted to Administrator"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[10px]">Locked</span>
+                  </span>
+                )}
 
                 <button
                   onClick={() => handleSendTicketWhatsApp(ticket)}

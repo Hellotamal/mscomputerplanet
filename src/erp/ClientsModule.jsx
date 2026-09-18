@@ -19,10 +19,11 @@ import {
   ShoppingBag, 
   Layers, 
   ArrowRight, 
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 
-export default function ClientsModule({ clients, setClients, initialCategory = 'All' }) {
+export default function ClientsModule({ clients, setClients, initialCategory = 'All', isAdmin = false, currentUser: _currentUser = null }) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -58,6 +59,9 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
     { id: 'Service', name: 'Service & Repairs', icon: Wrench, count: clients.filter(c => c.category === 'Service').length }
   ];
 
+  const totalAssets = clients.reduce((acc, c) => acc + (Number(c.assetsCount) || 0), 0);
+  const totalBranches = clients.reduce((acc, c) => acc + (Number(c.branchesCount) || 0), 0);
+
   const filteredClients = clients.filter(c => {
     const matchesCategory = selectedCategory === 'All' || c.category === selectedCategory;
     const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
@@ -72,10 +76,12 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
 
   // KPI Metrics
   const totalValue = clients.reduce((acc, c) => acc + (Number(c.contractValue) || 0), 0);
-  const totalAssets = clients.reduce((acc, c) => acc + (Number(c.assetsCount) || 0), 0);
-  const totalBranches = clients.reduce((acc, c) => acc + (Number(c.branchesCount) || 0), 0);
 
   const handleOpenAdd = () => {
+    if (!isAdmin) {
+      alert("Modification Restricted: Enrolling new clients can only be done by Administrator accounts.");
+      return;
+    }
     setClientForm({
       id: generateEntityId(`CLI-${selectedCategory !== 'All' ? selectedCategory.toUpperCase().slice(0, 3) : 'GEN'}`),
       name: '',
@@ -99,6 +105,10 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
   };
 
   const handleOpenEdit = (client) => {
+    if (!isAdmin) {
+      alert("Modification Restricted: Editing client details can only be done by Administrator accounts.");
+      return;
+    }
     setEditingClient(client);
     setClientForm({ ...client });
     setShowAddModal(true);
@@ -106,6 +116,10 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
 
   const handleSaveClient = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Modification Restricted: Only Administrator accounts can save or update client records.');
+      return;
+    }
     if (!clientForm.name.trim()) {
       alert('Please provide client organization name.');
       return;
@@ -120,6 +134,10 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
   };
 
   const handleDeleteClient = (id, name) => {
+    if (!isAdmin) {
+      alert('Modification Restricted: Deleting client records can only be done by Administrator accounts.');
+      return;
+    }
     if (confirm(`Are you sure you want to remove client "${name}" (${id}) from ERP?`)) {
       setClients(clients.filter(c => c.id !== id));
     }
@@ -282,13 +300,24 @@ export default function ClientsModule({ clients, setClients, initialCategory = '
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            onClick={handleOpenAdd}
-            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md flex items-center gap-1.5 transition"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Enroll New Client</span>
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={handleOpenAdd}
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md flex items-center gap-1.5 transition"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Enroll New Client</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => alert("Access Denied: Only Administrator accounts can enroll new clients. (Staff View-Only Mode)")}
+              className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 font-bold text-xs border border-slate-700 cursor-not-allowed flex items-center gap-1.5 opacity-90 transition"
+              title="Admin privileges required to enroll clients"
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              <span>Enroll Client (Admin Only)</span>
+            </button>
+          )}
         </div>
       </div>
 

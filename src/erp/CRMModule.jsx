@@ -20,7 +20,8 @@ import {
   SunMedium,
   Landmark,
   ShoppingBag,
-  Wrench
+  Wrench,
+  Lock
 } from 'lucide-react';
 import { recordAuditLog, saveErpData } from './erpStorage';
 
@@ -76,8 +77,10 @@ export default function CRMModule({
   setLeads,
   clients = [],
   setClients,
-  currentUser
+  currentUser,
+  isAdmin: propIsAdmin
 }) {
+  const isAdmin = typeof propIsAdmin === 'boolean' ? propIsAdmin : Boolean(currentUser && (currentUser.username?.toLowerCase() === 'admin' || (currentUser.role && currentUser.role.toLowerCase().includes('admin'))));
   const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'list'
   const [search, setSearch] = useState('');
   const [selectedStage, setSelectedStage] = useState('All');
@@ -126,6 +129,10 @@ export default function CRMModule({
   // Handle Save (Create / Update)
   const handleSaveLead = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can create or modify CRM leads.');
+      return;
+    }
     if (!formData.clientName.trim() || !formData.phone.trim()) {
       alert('Please provide Client / Organization Name and Phone Number.');
       return;
@@ -164,6 +171,10 @@ export default function CRMModule({
 
   // Change Stage with 1-click
   const handleAdvanceStage = (leadId, nextStage) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can advance lead stages.');
+      return;
+    }
     const updated = leads.map(l => {
       if (l.id === leadId) {
         return { ...l, stage: nextStage, updatedAt: new Date().toISOString() };
@@ -177,6 +188,10 @@ export default function CRMModule({
 
   // Convert Lead directly to Active Client in Clients Module
   const handleConvertToClient = (lead) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can convert leads to clients.');
+      return;
+    }
     const cleanPhone = lead.phone.replace(/\D/g, '');
     const clientExists = clients.some(c => c.phone && c.phone.replace(/\D/g, '') === cleanPhone);
 
@@ -193,13 +208,10 @@ export default function CRMModule({
       phone: lead.phone,
       email: lead.email || '',
       address: lead.address || `${lead.city || 'Silchar'}, Assam`,
-      category: lead.category.includes('Solar') ? 'Solar' : lead.category.includes('AMC') ? 'AMC' : 'Sales',
-      leadSource: lead.source || 'IndiaMART B2B Lead',
-      gst: '',
+      category: lead.category?.includes('Solar') ? 'Solar Rooftop' : lead.category?.includes('Banking') ? 'Banking' : 'Corporate',
       status: 'Active',
-      contractStart: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString(),
-      notes: `Converted from CRM Lead ${lead.id}. Requirement: ${lead.requirement || 'N/A'}`
+      devicesCount: 1,
+      createdAt: new Date().toISOString()
     };
 
     const updatedClients = [newClient, ...clients];
@@ -217,6 +229,10 @@ export default function CRMModule({
 
   // Delete Lead
   const handleDeleteLead = (id, name) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete leads.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete lead: ${name} (${id})?`)) {
       const updated = leads.filter(l => l.id !== id);
       setLeads(updated);
@@ -337,17 +353,28 @@ export default function CRMModule({
             </button>
           </div>
 
-          <button
-            onClick={() => {
-              setEditingLead(null);
-              setFormData(initialForm);
-              setShowAddModal(true);
-            }}
-            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition flex items-center gap-1.5"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add New Lead</span>
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={() => {
+                setEditingLead(null);
+                setFormData(initialForm);
+                setShowAddModal(true);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add New Lead</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => alert("Access Denied: Only Administrator accounts can create new CRM leads. (Staff View-Only Mode)")}
+              title="Admin privileges required to create leads"
+              className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 font-bold text-xs border border-slate-700 transition flex items-center gap-1.5 cursor-not-allowed opacity-90"
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-400" />
+              <span>Add Lead (Admin Only)</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -586,24 +613,38 @@ export default function CRMModule({
                                 >
                                   <Phone className="w-3 h-3" />
                                 </a>
-                                <button
-                                  onClick={() => {
-                                    setEditingLead(lead);
-                                    setFormData(lead);
-                                    setShowAddModal(true);
-                                  }}
-                                  className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
-                                  title="Edit Lead"
-                                >
-                                  <Edit2 className="w-3 h-3" />
-                                </button>
+                                {isAdmin ? (
+                                  <button
+                                    onClick={() => {
+                                      setEditingLead(lead);
+                                      setFormData(lead);
+                                      setShowAddModal(true);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+                                    title="Edit Lead"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => alert("Access Denied: Only Administrator accounts can edit leads.")}
+                                    className="p-1.5 rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed"
+                                    title="Admin privileges required to edit"
+                                  >
+                                    <Lock className="w-3 h-3 text-slate-400" />
+                                  </button>
+                                )}
                               </div>
 
                               {/* Stage Advancement Quick Dropdown */}
                               <select
                                 value={lead.stage}
+                                disabled={!isAdmin}
                                 onChange={(e) => handleAdvanceStage(lead.id, e.target.value)}
-                                className="text-[10px] font-bold px-1.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 focus:outline-none"
+                                className={`text-[10px] font-bold px-1.5 py-1 rounded-lg border border-slate-200 text-slate-700 focus:outline-none ${
+                                  isAdmin ? 'bg-slate-100' : 'bg-slate-50 text-slate-400 cursor-not-allowed'
+                                }`}
+                                title={isAdmin ? "Update lead stage" : "Admin privileges required to change stage"}
                               >
                                 {CRM_STAGES.map(s => (
                                   <option key={s.id} value={s.id}>→ {s.id.split(' ')[0]}</option>
@@ -613,13 +654,24 @@ export default function CRMModule({
 
                             {/* Convert to Client Action for Won/Negotiation stages */}
                             {lead.stage !== 'Deal Won' && lead.stage !== 'Deal Lost' && (
-                              <button
-                                onClick={() => handleConvertToClient(lead)}
-                                className="w-full py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center gap-1 transition"
-                              >
-                                <UserPlus className="w-3 h-3" />
-                                <span>Convert to Enrolled Client →</span>
-                              </button>
+                              isAdmin ? (
+                                <button
+                                  onClick={() => handleConvertToClient(lead)}
+                                  className="w-full py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                                >
+                                  <UserPlus className="w-3 h-3" />
+                                  <span>Convert to Enrolled Client →</span>
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => alert("Access Denied: Only Administrator accounts can convert leads to clients.")}
+                                  className="w-full py-1.5 rounded-lg bg-slate-100 text-slate-400 text-[10px] font-bold flex items-center justify-center gap-1 cursor-not-allowed opacity-80"
+                                  title="Admin only"
+                                >
+                                  <Lock className="w-3 h-3 text-amber-500" />
+                                  <span>Convert to Client (Admin Only)</span>
+                                </button>
+                              )
                             )}
                           </div>
                         );
@@ -709,31 +761,63 @@ export default function CRMModule({
                             >
                               <Send className="w-3.5 h-3.5" />
                             </button>
-                            <button
-                              onClick={() => handleConvertToClient(lead)}
-                              className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition"
-                              title="Convert to Enrolled Client"
-                            >
-                              <UserPlus className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingLead(lead);
-                                setFormData(lead);
-                                setShowAddModal(true);
-                              }}
-                              className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
-                              title="Edit Lead"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteLead(lead.id, lead.clientName)}
-                              className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
-                              title="Delete Lead"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {isAdmin ? (
+                              <button
+                                onClick={() => handleConvertToClient(lead)}
+                                className="p-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition"
+                                title="Convert to Enrolled Client"
+                              >
+                                <UserPlus className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => alert("Access Denied: Only Administrator accounts can convert leads to clients.")}
+                                className="p-1.5 rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed"
+                                title="Admin only"
+                              >
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                              </button>
+                            )}
+
+                            {isAdmin ? (
+                              <button
+                                onClick={() => {
+                                  setEditingLead(lead);
+                                  setFormData(lead);
+                                  setShowAddModal(true);
+                                }}
+                                className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition"
+                                title="Edit Lead"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => alert("Access Denied: Only Administrator accounts can edit leads.")}
+                                className="p-1.5 rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed"
+                                title="Admin only"
+                              >
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                              </button>
+                            )}
+
+                            {isAdmin ? (
+                              <button
+                                onClick={() => handleDeleteLead(lead.id, lead.clientName)}
+                                className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                                title="Delete Lead"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => alert("Access Denied: Only Administrator accounts can delete leads.")}
+                                className="p-1.5 rounded-lg bg-slate-50 text-slate-300 cursor-not-allowed"
+                                title="Admin only"
+                              >
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

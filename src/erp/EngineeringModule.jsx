@@ -17,7 +17,8 @@ import {
   Leaf, 
   Building2, 
   X,
-  Zap
+  Zap,
+  Lock
 } from 'lucide-react';
 import { generateEntityId, escapeHtml } from './erpSecurity';
 import { recordAuditLog, saveErpData } from './erpStorage';
@@ -152,8 +153,10 @@ export default function EngineeringModule({
   quotations = [],
   setQuotations,
   setActiveTab,
-  currentUser
+  currentUser,
+  isAdmin = false
 }) {
+  const isUserAdmin = isAdmin || currentUser?.role === 'Admin' || currentUser?.role === 'SuperAdmin';
   const [activeSubTab, setActiveSubTab] = useState('calculator'); // 'calculator' | 'register' | 'builder'
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -383,6 +386,10 @@ export default function EngineeringModule({
   // Save Design
   const handleSaveDesign = (e) => {
     e.preventDefault();
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can save or modify technical engineering designs.');
+      return;
+    }
     if (!builderForm.clientName.trim() || !builderForm.projectTitle.trim()) {
       alert('Please provide Client Name and Project Title.');
       return;
@@ -414,6 +421,10 @@ export default function EngineeringModule({
 
   // 1-Click Convert Engineering Design to Quotation
   const handlePushToQuotation = (design) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can convert engineering designs to official quotations.');
+      return;
+    }
     const quoteItems = (design.boqItems || []).map(b => ({
       desc: b.item,
       hsn: b.item.toLowerCase().includes('solar') ? '8541' : (b.item.toLowerCase().includes('inverter') ? '8504' : '8471'),
@@ -623,6 +634,10 @@ export default function EngineeringModule({
   };
 
   const handleDeleteDesign = (id, name) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete engineering designs.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete technical design ${id} (${name})?`)) {
       const updated = engineeringDesigns.filter(d => d.id !== id);
       setEngineeringDesigns(updated);
@@ -1055,22 +1070,43 @@ export default function EngineeringModule({
                     <span>Print</span>
                   </button>
 
-                  <button
-                    onClick={() => handlePushToQuotation(d)}
-                    className="py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition"
-                    title="Generate official quotation from this BOQ"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Quote</span>
-                  </button>
+                  {isUserAdmin ? (
+                    <button
+                      onClick={() => handlePushToQuotation(d)}
+                      className="py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition"
+                      title="Generate official quotation from this BOQ"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Quote</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => alert("Access Denied: Only Administrator accounts can convert engineering designs to quotations.")}
+                      className="py-1.5 px-2.5 rounded-lg bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1 cursor-not-allowed opacity-80"
+                      title="Admin privileges required"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Quote</span>
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => handleDeleteDesign(d.id, d.projectTitle)}
-                    className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition"
-                    title="Delete design"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {isUserAdmin ? (
+                    <button
+                      onClick={() => handleDeleteDesign(d.id, d.projectTitle)}
+                      className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition"
+                      title="Delete design"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => alert("Access Denied: Only Administrator accounts can delete engineering designs.")}
+                      className="p-1.5 rounded-lg text-slate-300 cursor-not-allowed"
+                      title="Admin privileges required"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -1330,13 +1366,25 @@ export default function EngineeringModule({
                 Cancel
               </button>
 
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Save Engineering Design</span>
-              </button>
+              {isUserAdmin ? (
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md flex items-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Save Engineering Design</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => alert("Access Denied: Only Administrator accounts can save technical engineering designs.")}
+                  className="px-6 py-2.5 rounded-xl bg-slate-200 text-slate-500 font-bold text-xs flex items-center gap-2 cursor-not-allowed opacity-80"
+                  title="Admin privileges required"
+                >
+                  <Lock className="w-4 h-4 text-amber-600" />
+                  <span>Save Design (Admin Only)</span>
+                </button>
+              )}
             </div>
           </form>
         </div>

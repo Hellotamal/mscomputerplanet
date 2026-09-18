@@ -11,10 +11,11 @@ import {
   ArrowRightLeft,
   DollarSign,
   Download,
-  Barcode
+  Barcode,
+  Lock
 } from 'lucide-react';
 
-export default function InventoryModule({ inventory, setInventory }) {
+export default function InventoryModule({ inventory, setInventory, isAdmin = false, currentUser: _currentUser = null }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedWarehouse, setSelectedWarehouse] = useState('All');
@@ -62,6 +63,10 @@ export default function InventoryModule({ inventory, setInventory }) {
   const lowStockItems = inventory.filter(item => item.stock <= item.minStock);
 
   const adjustStock = (id, delta) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can adjust inventory stock levels.');
+      return;
+    }
     setInventory(inventory.map(item => {
       if (item.id === id) {
         const newStock = Math.max(0, item.stock + delta);
@@ -73,6 +78,10 @@ export default function InventoryModule({ inventory, setInventory }) {
 
   const handleCreateItem = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can add items to inventory.');
+      return;
+    }
     if (!itemForm.name) {
       alert('Please provide item name.');
       return;
@@ -93,6 +102,10 @@ export default function InventoryModule({ inventory, setInventory }) {
   };
 
   const handleStartEdit = (item) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify inventory items.');
+      return;
+    }
     setEditingItem(item);
     setItemForm({ 
       ...item,
@@ -103,6 +116,10 @@ export default function InventoryModule({ inventory, setInventory }) {
 
   const handleUpdateItem = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can update inventory items.');
+      return;
+    }
     setInventory(inventory.map(item => item.id === editingItem.id ? {
       ...itemForm,
       id: editingItem.id,
@@ -116,6 +133,10 @@ export default function InventoryModule({ inventory, setInventory }) {
   };
 
   const handleDeleteItem = (id, name) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can remove inventory items.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to remove item "${name}" (${id}) from inventory?`)) {
       setInventory(inventory.filter(item => item.id !== id));
     }
@@ -123,6 +144,10 @@ export default function InventoryModule({ inventory, setInventory }) {
 
   const handleStockTransfer = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can execute stock transfers.');
+      return;
+    }
     const item = inventory.find(i => i.id === transferForm.itemId);
     if (!item) return;
 
@@ -192,20 +217,29 @@ export default function InventoryModule({ inventory, setInventory }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowTransferModal(true)}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-            >
-              <ArrowRightLeft className="w-4 h-4 text-emerald-400" />
-              <span>Stock Transfer (STN)</span>
-            </button>
-            <button
-              onClick={() => { resetForm(); setEditingItem(null); setShowAddModal(true); }}
-              className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Stock Item</span>
-            </button>
+            {isAdmin ? (
+              <>
+                <button
+                  onClick={() => setShowTransferModal(true)}
+                  className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
+                >
+                  <ArrowRightLeft className="w-4 h-4 text-emerald-400" />
+                  <span>Stock Transfer (STN)</span>
+                </button>
+                <button
+                  onClick={() => { resetForm(); setEditingItem(null); setShowAddModal(true); }}
+                  className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Stock Item</span>
+                </button>
+              </>
+            ) : (
+              <div className="px-3.5 py-2 bg-slate-800/80 text-amber-300 rounded-xl font-semibold text-xs border border-amber-500/30 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>View-Only Mode (Admin Controlled)</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -351,23 +385,29 @@ export default function InventoryModule({ inventory, setInventory }) {
                       </td>
                       <td className="p-3.5 text-center">
                         <div className="inline-flex items-center gap-1.5">
-                          <button
-                            onClick={() => adjustStock(item.id, -1)}
-                            className="w-5 h-5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold flex items-center justify-center"
-                          >
-                            -
-                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={() => adjustStock(item.id, -1)}
+                              className="w-5 h-5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold flex items-center justify-center"
+                              title="Decrease stock"
+                            >
+                              -
+                            </button>
+                          )}
                           <span className={`font-mono font-bold px-2 py-0.5 rounded ${
-                            isLow ? 'bg-amber-100 text-amber-800' : 'text-slate-900'
+                            isLow ? 'bg-amber-100 text-amber-800' : 'text-slate-800'
                           }`}>
                             {item.stock}
                           </span>
-                          <button
-                            onClick={() => adjustStock(item.id, 1)}
-                            className="w-5 h-5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold flex items-center justify-center"
-                          >
-                            +
-                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={() => adjustStock(item.id, 1)}
+                              className="w-5 h-5 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-bold flex items-center justify-center"
+                              title="Increase stock"
+                            >
+                              +
+                            </button>
+                          )}
                         </div>
                         {isLow && (
                           <div className="text-[10px] text-amber-600 font-bold mt-0.5">Min: {item.minStock}</div>
@@ -379,20 +419,28 @@ export default function InventoryModule({ inventory, setInventory }) {
                         ₹{(item.stock * item.costPrice).toLocaleString('en-IN')}
                       </td>
                       <td className="p-3.5 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            onClick={() => handleStartEdit(item)}
-                            className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem(item.id, item.name)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        {isAdmin ? (
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => handleStartEdit(item)}
+                              className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                              title="Edit SKU"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem(item.id, item.name)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                              title="Remove SKU"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 px-2 py-0.5 bg-slate-50 border border-slate-200 rounded-md">
+                            <Lock className="w-3 h-3 text-slate-400" /> Locked
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );

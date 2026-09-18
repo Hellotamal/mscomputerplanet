@@ -17,7 +17,8 @@ import {
   TrendingUp, 
   TrendingDown,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -74,7 +75,7 @@ const PAYMENT_MODES = [
   'Net Banking (Challan)'
 ];
 
-export default function AccountsModule({ transactions = [], setTransactions, currentUser: _currentUser }) {
+export default function AccountsModule({ transactions = [], setTransactions, currentUser: _currentUser, isAdmin = false }) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -111,8 +112,8 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
     .filter(t => t.type === 'Income')
     .reduce((acc, t) => acc + (Number(t.tax) || 0), 0);
 
-  // Filtered transactions
-  const filteredTransactions = transactions.filter(t => {
+  // Filtered List
+  const filteredTransactions = transactions.filter((t) => {
     const matchesType = typeFilter === 'All' || t.type === typeFilter;
     const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
     const matchesSearch = 
@@ -124,6 +125,10 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
   });
 
   const handleOpenAdd = (defaultType = 'Income') => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can record journal vouchers.');
+      return;
+    }
     const nextId = `VCH-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
     setTxForm({
       id: nextId,
@@ -143,6 +148,10 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
   };
 
   const handleOpenEdit = (tx) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit journal vouchers.');
+      return;
+    }
     setEditingTx(tx);
     setTxForm({ ...tx });
     setShowAddModal(true);
@@ -150,6 +159,10 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
 
   const handleSaveTransaction = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can record or modify transactions.');
+      return;
+    }
     if (!txForm.party.trim()) {
       alert('Please specify the Party / Account name.');
       return;
@@ -174,6 +187,10 @@ export default function AccountsModule({ transactions = [], setTransactions, cur
   };
 
   const handleDeleteTransaction = (id, refParty) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete transactions.');
+      return;
+    }
     if (confirm(`Are you sure you want to delete transaction "${id}" (${refParty})?`)) {
       setTransactions(transactions.filter(t => t.id !== id));
     }
@@ -292,21 +309,30 @@ Banking IT AMC, Spares & Solar EPC`;
 
         {/* Quick Voucher Add Actions */}
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => handleOpenAdd('Income')}
-            className="px-3.5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow flex items-center gap-1.5 transition"
-          >
-            <ArrowDownLeft className="w-4 h-4" />
-            <span>+ Receipt (Inflow)</span>
-          </button>
+          {isAdmin ? (
+            <>
+              <button
+                onClick={() => handleOpenAdd('Income')}
+                className="px-3.5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow flex items-center gap-1.5 transition"
+              >
+                <ArrowDownLeft className="w-4 h-4" />
+                <span>+ Receipt (Inflow)</span>
+              </button>
 
-          <button
-            onClick={() => handleOpenAdd('Expense')}
-            className="px-3.5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition"
-          >
-            <ArrowUpRight className="w-4 h-4" />
-            <span>- Payment (Outflow)</span>
-          </button>
+              <button
+                onClick={() => handleOpenAdd('Expense')}
+                className="px-3.5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow flex items-center gap-1.5 transition"
+              >
+                <ArrowUpRight className="w-4 h-4" />
+                <span>- Payment (Outflow)</span>
+              </button>
+            </>
+          ) : (
+            <div className="px-3 py-2 rounded-xl bg-slate-800/80 text-amber-300 font-semibold text-xs border border-amber-500/30 flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-amber-400" />
+              <span>View-Only Ledger (Admin Controlled)</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -533,20 +559,32 @@ Banking IT AMC, Spares & Solar EPC`;
                           >
                             <Send className="w-3.5 h-3.5" />
                           </button>
-                          <button
-                            onClick={() => handleOpenEdit(tx)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                            title="Edit Entry"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTransaction(tx.id, tx.party)}
-                            className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition"
-                            title="Delete Entry"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {isAdmin ? (
+                            <>
+                              <button
+                                onClick={() => handleOpenEdit(tx)}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                                title="Edit Entry"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTransaction(tx.id, tx.party)}
+                                className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition"
+                                title="Delete Entry"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <span
+                              className="p-1 px-1.5 text-[10px] text-slate-400 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-1"
+                              title="Modifications restricted to Administrator"
+                            >
+                              <Lock className="w-3 h-3 text-slate-400" />
+                              <span>Locked</span>
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>

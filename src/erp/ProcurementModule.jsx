@@ -11,7 +11,8 @@ import {
   Package,
   TrendingDown,
   Building2,
-  Layers
+  Layers,
+  Lock
 } from 'lucide-react';
 
 export default function ProcurementModule({
@@ -19,7 +20,8 @@ export default function ProcurementModule({
   setProcurementData,
   inventory,
   setInventory,
-  currentUser: _currentUser
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
   const [activeTab, setActiveTab] = useState('pos'); // 'pos' | 'requisitions' | 'rfqs' | 'grns'
   const [search, setSearch] = useState('');
@@ -69,6 +71,10 @@ export default function ProcurementModule({
 
   const handleCreatePo = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can issue Purchase Orders.');
+      return;
+    }
     const subtotal = Number(newPo.qty) * Number(newPo.rate);
     const gstAmount = Math.round((subtotal * Number(newPo.gstRate)) / 100);
     const grandTotal = subtotal + gstAmount;
@@ -105,6 +111,10 @@ export default function ProcurementModule({
 
   const handleCreatePr = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can raise Purchase Requisitions.');
+      return;
+    }
     const created = {
       id: `PR-2026-${String(requisitions.length + 1).padStart(3, '0')}`,
       date: new Date().toISOString().split('T')[0],
@@ -126,6 +136,10 @@ export default function ProcurementModule({
 
   const handleCreateGrn = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can generate Goods Receipt Notes (GRN).');
+      return;
+    }
     const matchedPo = purchaseOrders.find(p => p.id === newGrn.poId);
     const created = {
       id: `GRN-2026-${String(grns.length + 43).padStart(3, '0')}`,
@@ -188,20 +202,29 @@ export default function ProcurementModule({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowAddPrModal(true)}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-            >
-              <Plus className="w-4 h-4 text-amber-400" />
-              <span>Raise Requisition (PR)</span>
-            </button>
-            <button
-              onClick={() => setShowAddPoModal(true)}
-              className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 flex items-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create Purchase Order (PO)</span>
-            </button>
+            {isAdmin ? (
+              <>
+                <button
+                  onClick={() => setShowAddPrModal(true)}
+                  className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4 text-amber-400" />
+                  <span>Raise Requisition (PR)</span>
+                </button>
+                <button
+                  onClick={() => setShowAddPoModal(true)}
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/20 flex items-center gap-2 transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create Purchase Order (PO)</span>
+                </button>
+              </>
+            ) : (
+              <div className="px-3.5 py-2 bg-slate-800/80 text-amber-300 rounded-xl font-semibold text-xs border border-amber-500/30 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>View-Only Mode (Admin Controlled)</span>
+              </div>
+            )}
           </div>
         </div>
 

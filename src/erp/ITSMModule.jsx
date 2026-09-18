@@ -25,7 +25,8 @@ import {
   Download,
   Copy,
   Layers,
-  X
+  X,
+  Lock
 } from 'lucide-react';
 import { generateEntityId, escapeHtml } from './erpSecurity';
 import { recordAuditLog, saveErpData } from './erpStorage';
@@ -50,8 +51,10 @@ export default function ITSMModule({
   setItsmData,
   tickets = [],
   setTickets,
-  currentUser: _currentUser
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
+  const isUserAdmin = isAdmin || _currentUser?.role === 'Admin' || _currentUser?.role === 'SuperAdmin';
   const [activeSubModule, setActiveSubModule] = useState('helpdesk');
   const [search, setSearch] = useState('');
   const [copiedKey, setCopiedKey] = useState('');
@@ -70,6 +73,10 @@ export default function ITSMModule({
 
   // Helper to persist itsmData
   const updateItsmSection = (sectionName, updatedData, auditAction, auditDesc) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify ITSM assets, configurations, and records.');
+      return;
+    }
     const updated = { ...itsmData, [sectionName]: updatedData };
     setItsmData(updated);
     saveErpData("itsm_data", updated);
@@ -115,6 +122,10 @@ export default function ITSMModule({
 
   const handleSubmitServiceReq = (e) => {
     e.preventDefault();
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can log or dispatch ITSM service requests.');
+      return;
+    }
     const newTicketId = generateEntityId('TCK');
     const newTicket = {
       id: newTicketId,
@@ -150,6 +161,10 @@ export default function ITSMModule({
 
   // --- 2. IT TICKETS STATUS UPDATES ---
   const handleUpdateTicketStatus = (tId, newStatus) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can update ticket statuses.');
+      return;
+    }
     const updated = tickets.map(t => t.id === tId ? { ...t, status: newStatus } : t);
     setTickets(updated);
     saveErpData("tickets", updated);
@@ -193,6 +208,10 @@ export default function ITSMModule({
 
   const handleSaveHardware = (e) => {
     e.preventDefault();
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can enroll hardware assets.');
+      return;
+    }
     const newId = generateEntityId('HW');
     const newAsset = { ...hwForm, id: newId, tag: hwForm.tag || `MCP-HW-${Math.floor(100 + Math.random() * 900)}` };
     const updated = [newAsset, ...hardwareList];
@@ -201,6 +220,10 @@ export default function ITSMModule({
   };
 
   const handleDeleteHardware = (id, tag) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete hardware assets.');
+      return;
+    }
     if (window.confirm(`Delete hardware asset ${tag}?`)) {
       const updated = hardwareList.filter(h => h.id !== id);
       updateItsmSection('hardware', updated, "HARDWARE_DELETED", `Deleted hardware asset ${tag}`);
@@ -209,6 +232,10 @@ export default function ITSMModule({
 
   // --- 10. IT AMC PREVENTIVE MAINTENANCE ---
   const handleMarkPmComplete = (pmId, branchName) => {
+    if (!isUserAdmin) {
+      alert('Access Denied: Only Administrator accounts can complete PM records.');
+      return;
+    }
     const today = new Date().toISOString().split('T')[0];
     const updated = amcPmLogs.map(pm => pm.id === pmId ? { ...pm, status: 'Completed', completionDate: today, branchStampReceived: true } : pm);
     updateItsmSection('amcPm', updated, "ITSM_PM_COMPLETED", `Marked quarterly maintenance complete for ${branchName}`);
@@ -436,13 +463,24 @@ export default function ITSMModule({
                 </div>
                 <div className="pt-4 mt-4 border-t border-slate-100 flex justify-between items-center">
                   <span className="text-[11px] font-semibold text-slate-400">{srv.category}</span>
-                  <button
-                    onClick={() => handleOpenReqModal(srv)}
-                    className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs flex items-center gap-1"
-                  >
-                    <span>Request Service</span>
-                    <span>→</span>
-                  </button>
+                  {isUserAdmin ? (
+                    <button
+                      onClick={() => handleOpenReqModal(srv)}
+                      className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs flex items-center gap-1"
+                    >
+                      <span>Request Service</span>
+                      <span>→</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => alert("Access Denied: Only Administrator accounts can log service requests.")}
+                      className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-400 font-bold text-xs flex items-center gap-1 cursor-not-allowed opacity-80"
+                      title="Admin privileges required"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Request (Admin Only)</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -558,13 +596,24 @@ export default function ITSMModule({
         <div className="space-y-4">
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button
-                onClick={() => setShowHwModal(true)}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Enroll New Hardware</span>
-              </button>
+              {isUserAdmin ? (
+                <button
+                  onClick={() => setShowHwModal(true)}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Enroll New Hardware</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => alert("Access Denied: Only Administrator accounts can enroll hardware assets.")}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center gap-1.5 border border-slate-200 cursor-not-allowed opacity-80"
+                  title="Admin privileges required"
+                >
+                  <Lock className="w-4 h-4 text-amber-500" />
+                  <span>Enroll Hardware (Admin Only)</span>
+                </button>
+              )}
               <button
                 onClick={handleExportHardwareCSV}
                 className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 border border-slate-200"
@@ -589,12 +638,22 @@ export default function ITSMModule({
                     <h3 className="font-bold text-slate-900 text-sm mt-1">{hw.make} {hw.model}</h3>
                     <div className="text-[11px] text-slate-500 font-medium">{hw.type} • {hw.location}</div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteHardware(hw.id, hw.tag)}
-                    className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {isUserAdmin ? (
+                    <button
+                      onClick={() => handleDeleteHardware(hw.id, hw.tag)}
+                      className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => alert('Access Denied: Only Administrator accounts can delete hardware assets.')}
+                      className="p-1 text-slate-300 cursor-not-allowed"
+                      title="Admin privileges required"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="p-3 bg-slate-50 rounded-xl space-y-1 text-xs">
@@ -893,12 +952,23 @@ export default function ITSMModule({
                     {pm.branchStampReceived ? '✓ Branch Stamp OK' : 'Stamp Pending'}
                   </span>
                   {pm.status !== 'Completed' && (
-                    <button
-                      onClick={() => handleMarkPmComplete(pm.id, pm.branch)}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
-                    >
-                      Mark Complete
-                    </button>
+                    isUserAdmin ? (
+                      <button
+                        onClick={() => handleMarkPmComplete(pm.id, pm.branch)}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
+                      >
+                        Mark Complete
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => alert("Access Denied: Only Administrator accounts can complete PM records.")}
+                        className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs cursor-not-allowed flex items-center gap-1"
+                        title="Admin only"
+                      >
+                        <Lock className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Complete (Admin Only)</span>
+                      </button>
+                    )
                   )}
                 </div>
               </div>

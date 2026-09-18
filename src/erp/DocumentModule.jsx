@@ -11,13 +11,15 @@ import {
   CheckCircle2,
   X,
   Building2,
-  FolderOpen
+  FolderOpen,
+  Lock
 } from 'lucide-react';
 
 export default function DocumentModule({
   documentsData,
   setDocumentsData,
-  currentUser: _currentUser
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
   const [filterCategory, setFilterCategory] = useState('All');
   const [search, setSearch] = useState('');
@@ -59,6 +61,10 @@ export default function DocumentModule({
 
   const handleUploadDoc = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can upload documents to the vault.');
+      return;
+    }
     if (!newDoc.title || !newDoc.refNumber) {
       alert('Please fill in title and reference number.');
       return;
@@ -110,13 +116,20 @@ export default function DocumentModule({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Upload Document to Vault</span>
-            </button>
+            {isAdmin ? (
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Upload Document to Vault</span>
+              </button>
+            ) : (
+              <div className="px-3.5 py-2 bg-slate-800/80 text-amber-300 rounded-xl font-semibold text-xs border border-amber-500/30 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>View-Only Mode (Admin Controlled)</span>
+              </div>
+            )}
           </div>
         </div>
 

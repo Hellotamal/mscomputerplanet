@@ -6,10 +6,11 @@ import {
   Calendar, 
   X, 
   Edit2, 
-  Trash2
+  Trash2,
+  Lock
 } from 'lucide-react';
 
-export default function AMCModule({ amcContracts, setAmcContracts }) {
+export default function AMCModule({ amcContracts, setAmcContracts, isAdmin = false, currentUser: _currentUser = null }) {
   const [search, setSearch] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingAmc, setEditingAmc] = useState(null);
@@ -38,6 +39,10 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
 
   const handleCreateAmc = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can create AMC contracts.');
+      return;
+    }
     if (!amcForm.clientName || !amcForm.annualValue) {
       alert('Please fill in Client Name and Annual Contract Value.');
       return;
@@ -58,12 +63,20 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
   };
 
   const handleStartEdit = (amc) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit AMC contracts.');
+      return;
+    }
     setEditingAmc(amc);
     setAmcForm({ ...amc });
   };
 
   const handleUpdateAmc = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify AMC contracts.');
+      return;
+    }
     setAmcContracts(amcContracts.map(c => c.id === editingAmc.id ? { 
       ...amcForm, 
       id: editingAmc.id,
@@ -76,6 +89,10 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
   };
 
   const handleDeleteAmc = (id, clientName) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete AMC contracts.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to remove the AMC contract for ${clientName} (${id})?`)) {
       setAmcContracts(amcContracts.filter(c => c.id !== id));
     }
@@ -144,16 +161,27 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
           />
         </div>
 
-        <button
-          onClick={() => {
-            resetForm();
-            setShowAddModal(true);
-          }}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Contract</span>
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Contract</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => alert("Access Denied: Creating AMC contracts is restricted to Administrator accounts.")}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition"
+            title="Contract creation restricted to Administrator"
+          >
+            <Lock className="w-4 h-4 text-amber-600" />
+            <span>Add Contract (Admin Only)</span>
+          </button>
+        )}
       </div>
 
       {/* AMC Cards Grid */}
@@ -176,20 +204,32 @@ export default function AMCModule({ amcContracts, setAmcContracts }) {
                     <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
                       {amc.status}
                     </span>
-                    <button
-                      onClick={() => handleStartEdit(amc)}
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600"
-                      title="Edit Contract"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteAmc(amc.id, amc.clientName)}
-                      className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600"
-                      title="Remove Contract"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {isAdmin ? (
+                      <>
+                        <button
+                          onClick={() => handleStartEdit(amc)}
+                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600"
+                          title="Edit Contract"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAmc(amc.id, amc.clientName)}
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600"
+                          title="Remove Contract"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <span
+                        className="p-1 px-1.5 rounded-lg bg-slate-100 text-slate-400 text-xs font-semibold flex items-center gap-1 border border-slate-200"
+                        title="Modifications restricted to Administrator"
+                      >
+                        <Lock className="w-3 h-3 text-slate-400" />
+                        <span className="text-[10px]">Locked</span>
+                      </span>
+                    )}
                   </div>
                 </div>
 

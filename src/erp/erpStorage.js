@@ -563,6 +563,57 @@ export const INITIAL_ITSM_DATA = {
   ]
 };
 
+export const DEFAULT_MENU_MODIFICATION_POLICY = {
+  strictAdminOnly: true, // When true, all create, edit, and delete modifications in all menus require Admin credentials
+  allowedStaffModules: [], // List of menu IDs where designated staff are permitted to edit if strictAdminOnly is toggled
+  menuPolicies: {
+    dashboard: { id: 'dashboard', name: 'Executive Overview', dept: 'Core', adminOnly: true, description: 'Command Center & KPI Metrics' },
+    crm: { id: 'crm', name: '1. CRM & Omnichannel Leads', dept: 'Core', adminOnly: true, description: 'Lead Enquiries & Kanban Pipeline' },
+    quotations: { id: 'quotations', name: '2. Sales & Quotations', dept: 'Solar', adminOnly: true, description: 'Commercial & Solar GST Quotations' },
+    engineering: { id: 'engineering', name: '3. Engineering & Solar Pre-Sales', dept: 'Solar', adminOnly: true, description: 'Solar Sizing Calculator & BOQ' },
+    projects: { id: 'projects', name: '4. Projects & EPC Execution', dept: 'Solar', adminOnly: true, description: 'Solar EPC Milestones & Handover' },
+    procurement: { id: 'procurement', name: '5. Hardware Procurement & POs', dept: 'IT', adminOnly: true, description: 'PRs, RFQs, POs & QC GRN' },
+    inventory: { id: 'inventory', name: '6. Multi-Depot Warehouses', dept: 'Solar', adminOnly: true, description: '3 Depots, Stocks & Serials' },
+    vendors: { id: 'vendors', name: '7. IT Vendors & GeM Directory', dept: 'IT', adminOnly: true, description: 'OEM Directory & GeM Suppliers' },
+    invoices: { id: 'invoices', name: '8. Finance & GST Invoicing', dept: 'Core', adminOnly: true, description: 'Tax Invoices & Credit Notes' },
+    accounts: { id: 'accounts', name: 'Accounts Ledger & Daybook', dept: 'Core', adminOnly: true, description: 'Vouchers, Inflows & Outflows' },
+    tickets: { id: 'tickets', name: '9. AMC Service & Tickets', dept: 'IT', adminOnly: true, description: '2-4 Hr SLA Banking Support' },
+    amc: { id: 'amc', name: 'Banking AMC Contracts (50 Branches)', dept: 'IT', adminOnly: true, description: 'Annual Maintenance Contracts' },
+    clients: { id: 'clients', name: '10. Asset Management & Directory', dept: 'IT', adminOnly: true, description: 'All Enrolled Clients & Directory' },
+    pnb_assets: { id: 'pnb_assets', name: 'PNB 50-Branch Hardware Matrix', dept: 'IT', adminOnly: true, description: '543 Banking Hardware Assets' },
+    hrms: { id: 'hrms', name: '11. Staff HRMS & Payroll', dept: 'Core', adminOnly: true, description: 'Attendance, Leaves & Salary Slips' },
+    itsm: { id: 'itsm', name: '12. IT Support / ITSM (11 Tools)', dept: 'IT', adminOnly: true, description: 'IT Helpdesk, Domains, Networks' },
+    documents: { id: 'documents', name: '13. DMS Compliance Vault', dept: 'Solar', adminOnly: true, description: 'APDCL Sanctions & Test Reports' },
+    customer_portal: { id: 'customer_portal', name: '14a. Customer Portal Desk', dept: 'IT', adminOnly: true, description: 'Client Self-Service & Logging' },
+    employee_portal: { id: 'employee_portal', name: '14b. Employee Staff Desk', dept: 'Core', adminOnly: true, description: 'Staff Geo Punch & DA Register' },
+    workflow: { id: 'workflow', name: '15. Workflow Approvals & Sign-off', dept: 'Core', adminOnly: true, description: 'PO & Expense Authorization' },
+    mis: { id: 'mis', name: '16. MIS & Intelligence Cockpit', dept: 'Core', adminOnly: true, description: 'Aging, Margins & Board Review' },
+    users: { id: 'users', name: '17. Staff & Roles RBAC', dept: 'Core', adminOnly: true, description: 'Credentials & Role Governance' },
+    reports: { id: 'reports', name: 'Reports & Export Centre', dept: 'Core', adminOnly: true, description: 'Audits & Excel/PDF Exports' },
+    settings: { id: 'settings', name: 'Data Backup & System Settings', dept: 'Core', adminOnly: true, description: 'Backups, SHA-256 PINs, Policy' }
+  }
+};
+
+export function canModifyMenu(currentUser, menuId = null) {
+  if (!currentUser) return false;
+  const isAdmin = currentUser.username?.toLowerCase() === 'admin' || 
+    (currentUser.role && currentUser.role.toLowerCase().includes('admin'));
+  if (isAdmin) return true;
+
+  try {
+    const policy = loadErpData('menu_modification_policy', DEFAULT_MENU_MODIFICATION_POLICY);
+    if (policy.strictAdminOnly !== false) {
+      return false; // Global lock: strictly admin only
+    }
+    if (menuId && policy.menuPolicies && policy.menuPolicies[menuId]) {
+      return !policy.menuPolicies[menuId].adminOnly;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
@@ -2230,6 +2281,7 @@ export function exportAllErpData() {
     documentsData: loadErpData("documents_data", INITIAL_DOCUMENTS_DATA),
     workflowApprovals: loadErpData("workflow_approvals", INITIAL_WORKFLOW_APPROVALS),
     pnbAssets: loadErpData("pnb_assets", null),
+    menuModificationPolicy: loadErpData("menu_modification_policy", DEFAULT_MENU_MODIFICATION_POLICY),
     auditLogs: loadErpData("audit_logs", INITIAL_AUDIT_LOGS)
   };
   return JSON.stringify(backup, null, 2);
@@ -2264,6 +2316,7 @@ export function importAllErpData(jsonString) {
     if (data.documentsData && Array.isArray(data.documentsData)) saveErpData("documents_data", data.documentsData);
     if (data.workflowApprovals && Array.isArray(data.workflowApprovals)) saveErpData("workflow_approvals", data.workflowApprovals);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
+    if (data.menuModificationPolicy && typeof data.menuModificationPolicy === 'object') saveErpData("menu_modification_policy", data.menuModificationPolicy);
     if (data.auditLogs && Array.isArray(data.auditLogs)) saveErpData("audit_logs", data.auditLogs);
     
     recordAuditLog("SYSTEM_RESTORE", "Data Management", "System data successfully restored from verified JSON backup.");

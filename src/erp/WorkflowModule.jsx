@@ -7,13 +7,15 @@ import {
   AlertCircle,
   DollarSign,
   ShieldCheck,
-  Search
+  Search,
+  Lock
 } from 'lucide-react';
 
 export default function WorkflowModule({
   workflowApprovals = [],
   setWorkflowApprovals,
-  currentUser: _currentUser
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
   const [filterType, setFilterType] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -40,6 +42,10 @@ export default function WorkflowModule({
 
   const handleExecuteDecision = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can authorize or sign off workflow requests.');
+      return;
+    }
     if (!actionModalItem) return;
 
     const updated = workflowApprovals.map(item => {
@@ -218,16 +224,26 @@ export default function WorkflowModule({
                 </div>
 
                 {isPending ? (
-                  <button
-                    onClick={() => {
-                      setActionModalItem(item);
-                      setActionDecision('Approved');
-                    }}
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm"
-                  >
-                    <CheckSquare className="w-3.5 h-3.5" />
-                    <span>Review & Decide</span>
-                  </button>
+                  isAdmin ? (
+                    <button
+                      onClick={() => {
+                        setActionModalItem(item);
+                        setActionDecision('Approved');
+                      }}
+                      className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm"
+                    >
+                      <CheckSquare className="w-3.5 h-3.5" />
+                      <span>Review & Decide</span>
+                    </button>
+                  ) : (
+                    <span
+                      className="px-3 py-1.5 bg-slate-100 text-slate-500 font-semibold rounded-xl text-xs border border-slate-200 flex items-center gap-1"
+                      title="Governance authorization restricted to Administrator"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Awaiting Admin Sign-off</span>
+                    </span>
+                  )
                 ) : (
                   <div className="text-[11px] text-slate-400 font-mono">
                     Signed by {item.approver} ({item.approvalDate})

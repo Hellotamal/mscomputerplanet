@@ -14,7 +14,8 @@ import {
   X, 
   Building2, 
   CheckCircle, 
-  Tag
+  Tag,
+  Lock
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -49,7 +50,15 @@ const DEFAULT_TERMS =
 4. Taxes: GST as indicated above.
 5. Quotation Validity: 30 days from the date of issue.`;
 
-export default function QuotationModule({ quotations, setQuotations, invoices, setInvoices, setActiveTab }) {
+export default function QuotationModule({ 
+  quotations, 
+  setQuotations, 
+  invoices, 
+  setInvoices, 
+  setActiveTab, 
+  isAdmin = false, 
+  currentUser: _currentUser = null 
+}) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -183,17 +192,29 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
   };
 
   const handleOpenCreateModal = () => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can create quotations.');
+      return;
+    }
     resetForm();
     setShowCreateModal(true);
   };
 
   const handleStartEdit = (quote) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit quotations.');
+      return;
+    }
     setEditingQuote(quote);
     setForm({ ...quote });
   };
 
   const handleSaveQuote = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can save quotations.');
+      return;
+    }
     if (!form.clientName || form.items.length === 0) {
       alert('Please provide client name and at least one item.');
       return;
@@ -210,12 +231,20 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
   };
 
   const handleDeleteQuote = (id, clientName) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can delete quotations.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete quotation ${id} for "${clientName}"?`)) {
       setQuotations(quotations.filter(q => q.id !== id));
     }
   };
 
   const handleDuplicateQuote = (quote) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can duplicate quotations.');
+      return;
+    }
     const nextNum = Math.floor(100 + Math.random() * 900);
     const duplicated = {
       ...quote,
@@ -230,6 +259,10 @@ export default function QuotationModule({ quotations, setQuotations, invoices, s
 
   // Convert Quotation to Official GST Invoice
   const handleConvertToInvoice = (quote) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can convert quotations into GST invoices.');
+      return;
+    }
     if (!setInvoices) {
       alert('Invoice module integration is unavailable.');
       return;
@@ -496,13 +529,24 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
           </p>
         </div>
 
-        <button
-          onClick={handleOpenCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Quotation</span>
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={handleOpenCreateModal}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Quotation</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => alert("Access Denied: Creating quotations is restricted to Administrator accounts.")}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition shrink-0"
+            title="Quotation creation restricted to Administrator"
+          >
+            <Lock className="w-4 h-4 text-amber-600" />
+            <span>New Quotation (Admin Only)</span>
+          </button>
+        )}
       </div>
 
       {/* KPI Cards */}
@@ -658,20 +702,22 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
 
                   <div className="flex flex-wrap items-center gap-1.5">
                     {/* Convert to Invoice Button */}
-                    {q.status !== 'Converted' ? (
-                      <button
-                        onClick={() => handleConvertToInvoice(q)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
-                        title="Convert this approved quotation directly into a GST Tax Invoice"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        <span>To Invoice</span>
-                      </button>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-xl text-xs font-bold border border-purple-200">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        <span>Invoiced</span>
-                      </span>
+                    {isAdmin && (
+                      q.status !== 'Converted' ? (
+                        <button
+                          onClick={() => handleConvertToInvoice(q)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                          title="Convert this approved quotation directly into a GST Tax Invoice"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>To Invoice</span>
+                        </button>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 text-purple-700 rounded-xl text-xs font-bold border border-purple-200">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          <span>Invoiced</span>
+                        </span>
+                      )
                     )}
 
                     {/* WhatsApp Button */}
@@ -694,32 +740,42 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                       <span>Print</span>
                     </button>
 
-                    {/* Duplicate Button */}
-                    <button
-                      onClick={() => handleDuplicateQuote(q)}
-                      className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                      title="Clone as New Draft Quotation"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Duplicate, Edit, Delete Buttons */}
+                    {isAdmin ? (
+                      <>
+                        <button
+                          onClick={() => handleDuplicateQuote(q)}
+                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                          title="Clone as New Draft Quotation"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
 
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => handleStartEdit(q)}
-                      className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
-                      title="Edit Quotation"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
+                        <button
+                          onClick={() => handleStartEdit(q)}
+                          className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition"
+                          title="Edit Quotation"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
 
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteQuote(q.id, q.clientName)}
-                      className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
-                      title="Delete Quotation"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                        <button
+                          onClick={() => handleDeleteQuote(q.id, q.clientName)}
+                          className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition"
+                          title="Delete Quotation"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <span
+                        className="p-1.5 px-2 rounded-xl bg-slate-100 text-slate-400 text-xs font-semibold flex items-center gap-1 border border-slate-200"
+                        title="Modifications restricted to Administrator"
+                      >
+                        <Lock className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-[10px]">Locked</span>
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

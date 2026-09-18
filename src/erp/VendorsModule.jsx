@@ -12,13 +12,15 @@ import {
   DollarSign,
   Printer,
   X,
-  CreditCard
+  CreditCard,
+  Lock
 } from 'lucide-react';
 
 export default function VendorsModule({
   vendorsData,
   setVendorsData,
-  currentUser: _currentUser
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
   const [filterCategory, setFilterCategory] = useState('All');
   const [search, setSearch] = useState('');
@@ -68,6 +70,10 @@ export default function VendorsModule({
 
   const handleCreateVendor = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can enrol new vendors.');
+      return;
+    }
     if (!newVendor.name || !newVendor.contactPerson) {
       alert('Please fill in vendor name and contact person.');
       return;
@@ -121,13 +127,20 @@ export default function VendorsModule({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Enrol New Vendor</span>
-            </button>
+            {isAdmin ? (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Enrol New Vendor</span>
+              </button>
+            ) : (
+              <div className="px-3.5 py-2 bg-slate-800/80 text-amber-300 rounded-xl font-semibold text-xs border border-amber-500/30 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>View-Only Mode (Admin Controlled)</span>
+              </div>
+            )}
           </div>
         </div>
 

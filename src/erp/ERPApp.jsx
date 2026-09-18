@@ -96,7 +96,8 @@ import {
   TrendingUp,
   Zap,
   Cpu,
-  Sun
+  Sun,
+  Lock
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -918,6 +919,27 @@ export default function ERPApp({ onExit }) {
 
             {/* Right Top Actions */}
             <div className="flex items-center gap-2 shrink-0">
+              {isAdmin ? (
+                <button
+                  onClick={() => setActiveTab('users')}
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200 transition"
+                  title="Admin Privilege: Full modification rights active across all menus. Click to configure menu modification policies."
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+                  <span className="hidden md:inline">Admin: Full Modifications</span>
+                  <span className="md:hidden">Admin</span>
+                </button>
+              ) : (
+                <div
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200"
+                  title="Staff Access: Modifications across all menus are restricted to Admin users. Contact administrator for edit access."
+                >
+                  <Lock className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="hidden md:inline">Staff: View-Only Mode</span>
+                  <span className="md:hidden">View-Only</span>
+                </div>
+              )}
+
               <button
                 onClick={handleExportBackup}
                 className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition"
@@ -1406,6 +1428,7 @@ export default function ERPApp({ onExit }) {
             clients={clients} 
             setClients={setClients} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
 
@@ -1417,6 +1440,7 @@ export default function ERPApp({ onExit }) {
             setQuotations={setQuotations}
             setActiveTab={setActiveTab}
             currentUser={currentUser}
+            isAdmin={isAdmin}
           />
         )}
 
@@ -1427,6 +1451,7 @@ export default function ERPApp({ onExit }) {
             tickets={tickets}
             setTickets={setTickets}
             currentUser={currentUser}
+            isAdmin={isAdmin}
           />
         )}
 
@@ -1435,13 +1460,43 @@ export default function ERPApp({ onExit }) {
             clients={clients} 
             setClients={setClients} 
             initialCategory={clientSubCategory} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
           />
         )}
         {activeTab === 'pnb_assets' && <PNBAssetModule />}
-        {activeTab === 'tickets' && <TicketsModule tickets={tickets} setTickets={setTickets} />}
-        {activeTab === 'amc' && <AMCModule amcContracts={amcContracts} setAmcContracts={setAmcContracts} />}
-        {activeTab === 'inventory' && <InventoryModule inventory={inventory} setInventory={setInventory} />}
-        {activeTab === 'invoices' && <InvoiceModule invoices={invoices} setInvoices={setInvoices} />}
+        {activeTab === 'tickets' && (
+          <TicketsModule 
+            tickets={tickets} 
+            setTickets={setTickets} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+          />
+        )}
+        {activeTab === 'amc' && (
+          <AMCModule 
+            amcContracts={amcContracts} 
+            setAmcContracts={setAmcContracts} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+          />
+        )}
+        {activeTab === 'inventory' && (
+          <InventoryModule 
+            inventory={inventory} 
+            setInventory={setInventory} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+          />
+        )}
+        {activeTab === 'invoices' && (
+          <InvoiceModule 
+            invoices={invoices} 
+            setInvoices={setInvoices} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+          />
+        )}
         {activeTab === 'quotations' && (
           <QuotationModule 
             quotations={quotations} 
@@ -1449,14 +1504,24 @@ export default function ERPApp({ onExit }) {
             invoices={invoices} 
             setInvoices={setInvoices} 
             setActiveTab={setActiveTab} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
           />
         )}
-        {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
+        {activeTab === 'solar' && (
+          <SolarProjectsModule 
+            solarProjects={solarProjects} 
+            setSolarProjects={setSolarProjects} 
+            isAdmin={isAdmin}
+            currentUser={currentUser}
+          />
+        )}
         {activeTab === 'projects' && (
           <ProjectsModule 
             enterpriseProjects={enterpriseProjects} 
             setEnterpriseProjects={setEnterpriseProjects} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'procurement' && (
@@ -1466,6 +1531,7 @@ export default function ERPApp({ onExit }) {
             inventory={inventory} 
             setInventory={setInventory} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'vendors' && (
@@ -1473,6 +1539,7 @@ export default function ERPApp({ onExit }) {
             vendorsData={vendorsData} 
             setVendorsData={setVendorsData} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'documents' && (
@@ -1480,6 +1547,7 @@ export default function ERPApp({ onExit }) {
             documentsData={documentsData} 
             setDocumentsData={setDocumentsData} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'customer_portal' && (
@@ -1508,6 +1576,7 @@ export default function ERPApp({ onExit }) {
             workflowApprovals={workflowApprovals} 
             setWorkflowApprovals={setWorkflowApprovals} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'mis' && (
@@ -1528,6 +1597,7 @@ export default function ERPApp({ onExit }) {
             transactions={transactions} 
             setTransactions={setTransactions} 
             currentUser={currentUser} 
+            isAdmin={isAdmin}
           />
         )}
         {activeTab === 'reports' && (

@@ -13,13 +13,15 @@ import {
   Printer,
   X,
   ChevronRight,
-  Layers
+  Layers,
+  Lock
 } from 'lucide-react';
 
 export default function ProjectsModule({ 
   enterpriseProjects, 
   setEnterpriseProjects,
-  currentUser: _currentUser 
+  currentUser: _currentUser,
+  isAdmin = false
 }) {
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'gantt' | 'milestones'
   const [filterCategory, setFilterCategory] = useState('All');
@@ -67,6 +69,10 @@ export default function ProjectsModule({
 
   const handleCreateProject = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can launch enterprise projects.');
+      return;
+    }
     if (!newProject.title || !newProject.client) {
       alert('Please fill in project title and client name');
       return;
@@ -106,6 +112,10 @@ export default function ProjectsModule({
   };
 
   const toggleMilestone = (projectId, milestoneId) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can update project milestones.');
+      return;
+    }
     setEnterpriseProjects(enterpriseProjects.map(prj => {
       if (prj.id !== projectId) return prj;
       const updatedMilestones = prj.milestones.map(m => {
@@ -157,13 +167,20 @@ export default function ProjectsModule({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Launch New Project</span>
-            </button>
+            {isAdmin ? (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Launch New Project</span>
+              </button>
+            ) : (
+              <div className="px-3.5 py-2 bg-slate-800/80 text-amber-300 rounded-xl font-semibold text-xs border border-amber-500/30 flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-400" />
+                <span>View-Only Mode (Admin Controlled)</span>
+              </div>
+            )}
           </div>
         </div>
 
