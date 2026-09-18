@@ -563,7 +563,7 @@ export async function resetUserPasswordAsync(username, newPassword, authPin) {
     return { success: false, message: "Please provide your User ID and new password." };
   }
   if (!authPin) {
-    return { success: false, message: "Please provide the Terminal Security PIN (99544) to authorize password reset." };
+    return { success: false, message: "Please provide the Terminal Security PIN to authorize password reset." };
   }
   if (newPassword.length < 6) {
     return { success: false, message: "New password must be at least 6 characters long." };
@@ -633,7 +633,7 @@ export async function registerNewUserAsync(userData, authPin) {
     return { success: false, message: "Password must be at least 6 characters long." };
   }
   if (!authPin) {
-    return { success: false, message: "Please provide Terminal Security PIN (99544) to authorize account creation." };
+    return { success: false, message: "Please provide Terminal Security PIN to authorize account creation." };
   }
 
   // 1. Verify Terminal PIN

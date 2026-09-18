@@ -4,9 +4,7 @@ import {
   authenticateUserCredentialsAsync, 
   recordAuditLog,
   resetUserPasswordAsync,
-  registerNewUserAsync,
-  lookupUserAccountAsync,
-  ROLE_DEFINITIONS
+  lookupUserAccountAsync
 } from './erpStorage';
 import { 
   checkBruteForceLockout, 
@@ -23,16 +21,14 @@ import {
   User, 
   Eye, 
   EyeOff,
-  UserPlus,
   CheckCircle2,
   Search,
-  Building2,
   RefreshCw,
   HelpCircle
 } from 'lucide-react';
 
 export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
-  // Navigation view: 'login' | 'reset_password' | 'create_user'
+  // Navigation view: 'login' | 'reset_password'
   const [view, setView] = useState('login');
 
   // Step 1: Terminal Access PIN | Step 2: Main Login (User ID + Password)
@@ -54,7 +50,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
 
   // Password Reset state
   const [resetUsername, setResetUsername] = useState('');
-  const [resetAuthPin, setResetAuthPin] = useState('99544');
+  const [resetAuthPin, setResetAuthPin] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -63,20 +59,6 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
   const [lookupQuery, setLookupQuery] = useState('');
   const [lookupResults, setLookupResults] = useState([]);
   const [lookupMessage, setLookupMessage] = useState('');
-
-  // Create User state
-  const [createName, setCreateName] = useState('');
-  const [createUsername, setCreateUsername] = useState('');
-  const [createRole, setCreateRole] = useState(ROLE_DEFINITIONS[1].role);
-  const [createPhone, setCreatePhone] = useState('');
-  const [createRegion, setCreateRegion] = useState('Silchar & Cachar Circle');
-  const [createPassword, setCreatePassword] = useState('');
-  const [createConfirmPassword, setCreateConfirmPassword] = useState('');
-  const [createPin, setCreatePin] = useState('99544');
-  const [createAuthPin, setCreateAuthPin] = useState('99544');
-  const [showCreatePassword, setShowCreatePassword] = useState(false);
-  const [createSuccess, setCreateSuccess] = useState(false);
-  const [createdUser, setCreatedUser] = useState(null);
 
   // Sync lockout timer countdown
   useEffect(() => {
@@ -199,7 +181,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
       return;
     }
     if (!resetAuthPin.trim()) {
-      setError('Please enter Terminal Security PIN (99544).');
+      setError('Please enter Terminal Security PIN.');
       return;
     }
     if (newPassword.length < 6) {
@@ -234,6 +216,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
   };
 
   // Look up username by phone or name
+  const [lookupError, setLookupError] = useState('');
   const handleLookupUsername = async (e) => {
     e.preventDefault();
     setLookupError('');
@@ -256,66 +239,6 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
     } catch (err) {
       console.error(err);
       setLookupError('Failed to search accounts.');
-    } finally {
-      setIsAuthenticating(false);
-    }
-  };
-
-  const [lookupError, setLookupError] = useState('');
-
-  // Create User Handler
-  const handleCreateUserSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!createName.trim()) {
-      setError('Please enter Full Name.');
-      return;
-    }
-    if (!createUsername.trim()) {
-      setError('Please enter desired Username / User ID.');
-      return;
-    }
-    if (createPassword.length < 6) {
-      setError('Password must be at least 6 characters long.');
-      return;
-    }
-    if (createPassword !== createConfirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (!createAuthPin.trim()) {
-      setError('Please provide Terminal Security PIN (99544) to authorize registration.');
-      return;
-    }
-
-    setIsAuthenticating(true);
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 400));
-      const res = await registerNewUserAsync({
-        name: createName,
-        username: createUsername,
-        password: createPassword,
-        phone: createPhone,
-        role: createRole,
-        region: createRegion,
-        pin: createPin || '99544'
-      }, createAuthPin);
-
-      if (res.success) {
-        setCreateSuccess(true);
-        setCreatedUser(res.user);
-        setSuccessMsg(res.message || 'User registered successfully!');
-        setUsername(res.user.username);
-        setPassword(createPassword);
-      } else {
-        setError(res.message || 'Failed to create user account.');
-      }
-    } catch (err) {
-      console.error(err);
-      setError('An unexpected error occurred during user registration.');
     } finally {
       setIsAuthenticating(false);
     }
@@ -353,7 +276,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-7 sm:p-8 shadow-2xl relative my-8">
         
         {/* =========================================================================
-           TOP VIEW NAVIGATION TABS (Login | Reset Password | Create User)
+           TOP VIEW NAVIGATION TABS (Login | Reset Password)
            ========================================================================= */}
         <div className="flex items-center justify-center gap-1.5 mb-6 p-1 bg-slate-950/80 rounded-2xl border border-slate-800 text-xs">
           <button
@@ -389,25 +312,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
             }`}
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset Pass</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setView('create_user');
-              setCreateSuccess(false);
-              setError('');
-              setSuccessMsg('');
-            }}
-            className={`flex-1 py-2 px-2.5 rounded-xl font-bold transition flex items-center justify-center gap-1.5 ${
-              view === 'create_user' 
-                ? 'bg-emerald-500 text-slate-950 shadow' 
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Create User</span>
+            <span>Reset Password</span>
           </button>
         </div>
 
@@ -415,9 +320,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
         <div className="text-center mb-6">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-500 via-emerald-500 to-amber-500 p-0.5 mx-auto mb-3 flex items-center justify-center shadow-lg">
             <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-              {view === 'create_user' ? (
-                <UserPlus className="w-7 h-7 text-emerald-400" />
-              ) : view === 'reset_password' ? (
+              {view === 'reset_password' ? (
                 <RefreshCw className="w-7 h-7 text-amber-400" />
               ) : step === 1 ? (
                 <Lock className="w-7 h-7 text-emerald-400" />
@@ -430,22 +333,18 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
             M/S COMPUTER PLANET
           </h2>
           <p className="text-xs uppercase font-bold tracking-wider mt-1 text-slate-300">
-            {view === 'create_user' 
-              ? "New Staff User Registration" 
-              : view === 'reset_password' 
-                ? "Password Reset & Recovery Portal" 
-                : step === 1 
-                  ? "Step 1: Terminal Security Gate" 
-                  : "Step 2: Operations ERP Login"}
+            {view === 'reset_password' 
+              ? "Password Reset & Recovery Portal" 
+              : step === 1 
+                ? "Step 1: Terminal Security Gate" 
+                : "Step 2: Operations ERP Login"}
           </p>
           <p className="text-xs text-slate-400 mt-1.5">
-            {view === 'create_user'
-              ? "Create a new authorized personnel account with custom operational role."
-              : view === 'reset_password'
-                ? "Reset forgotten password or look up your registered User ID."
-                : step === 1
-                  ? "Enter authorized Terminal PIN to unlock the ERP credentials gate."
-                  : "Enter authorized User ID and Password to launch your workspace."}
+            {view === 'reset_password'
+              ? "Reset forgotten password or look up your registered User ID."
+              : step === 1
+                ? "Enter authorized Terminal PIN to unlock the ERP credentials gate."
+                : "Enter authorized User ID and Password to launch your workspace."}
           </p>
         </div>
 
@@ -547,14 +446,14 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                       type="password"
                       required
                       maxLength="8"
-                      placeholder="Default master PIN: 99544"
+                      placeholder="Enter Terminal PIN"
                       value={resetAuthPin}
                       onChange={(e) => setResetAuthPin(e.target.value)}
                       className="w-full py-2.5 pl-10 pr-4 text-xs font-mono font-bold rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 text-white tracking-widest"
                     />
                   </div>
                   <p className="text-[10px] text-slate-500 mt-1">
-                    Authorized Master PIN: <span className="font-mono text-slate-400">99544</span>
+                    Enter authorized Terminal Security PIN to verify identity.
                   </p>
                 </div>
 
@@ -707,232 +606,6 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
               </button>
             </div>
           </div>
-        ) : view === 'create_user' ? (
-          /* =========================================================================
-             VIEW: CREATE NEW USER / REGISTER STAFF ACCOUNT
-             ========================================================================= */
-          <div>
-            {createSuccess ? (
-              <div className="bg-emerald-950/50 border border-emerald-800 rounded-2xl p-5 text-center space-y-3 animate-in zoom-in-95">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-                <h3 className="text-sm font-bold text-white">Staff Account Created!</h3>
-                <p className="text-xs text-slate-300">
-                  Welcome aboard, <strong className="text-white">{createdUser?.name}</strong>! Your User ID is{' '}
-                  <span className="font-mono text-emerald-300 font-bold">@{createdUser?.username}</span>.
-                </p>
-                <div className="pt-2 flex flex-col sm:flex-row gap-2">
-                  <button
-                    onClick={() => {
-                      sessionStorage.setItem("mcp_erp_terminal_unlocked", "true");
-                      onLoginSuccess(createdUser);
-                    }}
-                    className="flex-1 py-2.5 px-3 rounded-xl font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition text-xs shadow-md flex items-center justify-center gap-1.5"
-                  >
-                    <Building2 className="w-3.5 h-3.5" />
-                    <span>Launch Workspace Directly</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setView('login');
-                      setStep(2);
-                      sessionStorage.setItem("mcp_erp_terminal_unlocked", "true");
-                      setCreateSuccess(false);
-                    }}
-                    className="py-2.5 px-3 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 transition text-xs border border-slate-700"
-                  >
-                    Go to Login
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleCreateUserSubmit} className="space-y-3 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block font-semibold text-slate-400 uppercase tracking-wider text-[10px] mb-1">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Ramesh Deb"
-                      value={createName}
-                      onChange={(e) => {
-                        setCreateName(e.target.value);
-                        if (!createUsername) {
-                          setCreateUsername(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10));
-                        }
-                      }}
-                      className="w-full py-2 px-3 text-xs rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-400 uppercase tracking-wider text-[10px] mb-1">
-                      Desired User ID / Username *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. ramesh_deb"
-                      value={createUsername}
-                      onChange={(e) => setCreateUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                      className="w-full py-2 px-3 text-xs font-mono rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block font-semibold text-slate-400 uppercase tracking-wider text-[10px] mb-1">
-                      Operational Role *
-                    </label>
-                    <select
-                      value={createRole}
-                      onChange={(e) => setCreateRole(e.target.value)}
-                      className="w-full py-2 px-2.5 text-xs rounded-xl bg-slate-950 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      {ROLE_DEFINITIONS.map(r => (
-                        <option key={r.role} value={r.role}>{r.role}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-400 uppercase tracking-wider text-[10px] mb-1">
-                      Contact Phone
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. +91 94350 99887"
-                      value={createPhone}
-                      onChange={(e) => setCreatePhone(e.target.value)}
-                      className="w-full py-2 px-3 text-xs rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="p-3 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2.5">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                    <span>Security Credentials Setup</span>
-                    <span className="text-emerald-400 text-[10px]">Encrypted SHA-256</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                      <label className="block font-semibold text-slate-400 text-[10px] mb-1">
-                        Password * (Min 6 chars)
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showCreatePassword ? "text" : "password"}
-                          required
-                          minLength={6}
-                          placeholder="Password"
-                          value={createPassword}
-                          onChange={(e) => setCreatePassword(e.target.value)}
-                          className="w-full py-2 pl-3 pr-8 text-xs font-mono rounded-xl bg-slate-900 border border-slate-700 text-white"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowCreatePassword(!showCreatePassword)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
-                        >
-                          {showCreatePassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block font-semibold text-slate-400 text-[10px] mb-1">
-                        Confirm Password *
-                      </label>
-                      <input
-                        type={showCreatePassword ? "text" : "password"}
-                        required
-                        placeholder="Confirm"
-                        value={createConfirmPassword}
-                        onChange={(e) => setCreateConfirmPassword(e.target.value)}
-                        className="w-full py-2 px-3 text-xs font-mono rounded-xl bg-slate-900 border border-slate-700 text-white"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-slate-400 text-[10px] mb-1">
-                      Terminal Authorization PIN * (Required to register)
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      maxLength="8"
-                      placeholder="Default master PIN: 99544"
-                      value={createAuthPin}
-                      onChange={(e) => setCreateAuthPin(e.target.value)}
-                      className="w-full py-2 px-3 text-xs font-mono rounded-xl bg-slate-900 border border-slate-700 text-white tracking-widest"
-                    />
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      Enter Terminal PIN <span className="font-mono text-slate-400 font-bold">99544</span> to confirm authorized personnel.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
-                    <div>
-                      <label className="block font-semibold text-slate-400 text-[10px] mb-1">
-                        Personal Staff PIN (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        maxLength="8"
-                        placeholder="e.g. 99544"
-                        value={createPin}
-                        onChange={(e) => setCreatePin(e.target.value.replace(/\D/g, ''))}
-                        className="w-full py-2 px-3 text-xs font-mono rounded-xl bg-slate-900 border border-slate-700 text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-400 text-[10px] mb-1">
-                        Assigned Circle / Region
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Silchar Circle"
-                        value={createRegion}
-                        onChange={(e) => setCreateRegion(e.target.value)}
-                        className="w-full py-2 px-3 text-xs rounded-xl bg-slate-900 border border-slate-700 text-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {error && (
-                  <div className="text-xs text-rose-400 bg-rose-950/50 border border-rose-900/60 p-2.5 rounded-xl text-center flex items-center justify-center gap-2">
-                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isAuthenticating}
-                  className="w-full py-3 px-4 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-950 transition flex items-center justify-center gap-2 disabled:opacity-50 text-xs mt-2"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>{isAuthenticating ? "Creating Account..." : "Create Staff Account →"}</span>
-                </button>
-              </form>
-            )}
-
-            <div className="pt-4 mt-4 text-center border-t border-slate-800 text-xs text-slate-400">
-              <button
-                type="button"
-                onClick={() => setView('login')}
-                className="hover:text-white transition flex items-center justify-center gap-1 mx-auto"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Already registered? Return to Login</span>
-              </button>
-            </div>
-          </div>
         ) : step === 1 ? (
           /* =========================================================================
              STEP 1: TERMINAL PIN GATE
@@ -959,7 +632,7 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                 />
               </div>
               <p className="text-[11px] text-slate-500 text-center mt-1.5">
-                Default Master PIN: <span className="font-mono text-slate-400 font-semibold">99544</span>
+                Authorized 5-digit security access PIN
               </p>
             </div>
 
@@ -986,16 +659,11 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                 className="hover:text-amber-400 transition flex items-center gap-1 text-[11px]"
               >
                 <RefreshCw className="w-3 h-3 text-amber-400" />
-                <span>Forgot Password?</span>
+                <span>Forgot Password / Lookup?</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setView('create_user')}
-                className="hover:text-emerald-400 transition flex items-center gap-1 text-[11px]"
-              >
-                <UserPlus className="w-3 h-3 text-emerald-400" />
-                <span>New User? Register</span>
-              </button>
+              <span className="text-[11px] text-slate-500 italic">
+                Authorized Personnel Only
+              </span>
             </div>
           </form>
         ) : (
@@ -1078,9 +746,6 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500 mt-1">
-                Default for admin: <span className="font-mono text-slate-400">admin@99544</span>
-              </p>
             </div>
 
             {error && (
@@ -1109,14 +774,9 @@ export default function ERPLogin({ onLoginSuccess, onBackToSite }) {
                 <span>Lock Terminal (Step 1)</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setView('create_user')}
-                className="hover:text-emerald-400 transition flex items-center gap-1 text-[11px]"
-              >
-                <UserPlus className="w-3 h-3 text-emerald-400" />
-                <span>Create User Account</span>
-              </button>
+              <span className="text-[11px] text-slate-500 italic">
+                User creation by Admin account only
+              </span>
             </div>
           </form>
         )}

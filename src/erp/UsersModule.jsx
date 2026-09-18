@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   UserPlus, 
   ShieldCheck, 
+  ShieldAlert,
   Search, 
   Lock, 
   Eye, 
@@ -32,7 +33,14 @@ const ALL_MODULES = [
   { id: 'settings', label: 'Data Backup & Settings' }
 ];
 
-export default function UsersModule({ users, setUsers, currentUser: _currentUser }) {
+export default function UsersModule({ users, setUsers, currentUser }) {
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.username?.toLowerCase() === 'admin' ||
+      (currentUser.role && currentUser.role.toLowerCase().includes('admin'))
+    )
+  );
+
   const [search, setSearch] = useState('');
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -93,6 +101,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can create staff users.');
+      return;
+    }
     if (!formData.name.trim() || !formData.pin.trim()) {
       alert('Please provide Full Name and Staff Access PIN.');
       return;
@@ -140,6 +152,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
   };
 
   const handleStartEdit = (user) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit staff users.');
+      return;
+    }
     setEditingUser(user);
     setFormData({
       name: user.name,
@@ -156,6 +172,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
 
   const handleUpdateUser = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can update staff users.');
+      return;
+    }
     if (!formData.name.trim() || !formData.pin.trim()) {
       alert('Please provide Full Name and Staff Access PIN.');
       return;
@@ -198,6 +218,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
 
   // Open Reset Password Modal for a user
   const handleOpenResetModal = (user) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can reset user credentials.');
+      return;
+    }
     setResetModalUser(user);
     setResetPasswordInput('');
     setResetPinInput(user.pin || '99544');
@@ -206,6 +230,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
 
   const handleResetPasswordAdmin = async (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can reset user credentials.');
+      return;
+    }
     if (!resetModalUser) return;
     if (!resetPasswordInput || resetPasswordInput.length < 6) {
       alert('New password must be at least 6 characters long.');
@@ -235,6 +263,10 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
   };
 
   const handleDeleteUser = (id, name, role) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can remove staff accounts.');
+      return;
+    }
     if (role.includes('Admin') && users.filter(u => u.role.includes('Admin')).length <= 1) {
       alert('Cannot remove the primary Administrator account.');
       return;
@@ -266,6 +298,25 @@ export default function UsersModule({ users, setUsers, currentUser: _currentUser
     if (role.includes('Solar')) return 'bg-amber-100 text-amber-800 border-amber-200';
     return 'bg-slate-100 text-slate-800 border-slate-200';
   };
+
+  if (!isAdmin) {
+    return (
+      <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm text-center max-w-xl mx-auto my-12 space-y-4">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600 shadow-inner">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h3 className="text-xl font-black text-slate-900">Administrator Access Required</h3>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          User creation, role assignment, and staff credentials management are strictly restricted to the Administrator account.
+        </p>
+        <div className="pt-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            Logged in as: {currentUser?.name || currentUser?.username || 'Staff Member'} ({currentUser?.role || 'Restricted'})
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

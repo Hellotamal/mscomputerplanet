@@ -221,6 +221,14 @@ export default function ERPApp({ onExit }) {
     }
   };
 
+  // Administrator verification check (Proprietor / Full Admin Role)
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.username?.toLowerCase() === 'admin' ||
+      (currentUser.role && currentUser.role.toLowerCase().includes('admin'))
+    )
+  );
+
   if (!isAuthenticated) {
     return <ERPLogin onLoginSuccess={handleLoginSuccess} onBackToSite={onExit} />;
   }
@@ -233,16 +241,11 @@ export default function ERPApp({ onExit }) {
   const pendingQuotesCount = quotations.filter(q => q.status === 'Sent' || q.status === 'Draft').length;
   const pendingLeavesCount = leaves.filter(l => l.status === 'Pending').length;
 
-  // Administrator verification check (Proprietor / Full Admin Role)
-  const isAdmin = Boolean(
-    currentUser && (
-      currentUser.username?.toLowerCase() === 'admin' ||
-      (currentUser.role && currentUser.role.toLowerCase().includes('admin'))
-    )
-  );
-
-  // Filter tabs based on currentUser permissions if set
+  // Filter tabs based on currentUser permissions if set (Admin-only for users & settings)
   const hasTabPermission = (tabId) => {
+    if (tabId === 'users' || tabId === 'settings') {
+      return isAdmin;
+    }
     if (isAdmin) return true;
     if (!currentUser || !currentUser.permissions || currentUser.permissions.length === 0) return true;
     return currentUser.permissions.includes(tabId);
@@ -317,15 +320,17 @@ export default function ERPApp({ onExit }) {
             { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'payroll', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('payroll'); } }
           ]
         },
-        { id: 'users', name: 'Staff & Roles', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' }
+        ...(isAdmin ? [
+          { id: 'users', name: 'Staff & Roles', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' }
+        ] : [])
       ]
     },
-    {
+    ...(isAdmin ? [{
       title: "Administration",
       items: [
         { id: 'settings', name: 'Data & Settings', icon: Settings }
       ]
-    }
+    }] : [])
   ];
 
   return (
@@ -970,7 +975,7 @@ export default function ERPApp({ onExit }) {
             transactions={transactions}
           />
         )}
-        {activeTab === 'users' && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
+        {activeTab === 'users' && isAdmin && <UsersModule users={users} setUsers={setUsers} currentUser={currentUser} />}
         {activeTab === 'hrms' && (
           <HRMSModule 
             employees={employees} 
@@ -985,7 +990,7 @@ export default function ERPApp({ onExit }) {
           />
         )}
 
-        {activeTab === 'settings' && (
+        {activeTab === 'settings' && isAdmin && (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Staff & Role Quick Access */}
             <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 shadow-sm flex items-center justify-between gap-4">
