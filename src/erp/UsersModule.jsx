@@ -21,6 +21,8 @@ import { sha256 } from './erpSecurity';
 
 const ALL_MODULES = [
   { id: 'dashboard', label: 'Dashboard & Metrics' },
+  { id: 'crm', label: 'CRM & Sales Funnel' },
+  { id: 'clients', label: 'Clients & Assets Register' },
   { id: 'pnb_assets', label: 'PNB Asset Register (543)' },
   { id: 'tickets', label: 'Service Tickets' },
   { id: 'amc', label: 'AMC Contracts' },
@@ -28,8 +30,10 @@ const ALL_MODULES = [
   { id: 'invoices', label: 'GST Tax Invoicing' },
   { id: 'quotations', label: 'Quotations & Estimates' },
   { id: 'solar', label: 'Solar Projects' },
-  { id: 'users', label: 'Staff & Role Management' },
+  { id: 'accounts', label: 'Accounts & Finance' },
+  { id: 'reports', label: 'Audit & Reports Centre' },
   { id: 'hrms', label: 'Staff HRMS & Payslips' },
+  { id: 'users', label: 'Staff & Role Management' },
   { id: 'settings', label: 'Data Backup & Settings' }
 ];
 

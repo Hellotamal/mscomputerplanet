@@ -14,6 +14,7 @@ import {
   INITIAL_PAYROLL,
   INITIAL_CLIENTS,
   INITIAL_TRANSACTIONS,
+  INITIAL_LEADS,
   exportAllErpData,
   importAllErpData,
   setErpPin,
@@ -25,6 +26,7 @@ import {
   updateSessionActivity, 
   terminateSecureSession 
 } from './erpSecurity';
+import CRMModule from './CRMModule';
 import TicketsModule from './TicketsModule';
 import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
@@ -68,7 +70,8 @@ import {
   MapPin,
   Calendar,
   FileSpreadsheet,
-  ShoppingBag
+  ShoppingBag,
+  Target
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -138,6 +141,7 @@ export default function ERPApp({ onExit }) {
   const [solarProjects, setSolarProjects] = useState(() => loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
   const [clients, setClients] = useState(() => loadErpData("clients", INITIAL_CLIENTS));
   const [transactions, setTransactions] = useState(() => loadErpData("transactions", INITIAL_TRANSACTIONS));
+  const [leads, setLeads] = useState(() => loadErpData("leads", INITIAL_LEADS));
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
@@ -152,6 +156,7 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("solar_projects", solarProjects); }, [solarProjects]);
   useEffect(() => { saveErpData("clients", clients); }, [clients]);
   useEffect(() => { saveErpData("transactions", transactions); }, [transactions]);
+  useEffect(() => { saveErpData("leads", leads); }, [leads]);
 
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
@@ -201,6 +206,7 @@ export default function ERPApp({ onExit }) {
         setSolarProjects(loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS));
         setClients(loadErpData("clients", INITIAL_CLIENTS));
         setTransactions(loadErpData("transactions", INITIAL_TRANSACTIONS));
+        setLeads(loadErpData("leads", INITIAL_LEADS));
         alert("ERP Data successfully restored from backup!");
       } else {
         alert("Invalid backup file format or security policy violation.");
@@ -240,6 +246,9 @@ export default function ERPApp({ onExit }) {
   const openTicketsCount = tickets.filter(t => t.status === 'Open' || t.status === 'In Progress').length;
   const pendingQuotesCount = quotations.filter(q => q.status === 'Sent' || q.status === 'Draft').length;
   const pendingLeavesCount = leaves.filter(l => l.status === 'Pending').length;
+  const activeLeads = leads.filter(l => l.stage !== 'Won' && l.stage !== 'Lost');
+  const activeLeadsCount = activeLeads.length;
+  const totalPipelineVal = activeLeads.reduce((acc, l) => acc + (Number(l.estimatedValue) || 0), 0);
 
   // Filter tabs based on currentUser permissions if set (Admin-only for users & settings)
   const hasTabPermission = (tabId) => {
@@ -257,6 +266,18 @@ export default function ERPApp({ onExit }) {
       title: "Core Overview",
       items: [
         { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard }
+      ]
+    },
+    {
+      title: "1. CRM & Commercial",
+      items: [
+        { 
+          id: 'crm', 
+          name: 'CRM & Sales Funnel', 
+          icon: Target, 
+          badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
+          badgeColor: 'bg-violet-500 text-white' 
+        }
       ]
     },
     {
@@ -704,6 +725,15 @@ export default function ERPApp({ onExit }) {
               </div>
 
               <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
+                {hasTabPermission('crm') && (
+                  <button
+                    onClick={() => setActiveTab('crm')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Target className="w-4 h-4 text-violet-200" />
+                    <span>CRM Funnel ({activeLeadsCount})</span>
+                  </button>
+                )}
                 {hasTabPermission('clients') && (
                   <button
                     onClick={() => setActiveTab('clients')}
@@ -794,8 +824,26 @@ export default function ERPApp({ onExit }) {
               </div>
             </div>
 
-            {/* 4 Primary Operational Counters */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {/* 5 Primary Operational Counters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+              <div
+                onClick={() => setActiveTab('crm')}
+                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase">Sales Pipeline</span>
+                  <div className="p-2 rounded-xl bg-violet-50 text-violet-600 group-hover:scale-110 transition-transform">
+                    <Target className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">
+                  ₹{totalPipelineVal.toLocaleString('en-IN')}
+                </div>
+                <div className="text-xs text-violet-600 font-medium mt-2">
+                  {activeLeadsCount} Leads in Funnel
+                </div>
+              </div>
+
               <div
                 onClick={() => setActiveTab('amc')}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer group"
@@ -929,6 +977,16 @@ export default function ERPApp({ onExit }) {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'crm' && (
+          <CRMModule 
+            leads={leads} 
+            setLeads={setLeads} 
+            clients={clients} 
+            setClients={setClients} 
+            currentUser={currentUser} 
+          />
         )}
 
         {activeTab === 'clients' && (

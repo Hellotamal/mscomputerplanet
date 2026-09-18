@@ -292,11 +292,109 @@ export const INITIAL_SOLAR_PROJECTS = [
   }
 ];
 
+export const INITIAL_LEADS = [
+  {
+    id: "LEAD-2026-001",
+    clientName: "Green Valley Tea Estate Hospital",
+    contactPerson: "Dr. Samarjit Deb (Medical Supdt)",
+    phone: "+91 94350 44321",
+    email: "hospital@greenvalleytea.com",
+    city: "Dwarbond, Cachar",
+    address: "NH-54, Dwarbond Tea Estate, Cachar - 788113",
+    category: "Solar Rooftop EPC",
+    source: "IndiaMART B2B Lead",
+    stage: "BOQ & Quotation Sent",
+    priority: "High",
+    estimatedValue: 650000,
+    requirement: "12 kWp On-Grid Solar Plant with APDCL Net Metering to offset heavy diesel generator & monthly power bills.",
+    assignedTo: "Animesh Das (Solar Lead)",
+    nextFollowUp: "2026-09-22",
+    createdAt: "2026-09-12T10:30:00.000Z",
+    notes: "Site survey completed. Roof structure strong RCC with zero shadow. 12 kW quote sent at ₹6.5 Lakh with subsidy assistance."
+  },
+  {
+    id: "LEAD-2026-002",
+    clientName: "Assam Gramin Vikash Bank (Regional Office)",
+    contactPerson: "Nirmalendu Paul (Chief Manager Operations)",
+    phone: "+91 94351 88920",
+    email: "ro_cachar@agvb.co.in",
+    city: "Silchar",
+    address: "Central Road, Silchar - 788001",
+    category: "Banking IT AMC",
+    source: "Client Referral",
+    stage: "Negotiation & Review",
+    priority: "High",
+    estimatedValue: 380000,
+    requirement: "Annual Maintenance Contract for 28 Branch Computer Systems, Passbook Printers, SMPS & Network Switches across Barak Valley.",
+    assignedTo: "Debashis Roy (IT Lead)",
+    nextFollowUp: "2026-09-20",
+    createdAt: "2026-09-14T11:15:00.000Z",
+    notes: "Executive committee meeting scheduled for rate finalization. PNB SLA reference shared."
+  },
+  {
+    id: "LEAD-2026-003",
+    clientName: "Roy & Singha Associates Chartered Accountants",
+    contactPerson: "CA Anupam Singha",
+    phone: "+91 98640 12890",
+    email: "anupam@roysingha.in",
+    city: "Hailakandi",
+    address: "Station Road, Hailakandi - 788151",
+    category: "Solar Rooftop EPC",
+    source: "Website Quote / Ticket",
+    stage: "Site Survey & Feasibility",
+    priority: "Medium",
+    estimatedValue: 240000,
+    requirement: "4 kW Hybrid Rooftop Solar with Lithium Battery Backup under PM Surya Ghar Muft Bijli Yojana (₹78,000 subsidy).",
+    assignedTo: "Animesh Das (Solar Lead)",
+    nextFollowUp: "2026-09-23",
+    createdAt: "2026-09-16T14:45:00.000Z",
+    notes: "Site survey scheduled for Hailakandi commercial chamber. Electricity bill avg ₹4,800/mo."
+  },
+  {
+    id: "LEAD-2026-004",
+    clientName: "Silchar District Sessions Court",
+    contactPerson: "Administrative Officer",
+    phone: "+91 94350 77612",
+    email: "cachar.court@nic.in",
+    city: "Silchar",
+    address: "Court Complex, District HQ, Silchar - 788001",
+    category: "Hardware Sales & GeM Procurement",
+    source: "GeM Govt Portal",
+    stage: "New Lead",
+    priority: "High",
+    estimatedValue: 420000,
+    requirement: "GeM procurement tender for 10x HP Commercial Core i5 Desktops, High-speed Duplex Laser Scanners & Heavy-duty UPS.",
+    assignedTo: "Tamal Kanti Sinha (Proprietor)",
+    nextFollowUp: "2026-09-21",
+    createdAt: "2026-09-17T09:00:00.000Z",
+    notes: "Tender specifications downloaded from GeM portal. Bid preparation in progress."
+  },
+  {
+    id: "LEAD-2026-005",
+    clientName: "Maa Tara Cold Storage & Processing",
+    contactPerson: "Dipankar Choudhury",
+    phone: "+91 86380 99234",
+    email: "maataracold@gmail.com",
+    city: "Badarpur",
+    address: "Industrial Estate, Badarpur, Karimganj - 788806",
+    category: "Solar Rooftop EPC",
+    source: "Justdial Directory",
+    stage: "Contacted & Qualifying",
+    priority: "Medium",
+    estimatedValue: 1200000,
+    requirement: "25 kW Industrial High-Capacity Solar Plant with APDCL 11kV connection.",
+    assignedTo: "Animesh Das (Solar Lead)",
+    nextFollowUp: "2026-09-24",
+    createdAt: "2026-09-17T16:20:00.000Z",
+    notes: "Spoke with owner over phone. Sent initial feasibility document and APDCL guidelines via WhatsApp."
+  }
+];
+
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
     description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
+    defaultPermissions: ["dashboard", "crm", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
   },
   {
     role: "Resident IT Service Engineer",
@@ -306,12 +404,12 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Accounts & GST Billing Officer",
     description: "Generates official tax invoices, manages AMC billing schedules, and oversees commercial collections.",
-    defaultPermissions: ["dashboard", "invoices", "quotations", "amc", "inventory", "hrms"]
+    defaultPermissions: ["dashboard", "crm", "invoices", "quotations", "amc", "inventory", "hrms"]
   },
   {
     role: "Solar Project Technical Lead",
     description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
-    defaultPermissions: ["dashboard", "solar", "quotations", "inventory", "tickets", "hrms"]
+    defaultPermissions: ["dashboard", "crm", "solar", "quotations", "inventory", "tickets", "hrms"]
   },
   {
     role: "Store & Inventory Supervisor",
@@ -321,7 +419,7 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Support Desk & Customer Coordinator",
     description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
-    defaultPermissions: ["dashboard", "tickets", "quotations", "amc"]
+    defaultPermissions: ["dashboard", "crm", "tickets", "quotations", "amc"]
   }
 ];
 
@@ -1436,6 +1534,7 @@ export function exportAllErpData() {
     leaves: loadErpData("leaves", INITIAL_LEAVES),
     payroll: loadErpData("payroll", INITIAL_PAYROLL),
     fieldVisits: loadErpData("field_visits", INITIAL_FIELD_VISITS),
+    leads: loadErpData("leads", INITIAL_LEADS),
     clients: loadErpData("clients", INITIAL_CLIENTS),
     transactions: loadErpData("transactions", INITIAL_TRANSACTIONS),
     tickets: loadErpData("tickets", INITIAL_TICKETS),
@@ -1462,6 +1561,7 @@ export function importAllErpData(jsonString) {
     if (data.leaves && Array.isArray(data.leaves)) saveErpData("leaves", data.leaves);
     if (data.payroll && Array.isArray(data.payroll)) saveErpData("payroll", data.payroll);
     if (data.fieldVisits && Array.isArray(data.fieldVisits)) saveErpData("field_visits", data.fieldVisits);
+    if (data.leads && Array.isArray(data.leads)) saveErpData("leads", data.leads);
     if (data.clients && Array.isArray(data.clients)) saveErpData("clients", data.clients);
     if (data.transactions && Array.isArray(data.transactions)) saveErpData("transactions", data.transactions);
     if (data.tickets && Array.isArray(data.tickets)) saveErpData("tickets", data.tickets);
