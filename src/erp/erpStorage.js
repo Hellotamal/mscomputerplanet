@@ -566,33 +566,38 @@ export const INITIAL_ITSM_DATA = {
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
-    description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "crm", "engineering", "itsm", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
+    description: "Complete control over all business operations, financials, staff, and system governance.",
+    defaultPermissions: [
+      "dashboard", "crm", "quotations", "engineering", "projects", "procurement", 
+      "inventory", "vendors", "invoices", "accounts", "amc", "tickets", "pnb_assets", 
+      "clients", "hrms", "itsm", "documents", "customer_portal", "employee_portal", 
+      "workflow", "mis", "reports", "users", "settings"
+    ]
   },
   {
     role: "Resident IT Service Engineer",
     description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
-    defaultPermissions: ["dashboard", "engineering", "itsm", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
+    defaultPermissions: ["dashboard", "engineering", "projects", "itsm", "tickets", "pnb_assets", "inventory", "quotations", "documents", "employee_portal", "hrms"]
   },
   {
     role: "Accounts & GST Billing Officer",
     description: "Generates official tax invoices, manages AMC billing schedules, and oversees commercial collections.",
-    defaultPermissions: ["dashboard", "crm", "invoices", "quotations", "amc", "inventory", "hrms"]
+    defaultPermissions: ["dashboard", "crm", "quotations", "invoices", "accounts", "procurement", "vendors", "amc", "inventory", "documents", "workflow", "hrms"]
   },
   {
     role: "Solar Project Technical Lead",
-    description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
-    defaultPermissions: ["dashboard", "crm", "engineering", "solar", "quotations", "inventory", "tickets", "hrms"]
+    description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and EPC execution.",
+    defaultPermissions: ["dashboard", "crm", "engineering", "projects", "procurement", "inventory", "vendors", "quotations", "documents", "employee_portal", "tickets", "hrms"]
   },
   {
     role: "Store & Inventory Supervisor",
     description: "Maintains hardware buffer stocks, monitors reorder levels, and manages warehouse parts.",
-    defaultPermissions: ["dashboard", "inventory", "tickets", "pnb_assets"]
+    defaultPermissions: ["dashboard", "procurement", "inventory", "vendors", "tickets", "pnb_assets", "workflow", "employee_portal"]
   },
   {
     role: "Support Desk & Customer Coordinator",
     description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
-    defaultPermissions: ["dashboard", "crm", "engineering", "itsm", "tickets", "quotations", "amc"]
+    defaultPermissions: ["dashboard", "crm", "quotations", "engineering", "itsm", "tickets", "amc", "customer_portal", "documents"]
   }
 ];
 
@@ -1674,6 +1679,507 @@ export const INITIAL_TRANSACTIONS = [
   }
 ];
 
+export const INITIAL_ENTERPRISE_PROJECTS = [
+  {
+    id: "PRJ-2026-001",
+    title: "Cachar College 25 kWp Rooftop Solar EPC",
+    category: "Solar EPC",
+    client: "Cachar College, Silchar",
+    location: "Trunk Road, Silchar, Assam",
+    manager: "Animesh Das (Solar Tech Lead)",
+    capacityKw: 25,
+    budget: 1375000,
+    actualCost: 980000,
+    startDate: "2026-08-10",
+    targetDate: "2026-10-15",
+    status: "In Progress",
+    progress: 75,
+    milestones: [
+      { id: "M1", name: "Site Feasibility & Shadow Analysis", done: true, date: "2026-08-15" },
+      { id: "M2", name: "APDCL Net Metering Sanction & NOC", done: true, date: "2026-08-28" },
+      { id: "M3", name: "Module Mounting Structure & Civil Works", done: true, date: "2026-09-08" },
+      { id: "M4", name: "Solar PV Panels (Waaree 540W) Installation", done: true, date: "2026-09-14" },
+      { id: "M5", name: "Inverter Wiring & Earthing Pit Testing (<1.5Ω)", done: false, date: "2026-09-25" },
+      { id: "M6", name: "APDCL Bi-Directional Meter Sync & Commissioning", done: false, date: "2026-10-10" }
+    ],
+    boqSummary: "46x Waaree 540W Mono PERC, 1x Growatt 25kW Grid Inverter, GI Structure, 3x Chemical Earthing Pits",
+    apdclRef: "APDCL/CGM/RE/2026/SL-1049"
+  },
+  {
+    id: "PRJ-2026-002",
+    title: "Punjab National Bank 50-Branch RouterOS Network Upgrade",
+    category: "IT Infrastructure",
+    client: "Punjab National Bank - Silchar Circle",
+    location: "50 Branches across Cachar, Karimganj & Hailakandi",
+    manager: "Debashis Roy (Resident Engineer)",
+    capacityKw: 0,
+    budget: 485000,
+    actualCost: 312000,
+    startDate: "2026-08-01",
+    targetDate: "2026-09-30",
+    status: "In Progress",
+    progress: 82,
+    milestones: [
+      { id: "M1", name: "Circle Router & Firewall Firmware Hardening", done: true, date: "2026-08-05" },
+      { id: "M2", name: "Silchar Urban Branches (16 Nodes) Staging", done: true, date: "2026-08-20" },
+      { id: "M3", name: "Karimganj & Badarpur Cluster (18 Nodes)", done: true, date: "2026-09-05" },
+      { id: "M4", name: "Hailakandi & Rural Branches (16 Nodes)", done: false, date: "2026-09-22" },
+      { id: "M5", name: "Circle Central Bandwidth Failover Audit", done: false, date: "2026-09-28" }
+    ],
+    boqSummary: "50x MikroTik RB750Gr3, 100x Cat6 Patch Panels, D-Link Gigabit 24-Port Switches",
+    apdclRef: "PNB/SIL/NET/2026/088"
+  },
+  {
+    id: "PRJ-2026-003",
+    title: "Dholai Tea Estate 100 kWp Captive Solar Power Plant",
+    category: "Solar EPC",
+    client: "Barak Valley Tea Plantations Ltd",
+    location: "Dholai, Cachar, Assam",
+    manager: "Animesh Das (Solar Tech Lead)",
+    capacityKw: 100,
+    budget: 5200000,
+    actualCost: 2450000,
+    startDate: "2026-09-01",
+    targetDate: "2026-12-15",
+    status: "Engineering & Procurement",
+    progress: 35,
+    milestones: [
+      { id: "M1", name: "Topographical Survey & Soil Bearing Test", done: true, date: "2026-09-05" },
+      { id: "M2", name: "33kV / 11kV Grid Interconnection Study", done: true, date: "2026-09-12" },
+      { id: "M3", name: "Civil Foundation & Ramming Pile Erection", done: false, date: "2026-10-05" },
+      { id: "M4", name: "185x Bifacial 540W Modules Dispatch & Stringing", done: false, date: "2026-11-10" },
+      { id: "M5", name: "LT Panel, HT Breakers & SCADA Remote Telemetry", done: false, date: "2026-11-30" },
+      { id: "M6", name: "Chief Electrical Inspector (CEI) Clearance", done: false, date: "2026-12-10" }
+    ],
+    boqSummary: "185x Mono PERC Bifacial 540W, 2x 50kW Sungrow Inverters, Ground Mounting HDG Structure",
+    apdclRef: "APDCL/CEI/HT/2026/902"
+  },
+  {
+    id: "PRJ-2026-004",
+    title: "Assam University Computer Lab Hardware Refresh (40 Workstations)",
+    category: "IT Infrastructure",
+    client: "Assam University, Dargakona, Silchar",
+    location: "Dept of Computer Science, Dargakona",
+    manager: "Debashis Roy & Rahul Sen",
+    capacityKw: 0,
+    budget: 1840000,
+    actualCost: 1620000,
+    startDate: "2026-08-25",
+    targetDate: "2026-09-25",
+    status: "Testing & Handover",
+    progress: 95,
+    milestones: [
+      { id: "M1", name: "Workstation Procurement & Bench Testing", done: true, date: "2026-08-30" },
+      { id: "M2", name: "Structured Cat6 Cabling & Conduit Routing", done: true, date: "2026-09-06" },
+      { id: "M3", name: "10kVA Online UPS Installation & Battery Bank", done: true, date: "2026-09-10" },
+      { id: "M4", name: "Ubuntu / Windows Dual-boot OS Staging", done: true, date: "2026-09-15" },
+      { id: "M5", name: "HOD Acceptance Test & Asset Handover Sign-off", done: false, date: "2026-09-24" }
+    ],
+    boqSummary: "40x Core i5 12th Gen PCs, 40x 24-inch IPS Monitors, 1x 10kVA Online UPS, 2x 24-Port D-Link PoE Switches",
+    apdclRef: "AUS/COMP/LAB/2026/14"
+  }
+];
+
+export const INITIAL_PROCUREMENT_DATA = {
+  requisitions: [
+    {
+      id: "PR-2026-001",
+      date: "2026-09-10",
+      project: "Cachar College 25 kWp Rooftop Solar EPC",
+      requestedBy: "Animesh Das",
+      items: "Waaree 540W Mono PERC Bifacial Panels (Qty: 46), 6 sq mm DC Solar Cable (300m)",
+      estimatedValue: 585000,
+      urgency: "High",
+      status: "Approved",
+      poGenerated: "PO-2026-081"
+    },
+    {
+      id: "PR-2026-002",
+      date: "2026-09-12",
+      project: "PNB 50-Branch RouterOS Network Upgrade",
+      requestedBy: "Debashis Roy",
+      items: "MikroTik RB750Gr3 Gigabit Routers (Qty: 15), Cat6 RJ45 Connectors (2 Boxes)",
+      estimatedValue: 68000,
+      urgency: "Urgent",
+      status: "Approved",
+      poGenerated: "PO-2026-082"
+    },
+    {
+      id: "PR-2026-003",
+      date: "2026-09-16",
+      project: "Stock Buffer - Silchar Central Depot",
+      requestedBy: "Priyanka Paul",
+      items: "Frontech 450W SMPS (Qty: 20), Crucial 16GB DDR4 RAM (Qty: 15)",
+      estimatedValue: 51750,
+      urgency: "Normal",
+      status: "Pending Approval",
+      poGenerated: null
+    }
+  ],
+  rfqs: [
+    {
+      id: "RFQ-2026-011",
+      date: "2026-09-11",
+      itemDescription: "Waaree 540W Mono PERC Solar PV Panels (Tier-1) - Qty: 50",
+      vendors: [
+        { name: "Waaree Energies Direct Hub Guwahati", quotePrice: 12100, leadDays: 4, isL1: true },
+        { name: "Eastern Solar Traders Kolkata", quotePrice: 12450, leadDays: 7, isL1: false },
+        { name: "SunTech Solar Dist. Guwahati", quotePrice: 12300, leadDays: 5, isL1: false }
+      ],
+      selectedVendor: "Waaree Energies Direct Hub Guwahati",
+      status: "Finalized"
+    },
+    {
+      id: "RFQ-2026-012",
+      date: "2026-09-13",
+      itemDescription: "MikroTik RB750Gr3 Enterprise Gigabit Routers - Qty: 15",
+      vendors: [
+        { name: "D-Link / MikroTik Direct Importer Kolkata", quotePrice: 4100, leadDays: 3, isL1: true },
+        { name: "TechZone IT Wholesale Silchar", quotePrice: 4350, leadDays: 1, isL1: false }
+      ],
+      selectedVendor: "D-Link / MikroTik Direct Importer Kolkata",
+      status: "Finalized"
+    }
+  ],
+  purchaseOrders: [
+    {
+      id: "PO-2026-081",
+      date: "2026-09-12",
+      vendor: "Waaree Energies Limited (Guwahati Regional Depot)",
+      vendorGstin: "18AABBW1234D1Z5",
+      items: [
+        { desc: "Waaree 540W Mono PERC Bifacial Solar Modules", qty: 46, rate: 12100, gstRate: 12, total: 623312 }
+      ],
+      subtotal: 556600,
+      gstAmount: 66712,
+      grandTotal: 623312,
+      deliveryLocation: "Silchar Central Depot / Site Cachar College",
+      paymentTerms: "50% Advance with PO, 50% Against Dispatch LR Copy",
+      status: "Dispatched",
+      grnRef: "GRN-2026-042"
+    },
+    {
+      id: "PO-2026-082",
+      date: "2026-09-13",
+      vendor: "D-Link / MikroTik Regional Wholesale Hub",
+      vendorGstin: "18AABCD5678E1Z2",
+      items: [
+        { desc: "MikroTik RB750Gr3 5-Port Gigabit RouterOS Nodes", qty: 15, rate: 4100, gstRate: 18, total: 72570 }
+      ],
+      subtotal: 61500,
+      gstAmount: 11070,
+      grandTotal: 72570,
+      deliveryLocation: "Silchar Central Depot, West Kachudharam",
+      paymentTerms: "Net 15 Days after GRN Verification",
+      status: "Delivered & Inspected",
+      grnRef: "GRN-2026-041"
+    },
+    {
+      id: "PO-2026-083",
+      date: "2026-09-15",
+      vendor: "Schneider Electric / APC Enterprise Sales",
+      vendorGstin: "18AAACS4455Q1Z3",
+      items: [
+        { desc: "APC Smart-UPS 10kVA Online 3-Phase In / 1-Phase Out", qty: 1, rate: 145000, gstRate: 18, total: 171100 }
+      ],
+      subtotal: 145000,
+      gstAmount: 26100,
+      grandTotal: 171100,
+      deliveryLocation: "Assam University Dargakona Lab Site",
+      paymentTerms: "100% Against Bank Proforma Invoice",
+      status: "Approved",
+      grnRef: null
+    }
+  ],
+  grns: [
+    {
+      id: "GRN-2026-041",
+      poId: "PO-2026-082",
+      receiptDate: "2026-09-16",
+      vendor: "D-Link / MikroTik Regional Wholesale Hub",
+      receivedQty: 15,
+      acceptedQty: 15,
+      rejectedQty: 0,
+      qcInspector: "Debashis Roy (Hardware Tech)",
+      qcRemarks: "All 15 units serial verified, booted RouterOS v7.14 OK.",
+      warehouseLocation: "Central Depot Silchar, Shelf C-2",
+      status: "Verified & Stock Added"
+    },
+    {
+      id: "GRN-2026-042",
+      poId: "PO-2026-081",
+      receiptDate: "2026-09-17",
+      vendor: "Waaree Energies Limited",
+      receivedQty: 46,
+      acceptedQty: 46,
+      rejectedQty: 0,
+      qcInspector: "Animesh Das (Solar Tech)",
+      qcRemarks: "All 46 pallets inspected, no micro-cracks, flash test reports attached.",
+      warehouseLocation: "Site Buffer Store, Cachar College",
+      status: "Verified & Stock Added"
+    }
+  ]
+};
+
+export const INITIAL_VENDORS_DATA = [
+  {
+    id: "VND-001",
+    name: "Waaree Energies Limited",
+    category: "Solar PV Modules & Cells",
+    contactPerson: "Mr. Subrata Sen (Guwahati Hub Manager)",
+    phone: "+91 94351 22334",
+    email: "subrata.sen@waaree.com",
+    address: "Borusojai, NH-37 Bypass, Guwahati - 781034, Assam",
+    gstin: "18AABBW1234D1Z5",
+    pan: "AABBW1234D",
+    bankName: "State Bank of India - Guwahati Commercial Branch",
+    accountNo: "38920194820",
+    ifsc: "SBIN0000078",
+    rating: 4.9,
+    creditDays: 15,
+    totalPurchases: 2450000,
+    outstandingDue: 0,
+    isGemRegistered: true
+  },
+  {
+    id: "VND-002",
+    name: "Growatt New Energy Tech India",
+    category: "Solar Inverters & Energy Storage",
+    contactPerson: "National Institutional Support",
+    phone: "+91 91234 56789",
+    email: "service.in@growatt.com",
+    address: "Eastern India Logistics Hub, Kolkata - 700091",
+    gstin: "27AABCG9988H1Z1",
+    pan: "AABCG9988H",
+    bankName: "HDFC Bank - Salt Lake Kolkata",
+    accountNo: "50200029384910",
+    ifsc: "HDFC0000128",
+    rating: 4.8,
+    creditDays: 0,
+    totalPurchases: 890000,
+    outstandingDue: 0,
+    isGemRegistered: true
+  },
+  {
+    id: "VND-003",
+    name: "D-Link India Regional Distribution",
+    category: "Enterprise Networking & Structured Cabling",
+    contactPerson: "Mr. Rajesh Sarma",
+    phone: "+91 98640 11223",
+    email: "rajesh.sarma@dlink-dist.in",
+    address: "G.S. Road, Christian Basti, Guwahati - 781005",
+    gstin: "18AABCD5678E1Z2",
+    pan: "AABCD5678E",
+    bankName: "Axis Bank - G.S. Road Guwahati",
+    accountNo: "919020038491029",
+    ifsc: "UTIB0000140",
+    rating: 4.7,
+    creditDays: 30,
+    totalPurchases: 430000,
+    outstandingDue: 72570,
+    isGemRegistered: false
+  },
+  {
+    id: "VND-004",
+    name: "HP India Sales Private Limited",
+    category: "Banking Desktops, Laptops & Passbook Printers",
+    contactPerson: "Institutional Sales & GeM Desk",
+    phone: "1800-258-7170",
+    email: "gem.support@hp.com",
+    address: "DLF Cyber City, Tower C, Gurgaon / Guwahati Depo",
+    gstin: "18AAACH1001P1Z9",
+    pan: "AAACH1001P",
+    bankName: "Citibank N.A. - Corporate Banking",
+    accountNo: "00192847291",
+    ifsc: "CITI0000002",
+    rating: 4.9,
+    creditDays: 45,
+    totalPurchases: 1850000,
+    outstandingDue: 0,
+    isGemRegistered: true
+  },
+  {
+    id: "VND-005",
+    name: "Schneider Electric / APC India",
+    category: "Online UPS & Power Backup",
+    contactPerson: "Eastern Channel Sales",
+    phone: "1800-419-4272",
+    email: "apc.customercare@se.com",
+    address: "Ecospace Business Park, New Town, Kolkata",
+    gstin: "18AAACS4455Q1Z3",
+    pan: "AAACS4455Q",
+    bankName: "Standard Chartered Bank - Kolkata",
+    accountNo: "22019482019",
+    ifsc: "SCBL0036001",
+    rating: 4.8,
+    creditDays: 30,
+    totalPurchases: 560000,
+    outstandingDue: 171100,
+    isGemRegistered: true
+  },
+  {
+    id: "VND-006",
+    name: "Barak Solar Fabrication & Structural Works",
+    category: "Solar Mounting Structures & Civil Foundations",
+    contactPerson: "Mr. S. K. Paul",
+    phone: "+91 94350 88776",
+    email: "barak.fabricators@gmail.com",
+    address: "Meherpur Main Road, Silchar - 788015, Assam",
+    gstin: "18AANFP3321R1Z8",
+    pan: "AANFP3321R",
+    bankName: "Punjab National Bank - Meherpur Silchar",
+    accountNo: "0849002100039482",
+    ifsc: "PUNB0084900",
+    rating: 4.5,
+    creditDays: 15,
+    totalPurchases: 320000,
+    outstandingDue: 35000,
+    isGemRegistered: false
+  }
+];
+
+export const INITIAL_DOCUMENTS_DATA = [
+  {
+    id: "DOC-2026-001",
+    title: "APDCL Net Metering Feasibility & Technical Sanction Letter",
+    category: "Solar Statutory Approvals",
+    refNumber: "APDCL/CGM/RE/2026/SL-1049",
+    clientOrProject: "Cachar College 25 kWp Rooftop Solar",
+    issueDate: "2026-08-28",
+    expiryDate: "2027-08-27",
+    fileType: "PDF Document",
+    fileSize: "2.4 MB",
+    uploadedBy: "Animesh Das",
+    tags: ["APDCL", "Net Metering", "Bi-Directional Meter", "NOC"],
+    notes: "Approved for 25 kWp LT grid interconnection at 415V 3-Phase. Inspection clearance granted."
+  },
+  {
+    id: "DOC-2026-002",
+    title: "Waaree 540W Mono PERC Flash Test & Electroluminescence (EL) Report",
+    category: "Solar Compliance & OEM Test Reports",
+    refNumber: "TUV-RHEINLAND-PV-2025-883",
+    clientOrProject: "Cachar College & General Stock",
+    issueDate: "2026-07-15",
+    expiryDate: "2036-07-15",
+    fileType: "PDF Certificate",
+    fileSize: "4.8 MB",
+    uploadedBy: "Animesh Das",
+    tags: ["Waaree", "Flash Test", "BIS", "IEC 61215", "TUV"],
+    notes: "Verified zero micro-cracks, average wattage 542.4W per module, efficiency 21.3%."
+  },
+  {
+    id: "DOC-2026-003",
+    title: "Silchar Sub-Divisional Chemical Earthing Pit Resistance Test Sheet",
+    category: "Electrical Safety & Inspection",
+    refNumber: "EAR-TEST-SIL-2026-09",
+    clientOrProject: "Cachar College Silchar Site",
+    issueDate: "2026-09-14",
+    expiryDate: "2027-09-14",
+    fileType: "Digital Inspection Sheet",
+    fileSize: "1.1 MB",
+    uploadedBy: "Debashis Roy",
+    tags: ["Earthing", "Megger", "Ohmic Value", "IS 3043"],
+    notes: "Pit #1: 1.18Ω, Pit #2: 1.24Ω, Pit #3 (Inverter Neutral): 0.92Ω. Complies with IS:3043 (<2.0Ω)."
+  },
+  {
+    id: "DOC-2026-004",
+    title: "Punjab National Bank Silchar Circle Annual Maintenance Contract SLA",
+    category: "Bank Contracts & SLAs",
+    refNumber: "PNB/SIL/IT-AMC/2023-26",
+    clientOrProject: "PNB 50-Branch Circle Office & Matrix",
+    issueDate: "2023-10-01",
+    expiryDate: "2026-09-30",
+    fileType: "Signed Contract PDF",
+    fileSize: "6.2 MB",
+    uploadedBy: "Tamal (Proprietor)",
+    tags: ["PNB", "Banking AMC", "SLA 2-4 Hr", "Penalty Clauses"],
+    notes: "Full circle coverage across 50 branches for 543 hardware endpoints. Quarterly billing cycle."
+  },
+  {
+    id: "DOC-2026-005",
+    title: "Growatt 25kW Grid-Tied Inverter 5-Year Standard Warranty Card",
+    category: "OEM Warranties",
+    refNumber: "GW-WARR-2026-IN-4491",
+    clientOrProject: "Cachar College 25 kWp Solar",
+    issueDate: "2026-09-01",
+    expiryDate: "2031-09-01",
+    fileType: "OEM Warranty Certificate",
+    fileSize: "1.5 MB",
+    uploadedBy: "Animesh Das",
+    tags: ["Growatt", "Warranty", "5-Year", "RMA Replacement"],
+    notes: "Valid for on-site replacement via authorized Growatt service hub in Kolkata/Guwahati."
+  },
+  {
+    id: "DOC-2026-006",
+    title: "Assam Govt Electrical Contractor Class-I License & Supervisor Permit",
+    category: "Statutory Licenses",
+    refNumber: "AS-PWD-ELEC-CL1-9982",
+    clientOrProject: "M/S COMPUTER PLANET Statutory",
+    issueDate: "2024-07-01",
+    expiryDate: "2027-06-30",
+    fileType: "Government Gazette Scan",
+    fileSize: "3.1 MB",
+    uploadedBy: "Tamal (Proprietor)",
+    tags: ["License", "PWD Assam", "Electrical", "Govt Approval"],
+    notes: "Empowered for HT/LT electrical installations, substations, and solar transmission lines up to 33kV."
+  }
+];
+
+export const INITIAL_WORKFLOW_APPROVALS = [
+  {
+    id: "WF-APP-001",
+    type: "Purchase Order",
+    refId: "PO-2026-081",
+    title: "PO to Waaree Energies for 46 Solar Modules",
+    amount: 623312,
+    requestedBy: "Animesh Das (Solar Tech)",
+    requestDate: "2026-09-12",
+    approver: "Tamal (Proprietor)",
+    status: "Approved",
+    approvalDate: "2026-09-12",
+    comments: "Critical project milestone. Approved for advance RTGS release."
+  },
+  {
+    id: "WF-APP-002",
+    type: "Commercial Discount",
+    refId: "QTN-2026-042",
+    title: "Educational Institution 5% Discount for Cachar College",
+    amount: 68750,
+    requestedBy: "Priyanka Paul (Accounts)",
+    requestDate: "2026-08-20",
+    approver: "Tamal (Proprietor)",
+    status: "Approved",
+    approvalDate: "2026-08-21",
+    comments: "Approved under PM Surya Ghar institutional promotion."
+  },
+  {
+    id: "WF-APP-003",
+    type: "Field Travel Expense Claim",
+    refId: "EXP-2026-089",
+    title: "Urgent PNB Karimganj & Badarpur Hardware Breakdown Travel",
+    amount: 2450,
+    requestedBy: "Debashis Roy (Engineer)",
+    requestDate: "2026-09-16",
+    approver: "Tamal (Proprietor)",
+    status: "Pending",
+    approvalDate: null,
+    comments: "Replaced 2 SMPS units and tested WAN link. Travel receipts attached."
+  },
+  {
+    id: "WF-APP-004",
+    type: "Project Handover Sign-Off",
+    refId: "PRJ-2026-004",
+    title: "Assam University 40-Workstation Lab Acceptance & Handover",
+    amount: 1840000,
+    requestedBy: "Debashis Roy (Engineer)",
+    requestDate: "2026-09-17",
+    approver: "Tamal (Proprietor)",
+    status: "Pending",
+    approvalDate: null,
+    comments: "All 40 PCs operational, Ubuntu/Win dual-boot tested. Joint inspection pending."
+  }
+];
+
 export function getAuditLogs() {
   return loadErpData("audit_logs", INITIAL_AUDIT_LOGS);
 }
@@ -1718,6 +2224,11 @@ export function exportAllErpData() {
     engineeringDesigns: loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS),
     itsmData: loadErpData("itsm_data", INITIAL_ITSM_DATA),
     solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
+    enterpriseProjects: loadErpData("enterprise_projects", INITIAL_ENTERPRISE_PROJECTS),
+    procurementData: loadErpData("procurement_data", INITIAL_PROCUREMENT_DATA),
+    vendorsData: loadErpData("vendors_data", INITIAL_VENDORS_DATA),
+    documentsData: loadErpData("documents_data", INITIAL_DOCUMENTS_DATA),
+    workflowApprovals: loadErpData("workflow_approvals", INITIAL_WORKFLOW_APPROVALS),
     pnbAssets: loadErpData("pnb_assets", null),
     auditLogs: loadErpData("audit_logs", INITIAL_AUDIT_LOGS)
   };
@@ -1747,6 +2258,11 @@ export function importAllErpData(jsonString) {
     if (data.engineeringDesigns && Array.isArray(data.engineeringDesigns)) saveErpData("engineering_designs", data.engineeringDesigns);
     if (data.itsmData && typeof data.itsmData === 'object') saveErpData("itsm_data", data.itsmData);
     if (data.solarProjects && Array.isArray(data.solarProjects)) saveErpData("solar_projects", data.solarProjects);
+    if (data.enterpriseProjects && Array.isArray(data.enterpriseProjects)) saveErpData("enterprise_projects", data.enterpriseProjects);
+    if (data.procurementData && typeof data.procurementData === 'object') saveErpData("procurement_data", data.procurementData);
+    if (data.vendorsData && Array.isArray(data.vendorsData)) saveErpData("vendors_data", data.vendorsData);
+    if (data.documentsData && Array.isArray(data.documentsData)) saveErpData("documents_data", data.documentsData);
+    if (data.workflowApprovals && Array.isArray(data.workflowApprovals)) saveErpData("workflow_approvals", data.workflowApprovals);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     if (data.auditLogs && Array.isArray(data.auditLogs)) saveErpData("audit_logs", data.auditLogs);
     

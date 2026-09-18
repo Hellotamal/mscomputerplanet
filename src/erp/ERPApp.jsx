@@ -17,6 +17,11 @@ import {
   INITIAL_LEADS,
   INITIAL_ENGINEERING_DESIGNS,
   INITIAL_ITSM_DATA,
+  INITIAL_ENTERPRISE_PROJECTS,
+  INITIAL_PROCUREMENT_DATA,
+  INITIAL_VENDORS_DATA,
+  INITIAL_DOCUMENTS_DATA,
+  INITIAL_WORKFLOW_APPROVALS,
   exportAllErpData,
   importAllErpData,
   setErpPin,
@@ -43,6 +48,14 @@ import HRMSModule from './HRMSModule';
 import ClientsModule from './ClientsModule';
 import ReportsModule from './ReportsModule';
 import AccountsModule from './AccountsModule';
+import ProjectsModule from './ProjectsModule';
+import ProcurementModule from './ProcurementModule';
+import VendorsModule from './VendorsModule';
+import DocumentModule from './DocumentModule';
+import CustomerPortalModule from './CustomerPortalModule';
+import EmployeePortalModule from './EmployeePortalModule';
+import WorkflowModule from './WorkflowModule';
+import MISModule from './MISModule';
 import ERPLogin from './ERPLogin';
 import { PNB_SUMMARY_METRICS } from '../data/pnbAssetData';
 import { 
@@ -74,10 +87,14 @@ import {
   MapPin,
   Calendar,
   FileSpreadsheet,
-  ShoppingBag,
   Target,
   Calculator,
-  Server
+  Server,
+  Truck,
+  ShoppingCart,
+  FolderOpen,
+  CheckSquare,
+  TrendingUp
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -150,6 +167,11 @@ export default function ERPApp({ onExit }) {
   const [leads, setLeads] = useState(() => loadErpData("leads", INITIAL_LEADS));
   const [engineeringDesigns, setEngineeringDesigns] = useState(() => loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
   const [itsmData, setItsmData] = useState(() => loadErpData("itsm_data", INITIAL_ITSM_DATA));
+  const [enterpriseProjects, setEnterpriseProjects] = useState(() => loadErpData("enterprise_projects", INITIAL_ENTERPRISE_PROJECTS));
+  const [procurementData, setProcurementData] = useState(() => loadErpData("procurement_data", INITIAL_PROCUREMENT_DATA));
+  const [vendorsData, setVendorsData] = useState(() => loadErpData("vendors_data", INITIAL_VENDORS_DATA));
+  const [documentsData, setDocumentsData] = useState(() => loadErpData("documents_data", INITIAL_DOCUMENTS_DATA));
+  const [workflowApprovals, setWorkflowApprovals] = useState(() => loadErpData("workflow_approvals", INITIAL_WORKFLOW_APPROVALS));
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
@@ -167,6 +189,11 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("leads", leads); }, [leads]);
   useEffect(() => { saveErpData("engineering_designs", engineeringDesigns); }, [engineeringDesigns]);
   useEffect(() => { saveErpData("itsm_data", itsmData); }, [itsmData]);
+  useEffect(() => { saveErpData("enterprise_projects", enterpriseProjects); }, [enterpriseProjects]);
+  useEffect(() => { saveErpData("procurement_data", procurementData); }, [procurementData]);
+  useEffect(() => { saveErpData("vendors_data", vendorsData); }, [vendorsData]);
+  useEffect(() => { saveErpData("documents_data", documentsData); }, [documentsData]);
+  useEffect(() => { saveErpData("workflow_approvals", workflowApprovals); }, [workflowApprovals]);
 
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
@@ -219,6 +246,11 @@ export default function ERPApp({ onExit }) {
         setLeads(loadErpData("leads", INITIAL_LEADS));
         setEngineeringDesigns(loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
         setItsmData(loadErpData("itsm_data", INITIAL_ITSM_DATA));
+        setEnterpriseProjects(loadErpData("enterprise_projects", INITIAL_ENTERPRISE_PROJECTS));
+        setProcurementData(loadErpData("procurement_data", INITIAL_PROCUREMENT_DATA));
+        setVendorsData(loadErpData("vendors_data", INITIAL_VENDORS_DATA));
+        setDocumentsData(loadErpData("documents_data", INITIAL_DOCUMENTS_DATA));
+        setWorkflowApprovals(loadErpData("workflow_approvals", INITIAL_WORKFLOW_APPROVALS));
         alert("ERP Data successfully restored from backup!");
       } else {
         alert("Invalid backup file format or security policy violation.");
@@ -275,29 +307,39 @@ export default function ERPApp({ onExit }) {
   // Left Sidebar Menu & Submenu Navigation Hierarchy
   const navSections = [
     {
-      title: "Core Overview",
+      title: "Core & Intelligence",
       items: [
-        { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard }
-      ]
-    },
-    {
-      title: "1. CRM & Sales",
-      items: [
+        { id: 'dashboard', name: 'Executive Overview', icon: LayoutDashboard },
+        { id: 'mis', name: '16. MIS & Intelligence', icon: TrendingUp, badge: 'Executive', badgeColor: 'bg-indigo-600 text-white' },
         { 
-          id: 'crm', 
-          name: 'CRM & Sales Funnel', 
-          icon: Target, 
-          badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
-          badgeColor: 'bg-violet-500 text-white' 
+          id: 'workflow', 
+          name: '15. Workflow & Approvals', 
+          icon: CheckSquare, 
+          badge: workflowApprovals.filter(a => a.status === 'Pending').length > 0 ? workflowApprovals.filter(a => a.status === 'Pending').length : null, 
+          badgeColor: 'bg-amber-500 text-slate-950' 
         }
       ]
     },
     {
-      title: "2. Engineering & Pre-Sales",
+      title: "Commercial & Pre-Sales",
       items: [
         { 
+          id: 'crm', 
+          name: '1. CRM & Leads', 
+          icon: Target, 
+          badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
+          badgeColor: 'bg-violet-500 text-white' 
+        },
+        { 
+          id: 'quotations', 
+          name: '2. Sales & Quotations', 
+          icon: ClipboardList, 
+          badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, 
+          badgeColor: 'bg-blue-500 text-white' 
+        },
+        { 
           id: 'engineering', 
-          name: 'Solar Sizing & BOQ', 
+          name: '3. Engineering & Solar', 
           icon: Calculator, 
           badge: engineeringDesigns.length, 
           badgeColor: 'bg-teal-500 text-slate-950' 
@@ -305,23 +347,46 @@ export default function ERPApp({ onExit }) {
       ]
     },
     {
-      title: "11. IT Support & ITSM",
+      title: "Operations & Supply-Chain",
       items: [
         { 
-          id: 'itsm', 
-          name: 'IT Support / ITSM', 
-          icon: Server, 
-          badge: '11 Tools', 
+          id: 'projects', 
+          name: '4. Projects & EPC Execution', 
+          icon: Briefcase, 
+          badge: enterpriseProjects.length, 
+          badgeColor: 'bg-emerald-500 text-slate-950' 
+        },
+        { 
+          id: 'procurement', 
+          name: '5. Procurement & POs', 
+          icon: ShoppingCart, 
+          badge: procurementData?.purchaseOrders?.length || null, 
           badgeColor: 'bg-blue-600 text-white' 
+        },
+        { 
+          id: 'inventory', 
+          name: '6. Inventory & Warehouses', 
+          icon: Package, 
+          badge: inventory.length 
+        },
+        { 
+          id: 'vendors', 
+          name: '7. Master Vendor Directory', 
+          icon: Truck, 
+          badge: (vendorsData || []).length 
         }
       ]
     },
     {
-      title: "Clients & Managed Assets",
+      title: "Financials & After-Sales",
       items: [
+        { id: 'invoices', name: '8. Finance & Invoicing', icon: FileText },
+        { id: 'accounts', name: 'Accounts & Ledger', icon: IndianRupee, badge: transactions.length, badgeColor: 'bg-teal-500 text-slate-950' },
+        { id: 'tickets', name: '9. AMC Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null, badgeColor: 'bg-rose-500 text-white' },
+        { id: 'amc', name: 'AMC Contracts', icon: Building2 },
         { 
           id: 'clients', 
-          name: 'Clients & Assets', 
+          name: '10. Asset Management', 
           icon: Landmark, 
           badge: clients.length, 
           badgeColor: 'bg-emerald-500 text-slate-950',
@@ -331,39 +396,39 @@ export default function ERPApp({ onExit }) {
           subItems: [
             { id: 'all_clients', name: 'All Enrolled Clients', icon: Layers, badge: clients.length, isCurrent: activeTab === 'clients' && clientSubCategory === 'All', onSelect: () => { setActiveTab('clients'); setClientSubCategory('All'); } },
             { id: 'amc_clients', name: 'Banking & AMC', icon: Landmark, badge: clients.filter(c => c.category === 'AMC').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'AMC', onSelect: () => { setActiveTab('clients'); setClientSubCategory('AMC'); } },
-            { id: 'sales_clients', name: 'Hardware Sales', icon: ShoppingBag, badge: clients.filter(c => c.category === 'Sales').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Sales', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Sales'); } },
-            { id: 'solar_clients', name: 'Solar EPC Clients', icon: SunMedium, badge: clients.filter(c => c.category === 'Solar').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Solar', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Solar'); } },
-            { id: 'service_clients', name: 'Service & Repairs', icon: Wrench, badge: clients.filter(c => c.category === 'Service').length, isCurrent: activeTab === 'clients' && clientSubCategory === 'Service', onSelect: () => { setActiveTab('clients'); setClientSubCategory('Service'); } },
             { id: 'pnb_branch_matrix', name: 'PNB 50-Branch Matrix', icon: Building2, badge: '543', badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'pnb_assets', onSelect: () => { setActiveTab('pnb_assets'); } }
           ]
-        },
-        { id: 'tickets', name: 'Service Tickets', icon: Wrench, badge: openTicketsCount > 0 ? openTicketsCount : null, badgeColor: 'bg-rose-500 text-white' },
-        { id: 'amc', name: 'AMC Contracts', icon: Building2 },
-        { id: 'inventory', name: 'Inventory & Spares', icon: Package },
-        { id: 'solar', name: 'Solar Projects', icon: SunMedium }
+        }
       ]
     },
     {
-      title: "Commercial & Accounts",
-      items: [
-        { id: 'quotations', name: 'Quotations', icon: ClipboardList, badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, badgeColor: 'bg-blue-500 text-white' },
-        { id: 'invoices', name: 'GST Invoices', icon: FileText },
-        { id: 'accounts', name: 'Accounts & Finance', icon: IndianRupee, badge: transactions.length, badgeColor: 'bg-teal-500 text-slate-950' }
-      ]
-    },
-    {
-      title: "Audit & Downloads",
-      items: [
-        { id: 'reports', name: 'Reports Centre', icon: FileSpreadsheet, badge: 'Audit', badgeColor: 'bg-indigo-500 text-white' }
-      ]
-    },
-    {
-      title: "Human Resources (HRMS)",
+      title: "IT Support & Digital Vault",
       items: [
         { 
+          id: 'itsm', 
+          name: '12. IT Support / ITSM', 
+          icon: Server, 
+          badge: '11 Tools', 
+          badgeColor: 'bg-blue-600 text-white' 
+        },
+        { 
+          id: 'documents', 
+          name: '13. DMS Compliance Vault', 
+          icon: FolderOpen, 
+          badge: (documentsData || []).length, 
+          badgeColor: 'bg-indigo-500 text-white' 
+        }
+      ]
+    },
+    {
+      title: "Portals & Workforce",
+      items: [
+        { id: 'customer_portal', name: '14a. Customer Portal Desk', icon: ShieldCheck },
+        { id: 'employee_portal', name: '14b. Employee Staff Desk', icon: UserCheck },
+        { 
           id: 'hrms', 
-          name: 'Staff HRMS', 
-          icon: Briefcase, 
+          name: '11. Staff HRMS & Payroll', 
+          icon: Users, 
           badge: employees.length, 
           badgeColor: 'bg-emerald-500 text-slate-950',
           hasSubmenu: true,
@@ -376,18 +441,19 @@ export default function ERPApp({ onExit }) {
             { id: 'leaves', name: 'Leave Requests', icon: Calendar, badge: pendingLeavesCount > 0 ? pendingLeavesCount : null, badgeColor: 'bg-amber-500 text-slate-950', isCurrent: activeTab === 'hrms' && hrmsSubTab === 'leaves', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('leaves'); } },
             { id: 'payroll', name: 'Payroll & Slips', icon: IndianRupee, isCurrent: activeTab === 'hrms' && hrmsSubTab === 'payroll', onSelect: () => { setActiveTab('hrms'); setHrmsSubTab('payroll'); } }
           ]
-        },
-        ...(isAdmin ? [
-          { id: 'users', name: 'Staff & Roles', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' }
-        ] : [])
+        }
       ]
     },
-    ...(isAdmin ? [{
-      title: "Administration",
+    {
+      title: "Governance & Reports",
       items: [
-        { id: 'settings', name: 'Data & Settings', icon: Settings }
+        { id: 'reports', name: 'Reports & Export Centre', icon: FileSpreadsheet },
+        ...(isAdmin ? [
+          { id: 'users', name: '17. Staff & Roles RBAC', icon: ShieldCheck, badge: users.length, badgeColor: 'bg-indigo-500 text-white' },
+          { id: 'settings', name: 'Data & Settings', icon: Settings }
+        ] : [])
       ]
-    }] : [])
+    }
   ];
 
   return (
@@ -1086,6 +1152,77 @@ export default function ERPApp({ onExit }) {
           />
         )}
         {activeTab === 'solar' && <SolarProjectsModule solarProjects={solarProjects} setSolarProjects={setSolarProjects} />}
+        {activeTab === 'projects' && (
+          <ProjectsModule 
+            enterpriseProjects={enterpriseProjects} 
+            setEnterpriseProjects={setEnterpriseProjects} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'procurement' && (
+          <ProcurementModule 
+            procurementData={procurementData} 
+            setProcurementData={setProcurementData} 
+            inventory={inventory} 
+            setInventory={setInventory} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'vendors' && (
+          <VendorsModule 
+            vendorsData={vendorsData} 
+            setVendorsData={setVendorsData} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'documents' && (
+          <DocumentModule 
+            documentsData={documentsData} 
+            setDocumentsData={setDocumentsData} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'customer_portal' && (
+          <CustomerPortalModule 
+            clients={clients} 
+            tickets={tickets} 
+            setTickets={setTickets} 
+            amcContracts={amcContracts} 
+            invoices={invoices} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'employee_portal' && (
+          <EmployeePortalModule 
+            employees={employees} 
+            leaves={leaves} 
+            setLeaves={setLeaves} 
+            payroll={payroll} 
+            tickets={tickets} 
+            setTickets={setTickets} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'workflow' && (
+          <WorkflowModule 
+            workflowApprovals={workflowApprovals} 
+            setWorkflowApprovals={setWorkflowApprovals} 
+            currentUser={currentUser} 
+          />
+        )}
+        {activeTab === 'mis' && (
+          <MISModule 
+            invoices={invoices} 
+            transactions={transactions} 
+            solarProjects={solarProjects} 
+            enterpriseProjects={enterpriseProjects} 
+            tickets={tickets} 
+            amcContracts={amcContracts} 
+            inventory={inventory} 
+            employees={employees} 
+            currentUser={currentUser} 
+          />
+        )}
         {activeTab === 'accounts' && (
           <AccountsModule 
             transactions={transactions} 
