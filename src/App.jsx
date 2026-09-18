@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import TrustBar from './components/TrustBar';
@@ -9,17 +9,19 @@ import ProductsCatalog from './components/ProductsCatalog';
 import ClienteleTrack from './components/ClienteleTrack';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
-import QuoteModal from './components/QuoteModal';
 import FloatingActions from './components/FloatingActions';
 import OmnisPartnership from './components/OmnisPartnership';
 import LocalSEOSection from './components/LocalSEOSection';
 import FounderProfile from './components/FounderProfile';
 import GalleryHallOfFame from './components/GalleryHallOfFame';
 import B2BMarketplaceHub from './components/B2BMarketplaceHub';
-import SocialShareModal from './components/SocialShareModal';
-import SupportTicketModal from './components/SupportTicketModal';
-import ERPApp from './erp/ERPApp';
 import SecurityShield from './components/SecurityShield';
+
+// Code-split heavy interactive modals & enterprise ERP suite for ultra-fast mobile loading
+const ERPApp = lazy(() => import('./erp/ERPApp'));
+const QuoteModal = lazy(() => import('./components/QuoteModal'));
+const SupportTicketModal = lazy(() => import('./components/SupportTicketModal'));
+const SocialShareModal = lazy(() => import('./components/SocialShareModal'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -117,10 +119,15 @@ export default function App() {
   // If in ERP mode, render full-featured business ERP Workspace
   if (isErpMode) {
     return (
-      <>
+      <Suspense fallback={
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4">
+          <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-xs font-bold tracking-widest uppercase text-slate-300">Loading Enterprise ERP Suite...</p>
+        </div>
+      }>
         <SecurityShield />
         <ERPApp onExit={handleExitERP} />
-      </>
+      </Suspense>
     );
   }
 
@@ -158,24 +165,28 @@ export default function App() {
       {/* Footer */}
       <Footer onOpenERP={handleOpenERP} />
 
-      {/* Quote & Estimate Modal */}
-      <QuoteModal
-        isOpen={quoteModalOpen}
-        onClose={handleCloseQuote}
-        initialData={quoteInitialData}
-      />
-
-      {/* Customer Support & AMC Breakdown Ticket Modal */}
-      <SupportTicketModal
-        isOpen={supportModalOpen}
-        onClose={handleCloseSupportTicket}
-      />
-
-      {/* Omnichannel Social Share & Referral Modal */}
-      <SocialShareModal
-        isOpen={shareModalOpen}
-        onClose={handleCloseShare}
-      />
+      {/* Lazy-loaded Interactive Modals */}
+      <Suspense fallback={null}>
+        {quoteModalOpen && (
+          <QuoteModal
+            isOpen={quoteModalOpen}
+            onClose={handleCloseQuote}
+            initialData={quoteInitialData}
+          />
+        )}
+        {supportModalOpen && (
+          <SupportTicketModal
+            isOpen={supportModalOpen}
+            onClose={handleCloseSupportTicket}
+          />
+        )}
+        {shareModalOpen && (
+          <SocialShareModal
+            isOpen={shareModalOpen}
+            onClose={handleCloseShare}
+          />
+        )}
+      </Suspense>
 
       {/* Floating & Sticky Action Bars */}
       <FloatingActions 
