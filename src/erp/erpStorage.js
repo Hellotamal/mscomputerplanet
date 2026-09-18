@@ -390,16 +390,130 @@ export const INITIAL_LEADS = [
   }
 ];
 
+export const INITIAL_ENGINEERING_DESIGNS = [
+  {
+    id: "ENG-2026-001",
+    clientName: "Green Valley Tea Estate Hospital",
+    projectTitle: "12 kWp On-Grid Solar Rooftop with APDCL Net Metering",
+    systemType: "On-Grid Net Metering",
+    category: "Solar Rooftop EPC",
+    city: "Dwarbond, Cachar",
+    leadId: "LEAD-2026-001",
+    status: "Approved",
+    monthlyBill: 9800,
+    monthlyKwh: 1250,
+    roofAreaSqFt: 1400,
+    roofType: "RCC Flat Roof",
+    recommendedKw: 12.0,
+    requiredAreaSqFt: 1200,
+    dailyUnitsGen: 48,
+    monthlySavings: 9600,
+    annualSavings: 115200,
+    subsidyEligible: 0,
+    estimatedCost: 648000,
+    netClientCost: 648000,
+    paybackYears: 4.2,
+    co2OffsetTonnes25Yr: 310,
+    boqItems: [
+      { item: "550W Waaree Mono PERC Bifacial Solar Modules", qty: 22, unit: "Nos", rate: 14200, amount: 312400 },
+      { item: "Growatt 12kW 3-Phase On-Grid Solar Inverter (WiFi/IP65)", qty: 1, unit: "Set", rate: 88000, amount: 88000 },
+      { item: "High-Rise HDG Hot Dip Galvanized Structure (150 km/h wind rated)", qty: 1, unit: "Lot", rate: 72000, amount: 72000 },
+      { item: "DC Distribution Box (1000V DC SPD, 32A DC Fuses, IP66)", qty: 2, unit: "Sets", rate: 8500, amount: 17000 },
+      { item: "AC Distribution Box (32A 4-Pole MCB, Class-B Type 2 SPD)", qty: 1, unit: "Set", rate: 9500, amount: 9500 },
+      { item: "Solar DC Cable 4 sq mm TUV Certified Copper (Polycab)", qty: 180, unit: "Mtr", rate: 58, amount: 10440 },
+      { item: "AC Armoured Cable 4C x 10 sq mm Copper", qty: 45, unit: "Mtr", rate: 290, amount: 13050 },
+      { item: "Chemical Earthing Pits with Copper Bonded Electrodes (3 Pits)", qty: 3, unit: "Sets", rate: 6800, amount: 20400 },
+      { item: "ESE Early Streamer Lightning Arrester with 10m GI Mast", qty: 1, unit: "Set", rate: 16500, amount: 16500 },
+      { item: "APDCL Bi-Directional Net Metering Approvals & Liaisoning", qty: 1, unit: "Job", rate: 28000, amount: 28000 },
+      { item: "Installation, Civil Foundation, String Testing & Commissioning", qty: 1, unit: "Lot", rate: 60710, amount: 60710 }
+    ],
+    engineer: "Animesh Das (Solar Technical Lead)",
+    createdDate: "2026-09-13",
+    notes: "Site survey confirmed zero south shadow. 22 modules arranged in 2 strings of 11 modules each."
+  },
+  {
+    id: "ENG-2026-002",
+    clientName: "Roy & Singha Associates Chartered Accountants",
+    projectTitle: "4 kWp Hybrid Solar System with Lithium Battery",
+    systemType: "Hybrid with Battery",
+    category: "Solar Rooftop EPC",
+    city: "Hailakandi",
+    leadId: "LEAD-2026-003",
+    status: "Approved",
+    monthlyBill: 4600,
+    monthlyKwh: 580,
+    roofAreaSqFt: 550,
+    roofType: "Tin Shed Structure",
+    recommendedKw: 4.0,
+    requiredAreaSqFt: 400,
+    dailyUnitsGen: 16.5,
+    monthlySavings: 3960,
+    annualSavings: 47520,
+    subsidyEligible: 78000,
+    estimatedCost: 285000,
+    netClientCost: 207000,
+    paybackYears: 3.8,
+    co2OffsetTonnes25Yr: 105,
+    boqItems: [
+      { item: "540W Tata Power Solar Mono PERC Modules", qty: 8, unit: "Nos", rate: 13800, amount: 110400 },
+      { item: "Livguard / Microtek 5kVA Hybrid Solar Inverter (MPPT 48V)", qty: 1, unit: "Set", rate: 46000, amount: 46000 },
+      { item: "48V 100Ah LiFePO4 Lithium Battery with BMS (5 kWh Storage)", qty: 1, unit: "Unit", rate: 72000, amount: 72000 },
+      { item: "Aluminium Tin Shed Rail Mounting Clamps & EPDM Washers", qty: 1, unit: "Set", rate: 14500, amount: 14500 },
+      { item: "ACDB & DCDB Protection Enclosure", qty: 1, unit: "Set", rate: 9500, amount: 9500 },
+      { item: "Solar Cable 4 sq mm + AC Connection Kit", qty: 60, unit: "Mtr", rate: 65, amount: 3900 },
+      { item: "Dual Chemical Earthing Pit Kit & Lightening Spike", qty: 2, unit: "Sets", rate: 6500, amount: 13000 },
+      { item: "PM Surya Ghar National Portal Subsidy Registration & EPC", qty: 1, unit: "Job", rate: 15700, amount: 15700 }
+    ],
+    engineer: "Animesh Das (Solar Technical Lead)",
+    createdDate: "2026-09-16",
+    notes: "Residential rooftop qualifying for maximum ₹78,000 central DBT subsidy under PM Surya Ghar."
+  },
+  {
+    id: "ENG-2026-003",
+    clientName: "Assam Gramin Vikash Bank (Regional Office)",
+    projectTitle: "Barak Valley 28-Branch IT Infrastructure Refresh BOQ",
+    systemType: "IT Network & Hardware",
+    category: "Banking IT AMC",
+    city: "Silchar",
+    leadId: "LEAD-2026-002",
+    status: "Under Review",
+    monthlyBill: 0,
+    monthlyKwh: 0,
+    roofAreaSqFt: 0,
+    roofType: "N/A - IT Rack",
+    recommendedKw: 0,
+    requiredAreaSqFt: 0,
+    dailyUnitsGen: 0,
+    monthlySavings: 0,
+    annualSavings: 0,
+    subsidyEligible: 0,
+    estimatedCost: 385000,
+    netClientCost: 385000,
+    paybackYears: 0,
+    co2OffsetTonnes25Yr: 0,
+    boqItems: [
+      { item: "HP ProDesk 400 G7 SFF Desktop (Core i5 10th Gen, 16GB RAM, 512GB NVMe, Win 11 Pro)", qty: 6, unit: "Units", rate: 42500, amount: 255000 },
+      { item: "HP LaserJet Pro M404dn Heavy Duty Banking Laser Printer", qty: 2, unit: "Units", rate: 26500, amount: 53000 },
+      { item: "D-Link 24-Port Gigabit Layer-2 Managed Rackmount Switch (DGS-1210)", qty: 2, unit: "Units", rate: 11500, amount: 23000 },
+      { item: "APC Smart-UPS 3kVA Online UPS with Extended External Battery Pack", qty: 1, unit: "Set", rate: 42000, amount: 42000 },
+      { item: "Cat6 FTP Copper Cabling, 9U Wall Mount Server Rack & Termination", qty: 1, unit: "Lot", rate: 12000, amount: 12000 }
+    ],
+    engineer: "Debashis Roy (IT Lead)",
+    createdDate: "2026-09-17",
+    notes: "Hardware upgrades for Regional Office clearing and CBS transaction terminals."
+  }
+];
+
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
     description: "Complete control over all business operations, financials, staff, and system settings.",
-    defaultPermissions: ["dashboard", "crm", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
+    defaultPermissions: ["dashboard", "crm", "engineering", "clients", "pnb_assets", "tickets", "amc", "inventory", "invoices", "quotations", "solar", "users", "hrms", "settings"]
   },
   {
     role: "Resident IT Service Engineer",
     description: "Resolves banking hardware breakdowns, checks branch assets, and tracks spare parts.",
-    defaultPermissions: ["dashboard", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
+    defaultPermissions: ["dashboard", "engineering", "tickets", "pnb_assets", "inventory", "quotations", "hrms"]
   },
   {
     role: "Accounts & GST Billing Officer",
@@ -409,7 +523,7 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Solar Project Technical Lead",
     description: "Coordinates rooftop & commercial solar installations, feasibility surveys, and inverter health.",
-    defaultPermissions: ["dashboard", "crm", "solar", "quotations", "inventory", "tickets", "hrms"]
+    defaultPermissions: ["dashboard", "crm", "engineering", "solar", "quotations", "inventory", "tickets", "hrms"]
   },
   {
     role: "Store & Inventory Supervisor",
@@ -419,7 +533,7 @@ export const ROLE_DEFINITIONS = [
   {
     role: "Support Desk & Customer Coordinator",
     description: "Logs incoming client requests, creates job tickets, and tracks resolution SLAs.",
-    defaultPermissions: ["dashboard", "crm", "tickets", "quotations", "amc"]
+    defaultPermissions: ["dashboard", "crm", "engineering", "tickets", "quotations", "amc"]
   }
 ];
 
@@ -1542,6 +1656,7 @@ export function exportAllErpData() {
     inventory: loadErpData("inventory", INITIAL_INVENTORY),
     invoices: loadErpData("invoices", INITIAL_INVOICES),
     quotations: loadErpData("quotations", INITIAL_QUOTATIONS),
+    engineeringDesigns: loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS),
     solarProjects: loadErpData("solar_projects", INITIAL_SOLAR_PROJECTS),
     pnbAssets: loadErpData("pnb_assets", null),
     auditLogs: loadErpData("audit_logs", INITIAL_AUDIT_LOGS)
@@ -1569,6 +1684,7 @@ export function importAllErpData(jsonString) {
     if (data.inventory && Array.isArray(data.inventory)) saveErpData("inventory", data.inventory);
     if (data.invoices && Array.isArray(data.invoices)) saveErpData("invoices", data.invoices);
     if (data.quotations && Array.isArray(data.quotations)) saveErpData("quotations", data.quotations);
+    if (data.engineeringDesigns && Array.isArray(data.engineeringDesigns)) saveErpData("engineering_designs", data.engineeringDesigns);
     if (data.solarProjects && Array.isArray(data.solarProjects)) saveErpData("solar_projects", data.solarProjects);
     if (data.pnbAssets) saveErpData("pnb_assets", data.pnbAssets);
     if (data.auditLogs && Array.isArray(data.auditLogs)) saveErpData("audit_logs", data.auditLogs);

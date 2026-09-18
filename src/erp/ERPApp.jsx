@@ -15,6 +15,7 @@ import {
   INITIAL_CLIENTS,
   INITIAL_TRANSACTIONS,
   INITIAL_LEADS,
+  INITIAL_ENGINEERING_DESIGNS,
   exportAllErpData,
   importAllErpData,
   setErpPin,
@@ -27,6 +28,7 @@ import {
   terminateSecureSession 
 } from './erpSecurity';
 import CRMModule from './CRMModule';
+import EngineeringModule from './EngineeringModule';
 import TicketsModule from './TicketsModule';
 import AMCModule from './AMCModule';
 import InventoryModule from './InventoryModule';
@@ -71,7 +73,8 @@ import {
   Calendar,
   FileSpreadsheet,
   ShoppingBag,
-  Target
+  Target,
+  Calculator
 } from 'lucide-react';
 
 export default function ERPApp({ onExit }) {
@@ -142,6 +145,7 @@ export default function ERPApp({ onExit }) {
   const [clients, setClients] = useState(() => loadErpData("clients", INITIAL_CLIENTS));
   const [transactions, setTransactions] = useState(() => loadErpData("transactions", INITIAL_TRANSACTIONS));
   const [leads, setLeads] = useState(() => loadErpData("leads", INITIAL_LEADS));
+  const [engineeringDesigns, setEngineeringDesigns] = useState(() => loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
 
   // Sync to local storage on state change
   useEffect(() => { saveErpData("users", users); }, [users]);
@@ -157,6 +161,7 @@ export default function ERPApp({ onExit }) {
   useEffect(() => { saveErpData("clients", clients); }, [clients]);
   useEffect(() => { saveErpData("transactions", transactions); }, [transactions]);
   useEffect(() => { saveErpData("leads", leads); }, [leads]);
+  useEffect(() => { saveErpData("engineering_designs", engineeringDesigns); }, [engineeringDesigns]);
 
   // Settings State
   const [newPinInput, setNewPinInput] = useState('');
@@ -207,6 +212,7 @@ export default function ERPApp({ onExit }) {
         setClients(loadErpData("clients", INITIAL_CLIENTS));
         setTransactions(loadErpData("transactions", INITIAL_TRANSACTIONS));
         setLeads(loadErpData("leads", INITIAL_LEADS));
+        setEngineeringDesigns(loadErpData("engineering_designs", INITIAL_ENGINEERING_DESIGNS));
         alert("ERP Data successfully restored from backup!");
       } else {
         alert("Invalid backup file format or security policy violation.");
@@ -269,7 +275,7 @@ export default function ERPApp({ onExit }) {
       ]
     },
     {
-      title: "1. CRM & Commercial",
+      title: "1. CRM & Sales",
       items: [
         { 
           id: 'crm', 
@@ -277,6 +283,18 @@ export default function ERPApp({ onExit }) {
           icon: Target, 
           badge: activeLeadsCount > 0 ? activeLeadsCount : null, 
           badgeColor: 'bg-violet-500 text-white' 
+        }
+      ]
+    },
+    {
+      title: "2. Engineering & Pre-Sales",
+      items: [
+        { 
+          id: 'engineering', 
+          name: 'Solar Sizing & BOQ', 
+          icon: Calculator, 
+          badge: engineeringDesigns.length, 
+          badgeColor: 'bg-teal-500 text-slate-950' 
         }
       ]
     },
@@ -734,6 +752,15 @@ export default function ERPApp({ onExit }) {
                     <span>CRM Funnel ({activeLeadsCount})</span>
                   </button>
                 )}
+                {hasTabPermission('engineering') && (
+                  <button
+                    onClick={() => setActiveTab('engineering')}
+                    className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Calculator className="w-4 h-4 text-teal-200" />
+                    <span>Solar BOQ ({engineeringDesigns.length})</span>
+                  </button>
+                )}
                 {hasTabPermission('clients') && (
                   <button
                     onClick={() => setActiveTab('clients')}
@@ -986,6 +1013,17 @@ export default function ERPApp({ onExit }) {
             clients={clients} 
             setClients={setClients} 
             currentUser={currentUser} 
+          />
+        )}
+
+        {activeTab === 'engineering' && (
+          <EngineeringModule 
+            engineeringDesigns={engineeringDesigns}
+            setEngineeringDesigns={setEngineeringDesigns}
+            quotations={quotations}
+            setQuotations={setQuotations}
+            setActiveTab={setActiveTab}
+            currentUser={currentUser}
           />
         )}
 
