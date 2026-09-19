@@ -132,12 +132,12 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
           </a>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 shrink-0">
+          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1 2xl:gap-1.5 shrink-0">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="whitespace-nowrap text-xs xl:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 px-2 xl:px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+                className="whitespace-nowrap text-[11px] xl:text-xs 2xl:text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 px-1.5 xl:px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
               >
                 {link.name}
               </a>
