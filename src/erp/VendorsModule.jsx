@@ -13,7 +13,9 @@ import {
   Printer,
   X,
   CreditCard,
-  Lock
+  Lock,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 
 export default function VendorsModule({
@@ -26,6 +28,7 @@ export default function VendorsModule({
   const [search, setSearch] = useState('');
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingVendor, setEditingVendor] = useState(null);
   const [printRtgs, setPrintRtgs] = useState(null);
 
   const [newVendor, setNewVendor] = useState({
@@ -106,6 +109,48 @@ export default function VendorsModule({
       creditDays: 15,
       isGemRegistered: false
     });
+  };
+
+  const handleUpdateVendor = (e) => {
+    e.preventDefault();
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can edit supplier details.');
+      return;
+    }
+    if (!editingVendor || !editingVendor.name || !editingVendor.contactPerson) {
+      alert('Please fill in supplier name and contact person.');
+      return;
+    }
+
+    const updated = {
+      ...editingVendor,
+      rating: Number(editingVendor.rating) || 4.5,
+      creditDays: Number(editingVendor.creditDays) || 15
+    };
+
+    const updatedList = (vendorsData || []).map(v => 
+      v.id === editingVendor.id ? updated : v
+    );
+
+    setVendorsData(updatedList);
+    setEditingVendor(null);
+    if (selectedVendor && selectedVendor.id === editingVendor.id) {
+      setSelectedVendor(updated);
+    }
+  };
+
+  const handleDeleteVendor = (vendorId, vendorName) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can remove vendors.');
+      return;
+    }
+    if (window.confirm(`Are you sure you want to remove vendor "${vendorName}" (${vendorId})? This action cannot be undone.`)) {
+      const updatedList = (vendorsData || []).filter(v => v.id !== vendorId);
+      setVendorsData(updatedList);
+      if (selectedVendor && selectedVendor.id === vendorId) {
+        setSelectedVendor(null);
+      }
+    }
   };
 
   return (
@@ -291,14 +336,36 @@ export default function VendorsModule({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <button
-                onClick={() => setPrintRtgs(vendor)}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>RTGS Mandate</span>
-              </button>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPrintRtgs(vendor)}
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                  title="Generate RTGS Mandate"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>RTGS</span>
+                </button>
+
+                {isAdmin && (
+                  <>
+                    <button
+                      onClick={() => setEditingVendor({ ...vendor })}
+                      className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                      title="Edit Vendor Details"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteVendor(vendor.id, vendor.name)}
+                      className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                      title="Remove Vendor"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+              </div>
 
               <button
                 onClick={() => setSelectedVendor(vendor)}
@@ -354,20 +421,48 @@ export default function VendorsModule({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                <button
-                  onClick={() => {
-                    setPrintRtgs(selectedVendor);
-                    setSelectedVendor(null);
-                  }}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center gap-2"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>Print RTGS Mandate Slip</span>
-                </button>
+              <div className="flex items-center justify-between gap-2 pt-4 border-t border-slate-200 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setPrintRtgs(selectedVendor);
+                      setSelectedVendor(null);
+                    }}
+                    className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs flex items-center gap-1.5"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Print RTGS Mandate</span>
+                  </button>
+
+                  {isAdmin && (
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditingVendor({ ...selectedVendor });
+                          setSelectedVendor(null);
+                        }}
+                        className="px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit Vendor</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handleDeleteVendor(selectedVendor.id, selectedVendor.name);
+                        }}
+                        className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold text-xs flex items-center gap-1.5 transition"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+
                 <button
                   onClick={() => setSelectedVendor(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs"
                 >
                   Close
                 </button>
@@ -519,6 +614,194 @@ export default function VendorsModule({
                 >
                   Save Supplier
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Vendor Modal */}
+      {editingVendor && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 flex items-center justify-center p-4 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl">
+            <div className="p-5 bg-indigo-950 text-white flex items-center justify-between">
+              <h3 className="font-bold text-base flex items-center gap-2">
+                <Pencil className="w-5 h-5 text-amber-400" />
+                <span>Edit Supplier / Vendor Details ({editingVendor.id})</span>
+              </h3>
+              <button onClick={() => setEditingVendor(null)} className="text-slate-300 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateVendor} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Company / Vendor Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={editingVendor.name || ''}
+                  onChange={(e) => setEditingVendor({ ...editingVendor, name: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Supply Category</label>
+                  <select
+                    value={editingVendor.category || categories[1]}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, category: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-semibold"
+                  >
+                    {categories.filter(c => c !== 'All').map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Contact Person *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingVendor.contactPerson || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, contactPerson: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Contact Phone</label>
+                  <input
+                    type="text"
+                    value={editingVendor.phone || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, phone: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={editingVendor.email || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, email: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Office / Warehouse Address</label>
+                <input
+                  type="text"
+                  value={editingVendor.address || ''}
+                  onChange={(e) => setEditingVendor({ ...editingVendor, address: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">GSTIN Number</label>
+                  <input
+                    type="text"
+                    value={editingVendor.gstin || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, gstin: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">PAN Number</label>
+                  <input
+                    type="text"
+                    value={editingVendor.pan || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, pan: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Bank Name</label>
+                  <input
+                    type="text"
+                    value={editingVendor.bankName || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, bankName: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Account Number</label>
+                  <input
+                    type="text"
+                    value={editingVendor.accountNo || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, accountNo: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">IFSC Code</label>
+                  <input
+                    type="text"
+                    value={editingVendor.ifsc || ''}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, ifsc: e.target.value })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Credit Days</label>
+                  <input
+                    type="number"
+                    value={editingVendor.creditDays || 15}
+                    onChange={(e) => setEditingVendor({ ...editingVendor, creditDays: Number(e.target.value) })}
+                    className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-indigo-500 font-mono"
+                  />
+                </div>
+                <div className="flex items-center pt-5">
+                  <label className="inline-flex items-center gap-2 font-bold text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingVendor.isGemRegistered || false}
+                      onChange={(e) => setEditingVendor({ ...editingVendor, isGemRegistered: e.target.checked })}
+                      className="w-4 h-4 text-indigo-600 rounded"
+                    />
+                    <span>GeM Verified Supplier</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
+                <button
+                  type="button"
+                  onClick={() => handleDeleteVendor(editingVendor.id, editingVendor.name)}
+                  className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Remove Supplier</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingVendor(null)}
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow-md shadow-indigo-600/20 flex items-center gap-1.5"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
