@@ -43,7 +43,6 @@ function SupportTicketDialog({ onClose }) {
     category: 'Passbook Printer Jam / Printing Issue',
     hardwareMake: 'Epson PLQ-20 / PLQ-30 Passbook Printer',
     serialNumber: '',
-    priority: 'Critical Breakdown (2 to 4-Hour SLA)',
     description: ''
   });
 
@@ -101,12 +100,6 @@ function SupportTicketDialog({ onClose }) {
     'Emergency Resident Engineer On-Site Visit'
   ];
 
-  const priorities = [
-    'Critical Breakdown (2 to 4-Hour SLA)',
-    'High Priority (Same-Day Resolution)',
-    'Standard Maintenance Call (24-Hour SLA)'
-  ];
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -132,8 +125,8 @@ function SupportTicketDialog({ onClose }) {
         type: formData.category,
         hardwareMake: formData.hardwareMake.trim(),
         serialNumber: formData.serialNumber.trim(),
-        priority: formData.priority.split(' ')[0] || 'High',
-        prioritySla: formData.priority,
+        priority: 'Pending Assignment',
+        prioritySla: 'To Be Defined by ERP Admin',
         assignedTo: 'Resident Engineer - Auto Assigned (Silchar Circle)',
         status: 'Open',
         reportedDate: new Date().toISOString().split('T')[0],
@@ -173,7 +166,7 @@ function SupportTicketDialog({ onClose }) {
       `⚙️ *Complaint Category:* ${formData.category}\n` +
       `🖥️ *Hardware Make & Model:* ${formData.hardwareMake}\n` +
       `🔢 *Serial Number (S/N):* ${formData.serialNumber}\n` +
-      `⚡ *Priority SLA:* ${formData.priority}\n\n` +
+      `⚡ *Priority SLA:* Defined in ERP by Admin Upon Verification\n\n` +
       `📝 *Breakdown Symptoms / Issue:*\n` +
       `${formData.description || 'Hardware malfunction reported. Urgent engineer inspection required.'}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -247,10 +240,10 @@ function SupportTicketDialog({ onClose }) {
             </div>
 
             {/* SLA Notice */}
-            <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-left max-w-md mx-auto flex items-start gap-2.5">
-              <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-              <div className="text-xs text-amber-800 dark:text-amber-300">
-                <strong>Assigned SLA:</strong> {formData.priority}. Our resident engineer will arrive on-site with standby buffer spares or contact your designated officer shortly.
+            <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-left max-w-md mx-auto flex items-start gap-2.5">
+              <Clock className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <div className="text-xs text-emerald-900 dark:text-emerald-200">
+                <strong>SLA Priority Assignment:</strong> Ticket registered successfully. Official SLA level will be assigned in ERP by M/S Computer Planet administration upon verification.
               </div>
             </div>
 
