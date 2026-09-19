@@ -53,6 +53,16 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2887274841506101"
      crossorigin="anonymous"></script>
 
+    <!-- Google Analytics GA4 (Add your Measurement ID from analytics.google.com) -->
+    <!-- Replace G-XXXXXXXXXX with your actual GA4 Measurement ID to activate -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', { 'anonymize_ip': true });
+    </script> -->
+
     <!-- Anti-flicker Day/Night Theme Script -->
     <script>
       (function() {
@@ -84,7 +94,6 @@
           "url": "https://www.mscomputerplanet.com",
           "telephone": "+918638083712",
           "email": "computerplanetpkd@gmail.com",
-          "priceRange": "₹₹",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "West Kachudharam, Chincoorie",
@@ -136,12 +145,17 @@
             "image": "https://www.mscomputerplanet.com/amio-sinha-founder.jpg",
             "description": "Founder and Managing Director with 10+ years of multi-domain leadership in IT infrastructure, enterprise hardware, and renewable solar energy across Assam and Barak Valley."
           },
-          "openingHoursSpecification": {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            "opens": "09:00",
-            "closes": "20:00"
-          },
+          "openingHoursSpecification": [
+            {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+              "opens": "09:00",
+              "closes": "20:00"
+            }
+          ],
+          "priceRange": "₹₹",
+          "paymentAccepted": "Cash, UPI, Bank Transfer, Cheque",
+          "currenciesAccepted": "INR",
           "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": "4.9",

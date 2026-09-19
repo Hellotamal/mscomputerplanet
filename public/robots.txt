@@ -1,8 +1,10 @@
 # Standard Search Engines Allowed
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /ads.txt
 
-# Block Aggressive Scrapers & Content Harvesters
+# Block Aggressive AI Scrapers & Content Harvesters
 User-agent: GPTBot
 Disallow: /
 
@@ -17,6 +19,14 @@ Disallow: /
 
 User-agent: anthropic-ai
 Disallow: /
+
+# Google AdSense crawler must be allowed
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google AdsBot must be allowed (important for AdSense)
+User-agent: AdsBot-Google
+Allow: /
 
 Sitemap: https://www.mscomputerplanet.com/sitemap.xml
 
