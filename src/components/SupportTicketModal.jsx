@@ -8,10 +8,12 @@ import {
   Check, 
   Clock, 
   Building2,
-  Cpu
+  Cpu,
+  ShieldCheck
 } from 'lucide-react';
 import { loadErpData, saveErpData, recordAuditLog, INITIAL_TICKETS } from '../erp/erpStorage';
 import { generateEntityId } from '../erp/erpSecurity';
+import { PNB_BRANCHES_DATA } from '../data/pnbBranchesData';
 
 export default function SupportTicketModal({ isOpen, onClose }) {
   if (!isOpen) return null;
@@ -24,20 +26,66 @@ function SupportTicketDialog({ onClose }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Top-level complaint mode: 'new' = New Service Complaint Case; 'amc' = AMC Support Complaint Case
+  const [complaintMode, setComplaintMode] = useState('amc');
+  const [selectedPnbSolId, setSelectedPnbSolId] = useState('047220');
+
+  const defaultPnbBranch = PNB_BRANCHES_DATA.find(b => b.solId === '047220') || PNB_BRANCHES_DATA[0];
+
   const [formData, setFormData] = useState({
-    clientName: '',
-    clientCode: '',
-    address: '',
+    clientName: `Punjab National Bank - ${defaultPnbBranch.name}`,
+    clientCode: `PNB-SOL-${defaultPnbBranch.solId}`,
+    address: defaultPnbBranch.address,
     contactPerson: '',
     designation: 'Branch Manager',
     phone: '',
     email: '',
     category: 'Passbook Printer Jam / Printing Issue',
-    hardwareMake: '',
+    hardwareMake: 'Epson PLQ-20 / PLQ-30 Passbook Printer',
     serialNumber: '',
     priority: 'Critical Breakdown (2 to 4-Hour SLA)',
     description: ''
   });
+
+  const handlePnbBranchSelect = (solId) => {
+    setSelectedPnbSolId(solId);
+    const branch = PNB_BRANCHES_DATA.find(b => b.solId === solId);
+    if (branch) {
+      setFormData(prev => ({
+        ...prev,
+        clientName: `Punjab National Bank - ${branch.name}`,
+        clientCode: `PNB-SOL-${branch.solId}`,
+        address: branch.address,
+        designation: 'Branch Manager',
+        hardwareMake: prev.hardwareMake || 'Epson PLQ-20/PLQ-30 Passbook Printer',
+      }));
+    }
+  };
+
+  const handleModeChange = (mode) => {
+    setComplaintMode(mode);
+    if (mode === 'amc') {
+      const branch = PNB_BRANCHES_DATA.find(b => b.solId === selectedPnbSolId) || defaultPnbBranch;
+      setSelectedPnbSolId(branch.solId);
+      setFormData(prev => ({
+        ...prev,
+        clientName: `Punjab National Bank - ${branch.name}`,
+        clientCode: `PNB-SOL-${branch.solId}`,
+        address: branch.address,
+        designation: 'Branch Manager',
+        hardwareMake: prev.hardwareMake || 'Epson PLQ-20/PLQ-30 Passbook Printer',
+      }));
+    } else {
+      setSelectedPnbSolId('');
+      setFormData(prev => ({
+        ...prev,
+        clientName: '',
+        clientCode: 'NEW-SERVICE-CALL',
+        address: '',
+        designation: 'Authorized Staff',
+      }));
+    }
+  };
 
   const categories = [
     'Passbook Printer Jam / Printing Issue',
@@ -72,6 +120,8 @@ function SupportTicketDialog({ onClose }) {
       const existingTickets = loadErpData('tickets', INITIAL_TICKETS);
       const newTicket = {
         id: ticketId,
+        caseCategory: complaintMode === 'amc' ? '2. AMC Support Complaint Case' : '1. New Service Complaint Case',
+        pnbSolId: selectedPnbSolId || null,
         clientName: formData.clientName.trim(),
         clientCode: formData.clientCode.trim() || 'UNREGISTERED-CLIENT',
         address: formData.address.trim() || 'Silchar, Assam',
@@ -236,12 +286,123 @@ function SupportTicketDialog({ onClose }) {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              {/* Step 0: Case Category Selector */}
+              <div className="p-3 bg-slate-100 dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700">
+                <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Select Complaint Case Category</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleModeChange('new')}
+                    className={`p-3 rounded-xl border text-left font-bold text-xs transition flex items-center gap-2.5 ${
+                      complaintMode === 'new'
+                        ? 'bg-sky-600 text-white border-sky-500 shadow-md ring-2 ring-sky-400/40'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-sky-400'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${complaintMode === 'new' ? 'border-white bg-white' : 'border-slate-400'}`}>
+                      {complaintMode === 'new' && <div className="w-2 h-2 rounded-full bg-sky-600" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold">1. New Service Complaint Case</div>
+                      <div className="text-[10px] font-normal opacity-85">Open / Commercial / Non-AMC Call</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleModeChange('amc')}
+                    className={`p-3 rounded-xl border text-left font-bold text-xs transition flex items-center gap-2.5 ${
+                      complaintMode === 'amc'
+                        ? 'bg-emerald-600 text-white border-emerald-500 shadow-md ring-2 ring-emerald-400/40'
+                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-emerald-400'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${complaintMode === 'amc' ? 'border-white bg-white' : 'border-slate-400'}`}>
+                      {complaintMode === 'amc' && <div className="w-2 h-2 rounded-full bg-emerald-600" />}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold">2. AMC Support Complaint Case</div>
+                      <div className="text-[10px] font-normal opacity-85">Contracted PNB & Enterprise AMC Clients</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Client & Authorized Contact Information */}
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 uppercase text-[10px] tracking-wider text-emerald-600 dark:text-emerald-400">
-                  <Building2 className="w-3.5 h-3.5" />
-                  <span>1. Client & Branch Identification</span>
+                <div className="font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between uppercase text-[10px] tracking-wider text-emerald-600 dark:text-emerald-400">
+                  <div className="flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span>1. Client & Branch Identification</span>
+                  </div>
+                  {complaintMode === 'amc' && (
+                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold text-[10px]">
+                      Pre-default AMC Accounts Active
+                    </span>
+                  )}
                 </div>
+
+                {/* Pre-default PNB Branch Selection Dropdown for AMC Mode */}
+                {complaintMode === 'amc' && (
+                  <div className="p-3 bg-emerald-50/80 dark:bg-emerald-950/40 rounded-xl border border-emerald-300 dark:border-emerald-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-emerald-900 dark:text-emerald-300 text-xs flex items-center gap-1.5">
+                        <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Pre-default PNB Customer Branch (Silchar Circle — 50 Locations)</span>
+                      </label>
+                      <span className="text-[10px] font-mono bg-emerald-200 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded font-bold">
+                        50 Branches Pre-loaded
+                      </span>
+                    </div>
+
+                    <select
+                      value={selectedPnbSolId}
+                      onChange={(e) => handlePnbBranchSelect(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-400 dark:border-emerald-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    >
+                      <option value="">-- Select Pre-default PNB Branch --</option>
+                      {PNB_BRANCHES_DATA.map((b) => (
+                        <option key={`${b.solId}-${b.name}`} value={b.solId}>
+                          [{b.solId}] Punjab National Bank - {b.name} ({b.be})
+                        </option>
+                      ))}
+                    </select>
+
+                    {(() => {
+                      const selectedPnbBranch = PNB_BRANCHES_DATA.find(b => b.solId === selectedPnbSolId);
+                      if (!selectedPnbBranch) return null;
+                      return (
+                        <div className="p-2.5 bg-white dark:bg-slate-900 rounded-lg text-[11px] text-slate-700 dark:text-slate-300 space-y-1.5 border border-emerald-200 dark:border-emerald-800">
+                          <div className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center justify-between">
+                            <span>PNB Asset Registry ({selectedPnbBranch.name})</span>
+                            <span className="font-mono text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">SOL ID: {selectedPnbBranch.solId}</span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5 font-mono text-[10px]">
+                            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded text-center">
+                              <span className="text-slate-400 block text-[9px] uppercase">Total Assets</span>
+                              <span className="font-bold text-emerald-600">{selectedPnbBranch.totalAssets} Units</span>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded text-center">
+                              <span className="text-slate-400 block text-[9px] uppercase">Desktops</span>
+                              <span className="font-bold">{selectedPnbBranch.desktop}</span>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded text-center">
+                              <span className="text-slate-400 block text-[9px] uppercase">Passbook</span>
+                              <span className="font-bold">{selectedPnbBranch.passbook}</span>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-800 p-1.5 rounded text-center">
+                              <span className="text-slate-400 block text-[9px] uppercase">Printers/Scanners</span>
+                              <span className="font-bold">{selectedPnbBranch.laserjet + selectedPnbBranch.cashPrinter + selectedPnbBranch.highspeedScanner}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
