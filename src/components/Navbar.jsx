@@ -33,6 +33,7 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
     { name: 'Products', href: '#products' },
     { name: 'Clientele', href: '#clientele' },
     { name: 'B2B Hub', href: '#b2b-platforms' },
+    { name: 'Blog', href: '#blog' },
     { name: 'Hall of Fame', href: '#gallery' },
     { name: '100 KM Area', href: '#service-area' },
     { name: 'Contact', href: '#contact' },

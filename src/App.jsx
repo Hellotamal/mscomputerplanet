@@ -23,6 +23,8 @@ const QuoteModal = lazy(() => import('./components/QuoteModal'));
 const SupportTicketModal = lazy(() => import('./components/SupportTicketModal'));
 const SocialShareModal = lazy(() => import('./components/SocialShareModal'));
 const LegalModal = lazy(() => import('./components/LegalModal'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -33,6 +35,12 @@ export default function App() {
   const [legalActiveTab, setLegalActiveTab] = useState('privacy');
   const [isErpMode, setIsErpMode] = useState(() => {
     return window.location.hash === '#erp';
+  });
+  const [blogPage, setBlogPage] = useState(() => {
+    const h = window.location.hash;
+    if (h.startsWith('#blog/')) return { type: 'post', slug: h.slice(6) };
+    if (h === '#blog') return { type: 'listing' };
+    return null;
   });
 
   const [theme, setTheme] = useState(() => {
@@ -59,8 +67,18 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#erp') {
+      const h = window.location.hash;
+      if (h === '#erp') {
         setIsErpMode(true);
+        setBlogPage(null);
+      } else if (h === '#blog') {
+        setBlogPage({ type: 'listing' });
+        setIsErpMode(false);
+      } else if (h.startsWith('#blog/')) {
+        setBlogPage({ type: 'post', slug: h.slice(6) });
+        setIsErpMode(false);
+      } else {
+        setBlogPage(null);
       }
     };
 
@@ -139,6 +157,35 @@ export default function App() {
       }>
         <SecurityShield />
         <ERPApp onExit={handleExitERP} />
+      </Suspense>
+    );
+  }
+
+  // Blog pages (lazy-loaded, code-split)
+  if (blogPage) {
+    const blogFallback = (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+    return (
+      <Suspense fallback={blogFallback}>
+        {blogPage.type === 'listing' ? (
+          <Blog
+            onNavigateToPost={(slug) => {
+              window.location.hash = `blog/${slug}`;
+              setBlogPage({ type: 'post', slug });
+            }}
+          />
+        ) : (
+          <BlogPost
+            slug={blogPage.slug}
+            onNavigateBack={() => {
+              window.location.hash = 'blog';
+              setBlogPage({ type: 'listing' });
+            }}
+          />
+        )}
       </Suspense>
     );
   }
