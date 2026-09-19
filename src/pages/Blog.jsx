@@ -22,7 +22,9 @@ export default function Blog({ onNavigateToPost }) {
         window.adsbygoogle.push({});
         window.adsbygoogle.push({});
       }
-    } catch (_) {}
+    } catch {
+      // AdSense script fallback
+    }
   }, []);
 
   return (

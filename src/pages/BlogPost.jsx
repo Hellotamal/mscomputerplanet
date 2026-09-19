@@ -16,7 +16,9 @@ export default function BlogPost({ slug, onNavigateBack }) {
       ads.forEach(() => {
         if (window.adsbygoogle) window.adsbygoogle.push({});
       });
-    } catch (_) {}
+    } catch {
+      // AdSense script fallback
+    }
   }, [post]);
 
   if (!post) {
