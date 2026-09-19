@@ -77,10 +77,15 @@ export default function App() {
       } else if (h.startsWith('#blog/')) {
         setBlogPage({ type: 'post', slug: h.slice(6) });
         setIsErpMode(false);
+      } else if (h === '#support-ticket' || h === '#log-ticket' || h === '#ticket' || h === '#support') {
+        setSupportModalOpen(true);
+        setBlogPage(null);
       } else {
         setBlogPage(null);
       }
     };
+
+    handleHashChange();
 
     // Discreet shortcut for authorized administration: Ctrl+Shift+E or Alt+E
     const handleKeyDown = (e) => {

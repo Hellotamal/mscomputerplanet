@@ -103,10 +103,13 @@ function SupportTicketDialog({ onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.clientName.trim() || !formData.phone.trim() || !formData.hardwareMake.trim() || !formData.serialNumber.trim()) {
-      alert('Please fill in all mandatory fields marked with an asterisk (*).');
+    if (!formData.clientName.trim() || !formData.phone.trim()) {
+      alert('Please fill in your Name/Branch and Contact Phone Number.');
       return;
     }
+
+    const finalMake = formData.hardwareMake.trim() || 'IT / Solar Hardware System';
+    const finalSerial = formData.serialNumber.trim() || 'S/N-PENDING-INSPECTION';
 
     // 1. Synchronous ERP Database Save
     try {
@@ -123,8 +126,8 @@ function SupportTicketDialog({ onClose }) {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         type: formData.category,
-        hardwareMake: formData.hardwareMake.trim(),
-        serialNumber: formData.serialNumber.trim(),
+        hardwareMake: finalMake,
+        serialNumber: finalSerial,
         priority: 'Pending Assignment',
         prioritySla: 'To Be Defined by ERP Admin',
         assignedTo: 'Resident Engineer - Auto Assigned (Silchar Circle)',
@@ -143,7 +146,7 @@ function SupportTicketDialog({ onClose }) {
       recordAuditLog(
         'Support Ticket Logged (Portal)',
         'Tickets',
-        `Case ${ticketId} registered by ${formData.clientName} [Client Code: ${formData.clientCode || 'N/A'}] for ${formData.hardwareMake} (S/N: ${formData.serialNumber})`,
+        `Case ${ticketId} registered by ${formData.clientName} [Client Code: ${formData.clientCode || 'N/A'}] for ${finalMake} (S/N: ${finalSerial})`,
         formData.contactPerson || 'Customer Portal'
       );
     } catch (err) {
@@ -164,8 +167,8 @@ function SupportTicketDialog({ onClose }) {
       `✉️ *Email:* ${formData.email || 'N/A'}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `⚙️ *Complaint Category:* ${formData.category}\n` +
-      `🖥️ *Hardware Make & Model:* ${formData.hardwareMake}\n` +
-      `🔢 *Serial Number (S/N):* ${formData.serialNumber}\n` +
+      `🖥️ *Hardware Make & Model:* ${finalMake}\n` +
+      `🔢 *Serial Number (S/N):* ${finalSerial}\n` +
       `⚡ *Priority SLA:* Defined in ERP by Admin Upon Verification\n\n` +
       `📝 *Breakdown Symptoms / Issue:*\n` +
       `${formData.description || 'Hardware malfunction reported. Urgent engineer inspection required.'}\n` +
@@ -174,7 +177,11 @@ function SupportTicketDialog({ onClose }) {
       `_Logged via www.mscomputerplanet.com_`;
 
     const waUrl = `https://wa.me/918638083712?text=${encodeURIComponent(waText)}`;
-    window.open(waUrl, '_blank');
+    try {
+      window.open(waUrl, '_blank');
+    } catch (waErr) {
+      console.warn('Popup blocked or failed to open WhatsApp URL:', waErr);
+    }
 
     setIsSubmitted(true);
   };
@@ -524,56 +531,37 @@ function SupportTicketDialog({ onClose }) {
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Priority SLA Level *
-                    </label>
-                    <select
-                      value={formData.priority}
-                      onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                    >
-                      {priorities.map((p) => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
                     <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                      <span>Product Make & Model *</span>
-                      <span className="text-[10px] text-slate-400 font-normal">(e.g. Lipi PB2 / TVS MSP 240)</span>
+                      <span>Product Make & Model</span>
+                      <span className="text-[10px] text-slate-400 font-normal">(e.g. Lipi PB2 / TVS MSP)</span>
                     </label>
                     <input
                       type="text"
-                      required
                       placeholder="e.g. Lipi PB2 Passbook Printer / HP LaserJet M1005"
                       value={formData.hardwareMake}
                       onChange={(e) => setFormData({ ...formData, hardwareMake: e.target.value })}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                      <span>Hardware Serial Number (S/N) *</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">For ERP Tracking</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. LPB-2023-88741 / S/N: ACR-99420"
-                      value={formData.serialNumber}
-                      onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono uppercase focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                    />
-                  </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                    <span>Hardware Serial Number (S/N)</span>
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">(Optional if unknown)</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. LPB-2023-88741 / S/N: ACR-99420 (or leave blank if unknown)"
+                    value={formData.serialNumber}
+                    onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value.toUpperCase() })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono uppercase focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
                 </div>
 
                 <div>
                   <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Malfunction Symptoms / Problem Description *
+                    Malfunction Symptoms / Problem Description
                   </label>
                   <textarea
                     rows="3"
