@@ -531,11 +531,12 @@ Chincoorie, Silchar, Cachar, Assam - 788007
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   >
                     <option value="Hardware Breakdown">Hardware Breakdown</option>
+                    <option value="Bank Application / Software Issue">Bank Application / Software Issue by User</option>
+                    <option value="Preventive Maintenance">Preventive Maintenance (PM) AMC Visit</option>
                     <option value="Printer Maintenance">Printer Maintenance</option>
                     <option value="Solar Inverter Diagnostic">Solar Inverter Diagnostic</option>
                     <option value="LAN / Network Issue">LAN / Network Issue</option>
                     <option value="OS / Antivirus Support">OS / Antivirus Support</option>
-                    <option value="Preventive AMC Visit">Preventive AMC Visit</option>
                   </select>
                 </div>
                 <div>

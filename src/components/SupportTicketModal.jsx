@@ -41,6 +41,8 @@ function SupportTicketDialog({ onClose }) {
 
   const categories = [
     'Passbook Printer Jam / Printing Issue',
+    'Bank Application / CBS / Software Issue by User',
+    'Preventive Maintenance (PM) AMC Visit',
     'Desktop Hardware / SMPS / Boot Failure',
     'LaserJet Printer / Toner / Paper Feed Defect',
     'Branch Switch / Router / Network LAN Failure',

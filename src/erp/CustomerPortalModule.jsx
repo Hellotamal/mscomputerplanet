@@ -419,6 +419,8 @@ export default function CustomerPortalModule({
                     className="w-full p-2.5 border border-slate-300 rounded-xl focus:outline-sky-500 font-semibold"
                   >
                     <option value="Hardware Breakdown">Hardware Breakdown</option>
+                    <option value="Bank Application / Software Issue">Bank Application / Software Issue by User</option>
+                    <option value="Preventive Maintenance">Preventive Maintenance (PM) AMC Visit</option>
                     <option value="Printer Maintenance">Passbook / Laser Printer</option>
                     <option value="Solar Inverter Diagnostic">Solar Inverter Diagnostic</option>
                     <option value="Network / Switch Node">LAN / Router / Switch Node</option>
