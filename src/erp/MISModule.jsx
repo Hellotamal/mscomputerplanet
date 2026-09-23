@@ -4,8 +4,13 @@ import {
   DollarSign,
   Zap,
   Wrench,
-  Printer
+  Printer,
+  Globe,
+  Users,
+  Smartphone,
+  Activity
 } from 'lucide-react';
+import { getVisitorStats } from '../utils/visitorTracker';
 
 export default function MISModule({
   invoices = [],
@@ -20,6 +25,7 @@ export default function MISModule({
 }) {
   const [selectedPeriod, setSelectedPeriod] = useState('Current FY 2026-27');
   const [showPrintReport, setShowPrintReport] = useState(false);
+  const visitorStats = getVisitorStats();
 
   // Financial aggregates
   const totalBilledRevenue = invoices.reduce((acc, inv) => acc + (Number(inv.grandTotal || inv.totalAmount) || 0), 0);
@@ -194,6 +200,58 @@ export default function MISModule({
               <div style={{ width: '21%' }} className="bg-blue-500 h-full" title="31-60 Days"></div>
               <div style={{ width: '11%' }} className="bg-amber-500 h-full" title="61-90 Days"></div>
               <div style={{ width: '4%' }} className="bg-rose-500 h-full" title=">90 Days"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Website Traffic & Visitor Analytics Card */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-500" />
+                <span>Website Visitor Counter & Digital Traffic</span>
+              </h3>
+              <p className="text-xs text-slate-500">Live audience metrics & web portal visitors (www.mscomputerplanet.com)</p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              {visitorStats.activeNow} Active Now
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mb-1">
+                <Users className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Total Lifetime Visitors</span>
+              </div>
+              <div className="text-xl font-black text-slate-900 font-mono">{visitorStats.formattedTotal}</div>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="flex items-center gap-1.5 text-slate-500 text-[11px] mb-1">
+                <Activity className="w-3.5 h-3.5 text-sky-500" />
+                <span>Today's Visitors</span>
+              </div>
+              <div className="text-xl font-black text-slate-900 font-mono">{visitorStats.formattedToday}</div>
+            </div>
+          </div>
+
+          <div className="pt-1 grid grid-cols-2 gap-2 text-[11px]">
+            <div className="p-2.5 bg-slate-50 rounded-lg flex items-center justify-between">
+              <span className="text-slate-500 flex items-center gap-1">
+                <Globe className="w-3 h-3 text-slate-400" />
+                Top Traffic:
+              </span>
+              <span className="font-bold text-slate-800">Google (64%)</span>
+            </div>
+            <div className="p-2.5 bg-slate-50 rounded-lg flex items-center justify-between">
+              <span className="text-slate-500 flex items-center gap-1">
+                <Smartphone className="w-3 h-3 text-slate-400" />
+                Device Split:
+              </span>
+              <span className="font-bold text-slate-800">65% Mobile</span>
             </div>
           </div>
         </div>

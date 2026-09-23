@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
 import { 
   Phone, 
@@ -8,10 +8,16 @@ import {
   Sun, 
   Cpu, 
   ArrowUp, 
-  ExternalLink
+  ExternalLink,
+  Users,
+  Eye,
+  Activity
 } from 'lucide-react';
+import { getVisitorStats } from '../utils/visitorTracker';
 
 export default function Footer({ onOpenERP: _onOpenERP, onOpenLegal }) {
+  const [visitorStats] = useState(() => getVisitorStats());
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -147,6 +153,31 @@ export default function Footer({ onOpenERP: _onOpenERP, onOpenLegal }) {
             </div>
           </div>
 
+        </div>
+
+        {/* Live Website Traffic & Visitor Counter Badge */}
+        <div className="py-6 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+            <Eye className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <span className="uppercase text-[10px] tracking-wider text-slate-400 font-bold">Live Website Traffic Counter:</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
+              <Users className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Total Visitors: <strong className="text-white font-mono">{visitorStats.formattedTotal}</strong></span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
+              <Activity className="w-3.5 h-3.5 text-sky-400" />
+              <span>Today: <strong className="text-white font-mono">{visitorStats.formattedToday}</strong></span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-800/60 text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+              <span>Active Now: <strong className="text-emerald-400 font-mono">{visitorStats.activeNow} online</strong></span>
+            </div>
+          </div>
         </div>
 
         {/* Legal & Bottom Bar */}
