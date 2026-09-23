@@ -1,0 +1,35 @@
+name: GitHub Auto-Sync & Production CI/CD Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Auto-Sync Test, Audit & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ERP Package Self-Audit Tests
+        run: npm test
+
+      - name: Run Code Quality & Lint Audit
+        run: npx oxlint
+
+      - name: Build Vite Production Bundle
+        run: npm run build
