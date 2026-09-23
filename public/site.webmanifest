@@ -1,0 +1,17 @@
+{
+  "name": "M/S Computer Planet | IT AMC & Solar EPC",
+  "short_name": "Computer Planet",
+  "description": "Leading IT AMC Maintenance & Turnkey Rooftop Solar EPC Company in Silchar, Assam",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
