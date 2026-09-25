@@ -22,3 +22,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Data entry dumps, local database backups, and exports
+*.json.bak
+*_backup*.json
+erp_backup_*.json
+exports/
+data_dumps/
+*.db
+*.sqlite
+*.csv.bak
+
