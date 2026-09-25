@@ -25,6 +25,8 @@ echo.
 set "commit_msg="
 set /p commit_msg="[2/4] Enter commit message (Press ENTER for auto-timestamp): "
 
+if /i "%commit_msg%"=="enter" set "commit_msg="
+
 if "%commit_msg%"=="" (
     set "commit_msg=Auto update: %date% %time%"
 )
@@ -48,7 +50,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo ====================================================================
-echo   [SUCCESS] Website & ERP content pushed to GitHub successfully!
+echo   [SUCCESS] Website ^& ERP content pushed to GitHub successfully!
 echo ====================================================================
 goto END
 
