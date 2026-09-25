@@ -25,7 +25,8 @@ import {
   exportAllErpData,
   importAllErpData,
   setErpPin,
-  recordAuditLog
+  recordAuditLog,
+  isModuleEnabledInPackages
 } from './erpStorage';
 import { 
   generateSecureSession, 
@@ -298,13 +299,20 @@ export default function ERPApp({ onExit }) {
   const activeLeadsCount = activeLeads.length;
   const totalPipelineVal = activeLeads.reduce((acc, l) => acc + (Number(l.estimatedValue) || 0), 0);
 
-  // Filter tabs based on currentUser permissions if set (Admin-only for users & settings)
+  // Filter tabs based on currentUser permissions & Package Subscriptions (Admin-only for users & settings)
   const hasTabPermission = (tabId) => {
     if (tabId === 'users' || tabId === 'settings') {
       return isAdmin;
     }
     if (isAdmin) return true;
-    if (!currentUser || !currentUser.permissions || currentUser.permissions.length === 0) return true;
+    if (!currentUser) return false;
+
+    // Check if module's package subscription is enabled for user profile
+    if (!isModuleEnabledInPackages(currentUser, tabId)) {
+      return false;
+    }
+
+    if (!currentUser.permissions || currentUser.permissions.length === 0) return true;
     return currentUser.permissions.includes(tabId);
   };
 

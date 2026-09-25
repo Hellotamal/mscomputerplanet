@@ -19,11 +19,14 @@ import {
   Layers,
   Cpu,
   Sun,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Package,
+  Check
 } from 'lucide-react';
 import { 
   ROLE_DEFINITIONS, 
   DEFAULT_MENU_MODIFICATION_POLICY, 
+  ERP_PACKAGES,
   recordAuditLog, 
   saveErpData, 
   loadErpData 
@@ -147,8 +150,37 @@ export default function UsersModule({ users, setUsers, currentUser }) {
     phone: '',
     region: 'Silchar & Cachar Circle',
     status: 'Active',
-    permissions: ROLE_DEFINITIONS[1].defaultPermissions
+    permissions: ROLE_DEFINITIONS[1].defaultPermissions,
+    enabledPackages: ERP_PACKAGES.map(p => p.id)
   });
+
+  const togglePackageInForm = (pkgId) => {
+    setFormData(prev => {
+      const currentPkgs = prev.enabledPackages || ERP_PACKAGES.map(p => p.id);
+      const exists = currentPkgs.includes(pkgId);
+      const newPkgs = exists
+        ? currentPkgs.filter(p => p !== pkgId)
+        : [...currentPkgs, pkgId];
+      return { ...prev, enabledPackages: newPkgs };
+    });
+  };
+
+  const handleToggleUserPackage = (targetUser, pkgId) => {
+    if (!isAdmin) {
+      alert('Access Denied: Only Administrator accounts can modify package subscriptions.');
+      return;
+    }
+    const currentPkgs = targetUser.enabledPackages || ERP_PACKAGES.map(p => p.id);
+    const exists = currentPkgs.includes(pkgId);
+    const updatedPkgs = exists
+      ? currentPkgs.filter(p => p !== pkgId)
+      : [...currentPkgs, pkgId];
+
+    const updatedUsers = users.map(u => u.id === targetUser.id ? { ...u, enabledPackages: updatedPkgs } : u);
+    setUsers(updatedUsers);
+    saveErpData("users", updatedUsers);
+    recordAuditLog("PACKAGE_ACCESS_UPDATED", "Users", `Admin ${exists ? 'disabled' : 'enabled'} package '${pkgId}' for user '${targetUser.username}'.`);
+  };
 
   const togglePinVisibility = (id) => {
     setRevealedPins(prev => ({ ...prev, [id]: !prev[id] }));
@@ -170,7 +202,8 @@ export default function UsersModule({ users, setUsers, currentUser }) {
     setFormData(prev => ({
       ...prev,
       role: newRole,
-      permissions: roleObj ? [...roleObj.defaultPermissions] : prev.permissions
+      permissions: roleObj ? [...roleObj.defaultPermissions] : prev.permissions,
+      enabledPackages: ERP_PACKAGES.map(p => p.id)
     }));
   };
 
@@ -251,7 +284,8 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       phone: user.phone || '',
       region: user.region || 'Silchar',
       status: user.status || 'Active',
-      permissions: user.permissions || []
+      permissions: user.permissions || [],
+      enabledPackages: user.enabledPackages || ERP_PACKAGES.map(p => p.id)
     });
   };
 
@@ -372,7 +406,8 @@ export default function UsersModule({ users, setUsers, currentUser }) {
       phone: '',
       region: 'Silchar & Cachar Circle',
       status: 'Active',
-      permissions: ROLE_DEFINITIONS[1].defaultPermissions
+      permissions: ROLE_DEFINITIONS[1].defaultPermissions,
+      enabledPackages: ERP_PACKAGES.map(p => p.id)
     });
   };
 
@@ -459,6 +494,20 @@ export default function UsersModule({ users, setUsers, currentUser }) {
             menuPolicy.strictAdminOnly ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
           }`}>
             {menuPolicy.strictAdminOnly ? 'Strict Enforced' : 'Custom'}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveView('package_subscriptions')}
+          className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition ${
+            activeView === 'package_subscriptions'
+              ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30 ring-2 ring-purple-400'
+              : 'bg-white text-purple-700 hover:bg-purple-50 border border-purple-200'
+          }`}
+        >
+          <Package className="w-4 h-4 text-amber-400" />
+          <span>Package Subscriptions & Profile Access</span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">
+            {ERP_PACKAGES.length} Modular Suites
           </span>
         </button>
       </div>
@@ -879,6 +928,152 @@ export default function UsersModule({ users, setUsers, currentUser }) {
         </div>
       )}
 
+      {/* Package Subscriptions & Profile Access View */}
+      {activeView === 'package_subscriptions' && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 border border-purple-800/40 shadow-xl space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300">
+                <Package className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Modular ERP Engine</span>
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  Profile-Based Package Access Enabler
+                </h3>
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+              Enable or disable entire modular ERP packages for individual user profiles or operational roles. When a package is disabled for a user profile, all associated navigation tabs, submodules, and data views are dynamically hidden and protected across the system.
+            </p>
+          </div>
+
+          {/* 5 Package Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ERP_PACKAGES.map(pkg => {
+              const activeCount = users.filter(u => {
+                if (u.role && u.role.toLowerCase().includes('admin')) return true;
+                if (!u.enabledPackages || u.enabledPackages.length === 0) return true;
+                return u.enabledPackages.includes(pkg.id);
+              }).length;
+
+              return (
+                <div key={pkg.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${pkg.badgeColor}`}>
+                        {pkg.category}
+                      </span>
+                      <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                        {activeCount} / {users.length} Users Enabled
+                      </span>
+                    </div>
+
+                    <h4 className="font-bold text-slate-900 text-base mb-1">{pkg.name}</h4>
+                    <p className="text-xs text-slate-500 leading-relaxed mb-3">{pkg.description}</p>
+
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Included ERP Modules ({pkg.modules.length})
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {pkg.modules.map(modId => {
+                          const mod = ALL_MODULES.find(m => m.id === modId);
+                          return (
+                            <span key={modId} className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium">
+                              {mod ? mod.label : modId}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* User Profile Package Subscriptions Matrix Table */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h4 className="text-lg font-black text-slate-900">User Profile Package Matrix</h4>
+                <p className="text-xs text-slate-500">Toggle package subscriptions per staff user profile in real-time</p>
+              </div>
+              <span className="text-xs text-slate-400 font-medium">
+                Admin user profiles have permanent full access to all packages
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                    <th className="p-3 rounded-l-xl">Staff User & Role</th>
+                    {ERP_PACKAGES.map(pkg => (
+                      <th key={pkg.id} className="p-3 text-center min-w-[130px]">
+                        <span className="block font-black text-slate-900">{pkg.shortName}</span>
+                        <span className="text-[10px] font-normal text-slate-400">{pkg.category}</span>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {users.map(u => {
+                    const isUserAdmin = u.role && u.role.toLowerCase().includes('admin');
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/80 transition">
+                        <td className="p-3">
+                          <div className="font-bold text-slate-900">{u.name}</div>
+                          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                            <span className="font-mono text-indigo-600 font-semibold">@{u.username}</span>
+                            <span>•</span>
+                            <span className="font-medium text-slate-600">{u.role}</span>
+                          </div>
+                        </td>
+                        {ERP_PACKAGES.map(pkg => {
+                          const isEnabled = isUserAdmin || (!u.enabledPackages || u.enabledPackages.length === 0) || u.enabledPackages.includes(pkg.id);
+                          return (
+                            <td key={pkg.id} className="p-3 text-center">
+                              {isUserAdmin ? (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-100 text-purple-800 text-[10px] font-black border border-purple-200">
+                                  <Check className="w-3 h-3" /> Full Admin
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleUserPackage(u, pkg.id)}
+                                  className={`px-3 py-1 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 mx-auto ${
+                                    isEnabled
+                                      ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 shadow-sm'
+                                      : 'bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200'
+                                  }`}
+                                  title={`Click to ${isEnabled ? 'disable' : 'enable'} ${pkg.shortName} for @${u.username}`}
+                                >
+                                  {isEnabled ? (
+                                    <>
+                                      <Check className="w-3 h-3 text-emerald-600" />
+                                      <span>Enabled</span>
+                                    </>
+                                  ) : (
+                                    <span>Disabled</span>
+                                  )}
+                                </button>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add / Edit User Modal */}
       {(showAddModal || editingUser) && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1029,6 +1224,42 @@ export default function UsersModule({ users, setUsers, currentUser }) {
                 <p className="text-[10px] text-slate-400">
                   Staff member enters Terminal PIN first, then User ID (<span className="font-mono text-slate-700 font-bold">{formData.username || 'auto-generated'}</span>) and Password.
                 </p>
+              </div>
+
+              {/* Enabled ERP Package Subscriptions */}
+              <div className="border border-purple-200 rounded-2xl p-4 bg-purple-50/50 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-purple-900 uppercase tracking-wider block">
+                    Enabled ERP Package Subscriptions (Modular Access)
+                  </span>
+                  <span className="text-[10px] text-purple-700 font-bold bg-purple-100 border border-purple-300 px-2 py-0.5 rounded-full">
+                    Profile Enabler
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600">
+                  Select which modular packages this user profile is authorized to access:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  {ERP_PACKAGES.map(pkg => {
+                    const isChecked = (formData.enabledPackages || []).includes(pkg.id);
+                    return (
+                      <label 
+                        key={pkg.id} 
+                        className={`flex items-center gap-2 p-2 rounded-xl cursor-pointer transition border ${
+                          isChecked ? 'bg-white border-purple-300 text-slate-900 shadow-sm font-semibold' : 'bg-transparent border-transparent text-slate-500'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => togglePackageInForm(pkg.id)}
+                          className="rounded text-purple-600 focus:ring-purple-500 w-4 h-4"
+                        />
+                        <span className="text-xs">{pkg.shortName}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Granular Module Access Checklist */}

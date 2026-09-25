@@ -614,6 +614,78 @@ export function canModifyMenu(currentUser, menuId = null) {
   return false;
 }
 
+export const ERP_PACKAGES = [
+  {
+    id: 'pkg_it',
+    name: '1. IT & ITSM Suite Package',
+    shortName: 'IT & ITSM',
+    category: 'IT & Banking',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
+    description: 'Includes IT Support/ITSM (11 Tools), Banking AMC Contracts, PNB 50-Branch Hardware Matrix, IT Procurement & GeM Vendors.',
+    modules: ['itsm', 'clients', 'pnb_assets', 'tickets', 'amc', 'procurement', 'vendors', 'customer_portal']
+  },
+  {
+    id: 'pkg_solar',
+    name: '2. Renewable Energy & Solar EPC Package',
+    shortName: 'Solar EPC',
+    category: 'Solar Energy',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    description: 'Includes Pre-Sales Solar Sizing Engineering, EPC Project Execution, Multi-Depot Inventory Warehouses & DMS Sanction Vault.',
+    modules: ['engineering', 'projects', 'documents', 'inventory', 'quotations']
+  },
+  {
+    id: 'pkg_finance',
+    name: '3. Finance, Accounts & GST Invoicing Package',
+    shortName: 'Finance & GST',
+    category: 'Corporate Finance',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    description: 'Includes Tax Invoicing, GST Daybook Ledger, Quotations, PO Procurement & Vendor Settlement Registers.',
+    modules: ['invoices', 'accounts', 'quotations', 'procurement', 'vendors', 'crm', 'transactions']
+  },
+  {
+    id: 'pkg_hrms',
+    name: '4. HRMS & Staff Operations Package',
+    shortName: 'HRMS & Operations',
+    category: 'Human Resources',
+    badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
+    description: 'Includes Staff HRMS Directory, Geo Punch Attendance, Leave Registers, Automated Payroll & Workflow Approvals.',
+    modules: ['hrms', 'employee_portal', 'workflow', 'documents']
+  },
+  {
+    id: 'pkg_mis',
+    name: '5. Executive MIS & Governance Package',
+    shortName: 'MIS & Analytics',
+    category: 'Executive Governance',
+    badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+    description: 'Includes Executive KPI Dashboard, Digital Web Traffic Analytics, Reports Export Center & System Administration RBAC.',
+    modules: ['dashboard', 'mis', 'reports', 'users', 'settings']
+  }
+];
+
+export function isPackageEnabledForUser(currentUser, packageId) {
+  if (!currentUser) return false;
+  const isAdmin = currentUser.username?.toLowerCase() === 'admin' || 
+    (currentUser.role && currentUser.role.toLowerCase().includes('admin'));
+  if (isAdmin) return true;
+  if (!currentUser.enabledPackages || !Array.isArray(currentUser.enabledPackages) || currentUser.enabledPackages.length === 0) {
+    return true; // Default enabled for all packages if not customized
+  }
+  return currentUser.enabledPackages.includes(packageId);
+}
+
+export function isModuleEnabledInPackages(currentUser, moduleId) {
+  if (!currentUser) return false;
+  const isAdmin = currentUser.username?.toLowerCase() === 'admin' || 
+    (currentUser.role && currentUser.role.toLowerCase().includes('admin'));
+  if (isAdmin) return true;
+  if (!currentUser.enabledPackages || !Array.isArray(currentUser.enabledPackages) || currentUser.enabledPackages.length === 0) {
+    return true;
+  }
+  const matchingPkgs = ERP_PACKAGES.filter(pkg => pkg.modules.includes(moduleId));
+  if (matchingPkgs.length === 0) return true;
+  return matchingPkgs.some(pkg => currentUser.enabledPackages.includes(pkg.id));
+}
+
 export const ROLE_DEFINITIONS = [
   {
     role: "Administrator (Full Access)",
