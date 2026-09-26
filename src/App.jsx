@@ -25,6 +25,7 @@ const SocialShareModal = lazy(() => import('./components/SocialShareModal'));
 const LegalModal = lazy(() => import('./components/LegalModal'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
+const HardwareShop = lazy(() => import('./pages/HardwareShop'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -35,6 +36,10 @@ export default function App() {
   const [legalActiveTab, setLegalActiveTab] = useState('privacy');
   const [isErpMode, setIsErpMode] = useState(() => {
     return window.location.hash === '#erp';
+  });
+  const [isShopMode, setIsShopMode] = useState(() => {
+    const h = window.location.hash;
+    return h === '#shop' || h === '#store' || h === '#buy';
   });
   const [blogPage, setBlogPage] = useState(() => {
     const h = window.location.hash;
@@ -70,18 +75,27 @@ export default function App() {
       const h = window.location.hash;
       if (h === '#erp') {
         setIsErpMode(true);
+        setIsShopMode(false);
+        setBlogPage(null);
+      } else if (h === '#shop' || h === '#store' || h === '#buy') {
+        setIsShopMode(true);
+        setIsErpMode(false);
         setBlogPage(null);
       } else if (h === '#blog') {
         setBlogPage({ type: 'listing' });
         setIsErpMode(false);
+        setIsShopMode(false);
       } else if (h.startsWith('#blog/')) {
         setBlogPage({ type: 'post', slug: h.slice(6) });
         setIsErpMode(false);
+        setIsShopMode(false);
       } else if (h === '#support-ticket' || h === '#log-ticket' || h === '#ticket' || h === '#support') {
         setSupportModalOpen(true);
         setBlogPage(null);
+        setIsShopMode(false);
       } else {
         setBlogPage(null);
+        setIsShopMode(false);
       }
     };
 
@@ -191,6 +205,19 @@ export default function App() {
             }}
           />
         )}
+      </Suspense>
+    );
+  }
+
+  // IT Hardware Direct Store page (lazy-loaded)
+  if (isShopMode) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }>
+        <HardwareShop onBackToHome={() => { window.location.hash = ''; setIsShopMode(false); }} />
       </Suspense>
     );
   }

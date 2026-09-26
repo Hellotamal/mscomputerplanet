@@ -27,6 +27,7 @@ export default function Navbar({ onOpenQuote, onOpenERP: _onOpenERP, theme, onTo
 
   const navLinks = [
     { name: 'Home', href: '#home' },
+    { name: '🛒 IT Store (Buy Direct)', href: '#shop' },
     { name: 'IT Services', href: '#services-it' },
     { name: 'Solar EPC', href: '#services-solar' },
     { name: 'Calculator', href: '#solar-calculator' },
