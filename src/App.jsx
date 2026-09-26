@@ -27,6 +27,7 @@ const LegalModal = lazy(() => import('./components/LegalModal'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const HardwareShop = lazy(() => import('./pages/HardwareShop'));
+const ComplaintRegister = lazy(() => import('./pages/ComplaintRegister'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -41,6 +42,10 @@ export default function App() {
   const [isShopMode, setIsShopMode] = useState(() => {
     const h = window.location.hash;
     return h === '#shop' || h === '#store' || h === '#buy';
+  });
+  const [isComplaintMode, setIsComplaintMode] = useState(() => {
+    const h = window.location.hash;
+    return h === '#complaint' || h === '#complaints' || h === '#register-complaint' || h === '#track-complaint';
   });
   const [blogPage, setBlogPage] = useState(() => {
     const h = window.location.hash;
@@ -77,26 +82,37 @@ export default function App() {
       if (h === '#erp') {
         setIsErpMode(true);
         setIsShopMode(false);
+        setIsComplaintMode(false);
         setBlogPage(null);
       } else if (h === '#shop' || h === '#store' || h === '#buy') {
         setIsShopMode(true);
+        setIsErpMode(false);
+        setIsComplaintMode(false);
+        setBlogPage(null);
+      } else if (h === '#complaint' || h === '#complaints' || h === '#register-complaint' || h === '#track-complaint') {
+        setIsComplaintMode(true);
+        setIsShopMode(false);
         setIsErpMode(false);
         setBlogPage(null);
       } else if (h === '#blog') {
         setBlogPage({ type: 'listing' });
         setIsErpMode(false);
         setIsShopMode(false);
+        setIsComplaintMode(false);
       } else if (h.startsWith('#blog/')) {
         setBlogPage({ type: 'post', slug: h.slice(6) });
         setIsErpMode(false);
         setIsShopMode(false);
+        setIsComplaintMode(false);
       } else if (h === '#support-ticket' || h === '#log-ticket' || h === '#ticket' || h === '#support') {
         setSupportModalOpen(true);
         setBlogPage(null);
         setIsShopMode(false);
+        setIsComplaintMode(false);
       } else {
         setBlogPage(null);
         setIsShopMode(false);
+        setIsComplaintMode(false);
       }
     };
 
@@ -222,6 +238,20 @@ export default function App() {
       }>
         <HomeButton />
         <HardwareShop onBackToHome={() => { window.location.hash = ''; setIsShopMode(false); }} />
+      </Suspense>
+    );
+  }
+
+  // Customer Complaint Registration & Tracker App (lazy-loaded)
+  if (isComplaintMode) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }>
+        <HomeButton />
+        <ComplaintRegister onBackToHome={() => { window.location.hash = ''; setIsComplaintMode(false); }} />
       </Suspense>
     );
   }
