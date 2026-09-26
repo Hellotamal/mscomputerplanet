@@ -8,7 +8,8 @@ import {
   Truck,
   Check,
   Phone,
-  FileCheck
+  FileCheck,
+  Wrench
 } from 'lucide-react';
 
 export default function HardwareShop({ onBackToHome }) {
@@ -169,6 +170,11 @@ export default function HardwareShop({ onBackToHome }) {
                     </span>
                     <span>{product.warranty}</span>
                   </div>
+
+                  <div className="text-[10px] text-sky-400 font-medium bg-sky-950/60 border border-sky-800/50 rounded-lg px-2 py-1 flex items-center justify-between">
+                    <span>⚡ RAM / SSD / Warranty Upgrades</span>
+                    <span className="font-semibold text-emerald-400">Modifiable</span>
+                  </div>
                 </div>
               </div>
 
@@ -191,10 +197,10 @@ export default function HardwareShop({ onBackToHome }) {
                 <button
                   type="button"
                   onClick={() => handleBuyClick(product)}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 shrink-0"
+                  className="px-3.5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 shrink-0"
                 >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Buy Direct</span>
+                  <Wrench className="w-3.5 h-3.5" />
+                  <span>Customize & Buy</span>
                 </button>
               </div>
             </div>
