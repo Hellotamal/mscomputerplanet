@@ -117,7 +117,7 @@ export default function CustomerPortalModule({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold uppercase tracking-wider mb-3">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Pillar 14 • Customer Self-Service Desk</span>
+              <span>Customer Self-Service Desk</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Customer AMC & Service Self-Service Portal

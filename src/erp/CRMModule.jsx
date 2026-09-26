@@ -321,7 +321,7 @@ export default function CRMModule({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold mb-3 border border-indigo-500/30">
             <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span>Enterprise Pillar 1: CRM & Commercial Growth</span>
+            <span>CRM & Commercial Growth</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
             CRM & Sales Pipeline Hub

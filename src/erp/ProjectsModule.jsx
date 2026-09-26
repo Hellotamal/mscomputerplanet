@@ -156,7 +156,7 @@ export default function ProjectsModule({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-bold uppercase tracking-wider mb-3">
               <Briefcase className="w-3.5 h-3.5" />
-              <span>Pillar 4 • Project Management & EPC Execution</span>
+              <span>Project Management & EPC Execution</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Enterprise Projects & Infrastructure

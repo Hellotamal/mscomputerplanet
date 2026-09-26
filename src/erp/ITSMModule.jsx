@@ -397,7 +397,7 @@ export default function ITSMModule({
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
             <Server className="w-4 h-4 text-blue-600" />
-            <span>Pillar 11: Enterprise IT Service Management (ITSM)</span>
+            <span>Enterprise IT Service Management (ITSM)</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             IT Support & Infrastructure Suite

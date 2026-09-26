@@ -75,7 +75,7 @@ export default function WorkflowModule({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
               <CheckSquare className="w-3.5 h-3.5" />
-              <span>Pillar 15 • Multi-Level Workflow & Governance Approvals</span>
+              <span>Multi-Level Workflow & Governance Approvals</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Executive Workflow & Company Approval Center

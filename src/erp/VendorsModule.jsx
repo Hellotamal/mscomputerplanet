@@ -161,7 +161,7 @@ export default function VendorsModule({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-3">
               <Truck className="w-3.5 h-3.5" />
-              <span>Pillar 7 • Vendor & Supply-Chain Management</span>
+              <span>Vendor & Supply-Chain Management</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Master Vendor Directory & Supplier Network

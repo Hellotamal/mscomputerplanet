@@ -206,7 +206,7 @@ export default function InventoryModule({ inventory, setInventory, isAdmin = fal
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
               <Package className="w-3.5 h-3.5" />
-              <span>Pillar 6 • Inventory, Multi-Warehouse & Material Control</span>
+              <span>Inventory, Multi-Warehouse & Material Control</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
               Warehouse Inventory & Spares Management
