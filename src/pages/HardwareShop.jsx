@@ -9,7 +9,8 @@ import {
   Check,
   Phone,
   FileCheck,
-  Wrench
+  Wrench,
+  Home
 } from 'lucide-react';
 
 export default function HardwareShop({ onBackToHome }) {
@@ -54,6 +55,15 @@ export default function HardwareShop({ onBackToHome }) {
       {/* Hero Header */}
       <header className="relative pt-24 pb-16 px-4 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-b border-slate-800/80 overflow-hidden">
         <div className="max-w-7xl mx-auto text-center relative z-10">
+          <div className="flex justify-start mb-4">
+            <button
+              onClick={onBackToHome}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition shadow-md"
+            >
+              <Home className="w-4 h-4 text-emerald-400" />
+              <span>← Back to Home Page</span>
+            </button>
+          </div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold uppercase tracking-wider mb-4 shadow-inner">
             <ShoppingBag className="w-4 h-4" />
             <span>Direct Commercial IT Hardware Store</span>

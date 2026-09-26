@@ -16,6 +16,7 @@ import FounderProfile from './components/FounderProfile';
 import GalleryHallOfFame from './components/GalleryHallOfFame';
 import B2BMarketplaceHub from './components/B2BMarketplaceHub';
 import SecurityShield from './components/SecurityShield';
+import HomeButton from './components/HomeButton';
 
 // Code-split heavy interactive modals & enterprise ERP suite for ultra-fast mobile loading
 const ERPApp = lazy(() => import('./erp/ERPApp'));
@@ -175,6 +176,7 @@ export default function App() {
         </div>
       }>
         <SecurityShield />
+        <HomeButton />
         <ERPApp onExit={handleExitERP} />
       </Suspense>
     );
@@ -189,6 +191,7 @@ export default function App() {
     );
     return (
       <Suspense fallback={blogFallback}>
+        <HomeButton />
         {blogPage.type === 'listing' ? (
           <Blog
             onNavigateToPost={(slug) => {
@@ -217,6 +220,7 @@ export default function App() {
           <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
         </div>
       }>
+        <HomeButton />
         <HardwareShop onBackToHome={() => { window.location.hash = ''; setIsShopMode(false); }} />
       </Suspense>
     );
@@ -226,6 +230,9 @@ export default function App() {
     <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col antialiased transition-colors duration-300">
       {/* Client-side Anti-Scrape & Security Shield */}
       <SecurityShield />
+
+      {/* Persistent Top-Left Home Icon Button */}
+      <HomeButton />
 
       {/* Top Navigation with ERP link and Day/Night Theme Toggle */}
       <Navbar 

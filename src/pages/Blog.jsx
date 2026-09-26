@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BLOG_POSTS } from '../data/blogPosts';
-import { BookOpen, Tag, Clock, ArrowRight, Sun, Cpu, Rss, Phone } from 'lucide-react';
+import { BookOpen, Tag, Clock, ArrowRight, Sun, Cpu, Rss, Phone, Home } from 'lucide-react';
 
 const categoryIcons = {
   'Solar Energy': Sun,
@@ -31,18 +31,30 @@ export default function Blog({ onNavigateToPost }) {
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Hero Header */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 pt-28 pb-16 px-4 border-b border-slate-800">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
-            <Rss className="w-3.5 h-3.5" />
-            Knowledge Hub
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-start mb-4">
+            <a
+              href="#home"
+              onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition shadow-md"
+            >
+              <Home className="w-4 h-4 text-emerald-400" />
+              <span>← Back to Home Page</span>
+            </a>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">
-            IT & Solar Energy Insights
-          </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg">
-            Expert guides on solar subsidies, IT maintenance, and technology for businesses
-            in Silchar, Cachar, Karimganj, and Hailakandi.
-          </p>
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4">
+              <Rss className="w-3.5 h-3.5" />
+              Knowledge Hub
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">
+              IT & Solar Energy Insights
+            </h1>
+            <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg">
+              Expert guides on solar subsidies, IT maintenance, and technology for businesses
+              in Silchar, Cachar, Karimganj, and Hailakandi.
+            </p>
+          </div>
         </div>
       </div>
 

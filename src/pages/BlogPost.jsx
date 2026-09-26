@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { BLOG_POSTS } from '../data/blogPosts';
-import { ArrowLeft, Clock, Tag, Share2, Phone } from 'lucide-react';
+import { ArrowLeft, Clock, Tag, Share2, Phone, Home } from 'lucide-react';
 
 export default function BlogPost({ slug, onNavigateBack }) {
   const post = useMemo(() => BLOG_POSTS.find((p) => p.slug === slug), [slug]);
@@ -70,15 +70,23 @@ export default function BlogPost({ slug, onNavigateBack }) {
         }}
       />
 
-      {/* Back Button */}
-      <div className="pt-24 pb-0 px-4 max-w-4xl mx-auto">
+      {/* Top Navigation Links */}
+      <div className="pt-24 pb-0 px-4 max-w-4xl mx-auto flex items-center justify-between gap-4 mb-6">
         <button
           onClick={onNavigateBack}
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition mb-6 group"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm transition group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           Back to Blog
         </button>
+        <a
+          href="#home"
+          onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 text-xs font-bold border border-slate-800 transition"
+        >
+          <Home className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Home Page</span>
+        </a>
       </div>
 
       {/* Cover Image */}
