@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BUSINESS_INFO } from '../data/businessInfo';
-import { MessageSquare, Phone, ArrowUp, Sun, Moon, Share2, Headphones } from 'lucide-react';
+import { MessageSquare, Phone, ArrowUp, Sun, Moon, Share2, Headphones, Smartphone } from 'lucide-react';
 
 export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onOpenShare, onOpenSupportTicket }) {
   const [showScroll, setShowScroll] = useState(false);
@@ -111,6 +111,15 @@ export default function FloatingActions({ onOpenQuote, theme, onToggleTheme, onO
           title="Call Office"
         >
           <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+        </a>
+
+        <a
+          href="#complaint-app"
+          className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 text-white text-xs font-bold shadow-md truncate"
+          title="Open Mobile Complaint App"
+        >
+          <Smartphone className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Complaint App</span>
         </a>
 
         {onOpenSupportTicket && (

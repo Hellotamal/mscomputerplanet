@@ -27,7 +27,7 @@ const LegalModal = lazy(() => import('./components/LegalModal'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const HardwareShop = lazy(() => import('./pages/HardwareShop'));
-const ComplaintRegister = lazy(() => import('./pages/ComplaintRegister'));
+const CustomerComplaintApp = lazy(() => import('./pages/CustomerComplaintApp'));
 
 export default function App() {
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -43,9 +43,9 @@ export default function App() {
     const h = window.location.hash;
     return h === '#shop' || h === '#store' || h === '#buy';
   });
-  const [isComplaintMode, setIsComplaintMode] = useState(() => {
+  const [isComplaintAppMode, setIsComplaintAppMode] = useState(() => {
     const h = window.location.hash;
-    return h === '#complaint' || h === '#complaints' || h === '#register-complaint' || h === '#track-complaint';
+    return h === '#complaint-app' || h === '#register-complaint' || h === '#track-ticket' || h === '#complaint';
   });
   const [blogPage, setBlogPage] = useState(() => {
     const h = window.location.hash;
@@ -82,37 +82,37 @@ export default function App() {
       if (h === '#erp') {
         setIsErpMode(true);
         setIsShopMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
         setBlogPage(null);
       } else if (h === '#shop' || h === '#store' || h === '#buy') {
         setIsShopMode(true);
         setIsErpMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
         setBlogPage(null);
-      } else if (h === '#complaint' || h === '#complaints' || h === '#register-complaint' || h === '#track-complaint') {
-        setIsComplaintMode(true);
-        setIsShopMode(false);
+      } else if (h === '#complaint-app' || h === '#register-complaint' || h === '#track-ticket' || h === '#complaint') {
+        setIsComplaintAppMode(true);
         setIsErpMode(false);
+        setIsShopMode(false);
         setBlogPage(null);
       } else if (h === '#blog') {
         setBlogPage({ type: 'listing' });
         setIsErpMode(false);
         setIsShopMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
       } else if (h.startsWith('#blog/')) {
         setBlogPage({ type: 'post', slug: h.slice(6) });
         setIsErpMode(false);
         setIsShopMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
       } else if (h === '#support-ticket' || h === '#log-ticket' || h === '#ticket' || h === '#support') {
         setSupportModalOpen(true);
         setBlogPage(null);
         setIsShopMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
       } else {
         setBlogPage(null);
         setIsShopMode(false);
-        setIsComplaintMode(false);
+        setIsComplaintAppMode(false);
       }
     };
 
@@ -242,8 +242,8 @@ export default function App() {
     );
   }
 
-  // Customer Complaint Registration & Tracker App (lazy-loaded)
-  if (isComplaintMode) {
+  // Customer Mobile Complaint App (lazy-loaded)
+  if (isComplaintAppMode) {
     return (
       <Suspense fallback={
         <div className="min-h-screen bg-slate-950 flex items-center justify-center">
@@ -251,7 +251,7 @@ export default function App() {
         </div>
       }>
         <HomeButton />
-        <ComplaintRegister onBackToHome={() => { window.location.hash = ''; setIsComplaintMode(false); }} />
+        <CustomerComplaintApp onBackToHome={() => { window.location.hash = ''; setIsComplaintAppMode(false); }} />
       </Suspense>
     );
   }
