@@ -569,7 +569,7 @@ export const DEFAULT_MENU_MODIFICATION_POLICY = {
   menuPolicies: {
     dashboard: { id: 'dashboard', name: 'Executive Overview', dept: 'Core', adminOnly: true, description: 'Command Center & KPI Metrics' },
     crm: { id: 'crm', name: '1. CRM & Omnichannel Leads', dept: 'Core', adminOnly: true, description: 'Lead Enquiries & Kanban Pipeline' },
-    quotations: { id: 'quotations', name: '2. Sales & Quotations', dept: 'Solar', adminOnly: true, description: 'Commercial & Solar GST Quotations' },
+    quotations: { id: 'quotations', name: '2. Sales & Quotations', dept: 'Solar', adminOnly: true, description: 'Commercial Quotations & Estimates (IT AMC, Solar EPC, CCTV, Hardware)' },
     engineering: { id: 'engineering', name: '3. Engineering & Solar Pre-Sales', dept: 'Solar', adminOnly: true, description: 'Solar Sizing Calculator & BOQ' },
     projects: { id: 'projects', name: '4. Projects & EPC Execution', dept: 'Solar', adminOnly: true, description: 'Solar EPC Milestones & Handover' },
     procurement: { id: 'procurement', name: '5. Hardware Procurement & POs', dept: 'IT', adminOnly: true, description: 'PRs, RFQs, POs & QC GRN' },
@@ -621,8 +621,8 @@ export const ERP_PACKAGES = [
     shortName: 'IT & ITSM',
     category: 'IT & Banking',
     badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-    description: 'Includes IT Support/ITSM (11 Tools), Banking AMC Contracts, PNB 50-Branch Hardware Matrix, IT Procurement & GeM Vendors.',
-    modules: ['itsm', 'clients', 'pnb_assets', 'tickets', 'amc', 'procurement', 'vendors', 'customer_portal']
+    description: 'Includes IT Support/ITSM (11 Tools), Banking AMC Contracts, Customer Quotations, PNB 50-Branch Hardware Matrix, IT Procurement & GeM Vendors.',
+    modules: ['itsm', 'clients', 'pnb_assets', 'tickets', 'amc', 'quotations', 'procurement', 'vendors', 'customer_portal']
   },
   {
     id: 'pkg_solar',

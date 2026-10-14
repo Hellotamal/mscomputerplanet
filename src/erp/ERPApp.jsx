@@ -470,6 +470,14 @@ export default function ERPApp({ onExit }) {
           dept: 'core'
         },
         { id: 'invoices', name: 'Finance & Invoicing', icon: FileText, dept: 'core' },
+        { 
+          id: 'quotations', 
+          name: 'Quotations & Estimates', 
+          icon: ClipboardList, 
+          badge: pendingQuotesCount > 0 ? pendingQuotesCount : null, 
+          badgeColor: 'bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold',
+          dept: 'core'
+        },
         { id: 'accounts', name: 'Accounts Ledger', icon: IndianRupee, badge: transactions.length > 0 ? transactions.length : null, badgeColor: 'bg-slate-800 text-slate-300 border border-slate-700/50', dept: 'core' },
         { 
           id: 'hrms', 
