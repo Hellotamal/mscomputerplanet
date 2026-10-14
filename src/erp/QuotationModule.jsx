@@ -337,12 +337,14 @@ ${itemsSummary}
 ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
 
 *Firm Credentials & Bank Details:*
-• M/S COMPUTER PLANET
+• M/S COMPUTER PLANET - IT Solutions, Banking AMC & Renewable Energy
+• 1. Registered Office: West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007
+• 2. Branch Office: Maligaon, Guwahati, Assam, Pin - 781011
+• Tel: +91-8638083712 / 9954493909
+• Web: www.mscomputerplanet.com | Email: computerplanetpkd@gmail.com
+• MSME Reg: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0
 • Bank: Punjab National Bank | Branch: Silchar
-• A/C IFSC: PUNB0074300 | UPI: 8638083712@okbizaxis
-• MSME: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0
-• West Kachudharam, Chincoorie, Silchar - 788007
-• Helpline: +91-8638083712`;
+• A/C IFSC: PUNB0074300 | UPI: 8638083712@okbizaxis`;
 
     const targetUrl = phone 
       ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
@@ -439,11 +441,16 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
             <div class="words-box">
               <strong style="color: #64748b; font-size: 10px; text-transform: uppercase;">Total Estimate in Words:</strong>
               <div style="font-weight: bold; color: #0f172a; margin-top: 3px; font-size: 11px;">${words}</div>
-              <div style="margin-top: 10px; font-size: 10.5px; color: #475569;">
+              <div style="margin-top: 10px; font-size: 10.5px; color: #475569; line-height: 1.4;">
                 <strong>Bank Details for Settlement / Advance:</strong><br/>
                 Punjab National Bank, Silchar Branch<br/>
                 Account: M/S COMPUTER PLANET | IFSC: PUNB0074300<br/>
                 UPI VPA: 8638083712@okbizaxis
+                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dotted #cbd5e1; font-size: 9.5px; color: #64748b;">
+                  <strong>1. Regd. Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007<br/>
+                  <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011 | <strong>Tel:</strong> +91-8638083712 / 9954493909<br/>
+                  <strong>Web:</strong> www.mscomputerplanet.com | <strong>Email:</strong> computerplanetpkd@gmail.com
+                </div>
               </div>
             </div>
 
@@ -530,6 +537,13 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Generate customized commercial proposals for Banking IT AMCs, Solar Rooftop EPC, CCTV surveillance, and hardware bids.
           </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2.5 text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <span>📍 <strong>1. Regd. Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007</span>
+            <span>🏢 <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011</span>
+            <span>📞 <strong>Tel:</strong> +91-8638083712 / 9954493909</span>
+            <span>🌐 <strong>Web:</strong> <a href="https://www.mscomputerplanet.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">www.mscomputerplanet.com</a></span>
+            <span>✉️ <strong>Email:</strong> <a href="mailto:computerplanetpkd@gmail.com" className="text-blue-600 hover:underline">computerplanetpkd@gmail.com</a></span>
+          </div>
         </div>
 
         {isAdmin ? (

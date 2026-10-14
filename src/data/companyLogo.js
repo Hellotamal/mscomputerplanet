@@ -52,11 +52,13 @@ export function getCompanyPrintHeaderHtml({
           <div style="font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
             IT Solutions, Banking AMC & Renewable Energy
           </div>
-          <div style="font-size: 11px; color: #475569; margin-top: 2px;">
-            West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007 | Tel: +91-8638083712
+          <div style="font-size: 10px; color: #334155; margin-top: 3px; line-height: 1.4;">
+            <strong>1. Registered Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007<br/>
+            <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011 | <strong>Tel:</strong> +91-8638083712 / 9954493909
           </div>
-          <div style="font-size: 10.5px; font-weight: bold; color: #0f172a; margin-top: 2px;">
-            MSME Reg: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0
+          <div style="font-size: 10px; font-weight: 600; color: #0f172a; margin-top: 2px; line-height: 1.4;">
+            MSME Reg: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0<br/>
+            <span style="color: #0284c7;">Web: www.mscomputerplanet.com</span> | <span style="color: #475569;">Email: computerplanetpkd@gmail.com</span>
           </div>
         </div>
       </div>
