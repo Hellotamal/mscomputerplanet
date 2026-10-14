@@ -15,7 +15,9 @@ import {
   Building2, 
   CheckCircle, 
   Tag,
-  Lock
+  Lock,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -64,6 +66,7 @@ export default function QuotationModule({
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingQuote, setEditingQuote] = useState(null);
+  const [isModalMaximized, setIsModalMaximized] = useState(false);
 
   // Form State
   const [form, setForm] = useState(() => ({
@@ -786,10 +789,14 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
 
       {/* Create / Edit Quotation Modal */}
       {(showCreateModal || editingQuote) && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-          <div className="relative bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
+          <div className={`relative bg-white shadow-2xl border border-slate-200 overflow-y-auto transition-all duration-200 ${
+            isModalMaximized 
+              ? 'fixed inset-2 sm:inset-4 max-w-none w-auto max-h-[calc(100vh-1rem)] h-[calc(100vh-1rem)] rounded-2xl p-4 sm:p-7 z-50' 
+              : 'rounded-3xl max-w-5xl w-full p-5 sm:p-7 max-h-[92vh]'
+          }`}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 sticky top-0 bg-white z-10">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-blue-50 text-brand-blue">
                   <ClipboardList className="w-5 h-5" />
@@ -803,15 +810,38 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setEditingQuote(null);
-                }}
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsModalMaximized(!isModalMaximized)}
+                  className="p-1.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition flex items-center gap-1 text-xs font-semibold"
+                  title={isModalMaximized ? "Restore Window Size" : "Maximize Window for Large View"}
+                >
+                  {isModalMaximized ? (
+                    <>
+                      <Minimize2 className="w-4 h-4 text-brand-blue" />
+                      <span className="hidden sm:inline">Restore</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="w-4 h-4 text-brand-blue" />
+                      <span className="hidden sm:inline">Maximize Window</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setEditingQuote(null);
+                    setIsModalMaximized(false);
+                  }}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  title="Close Dialog"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Form */}
@@ -1014,46 +1044,58 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-72 sm:max-h-96 overflow-y-auto pr-1">
                   {form.items.map((item, idx) => (
-                    <div key={idx} className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
-                      <div className="w-full sm:w-2/5">
-                        <input
-                          type="text"
+                    <div key={idx} className="flex flex-wrap sm:flex-nowrap items-start gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
+                      {/* Auto-adjustable & Draggable Description Box */}
+                      <div className="flex-1 min-w-[240px]">
+                        <textarea
                           required
+                          rows={1}
                           placeholder="Description of item / technical scope..."
                           value={item.desc}
                           onChange={(e) => handleItemChange(idx, 'desc', e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium"
+                          onInput={(e) => {
+                            e.target.style.height = 'auto';
+                            e.target.style.height = `${Math.max(38, e.target.scrollHeight)}px`;
+                          }}
+                          ref={(el) => {
+                            if (el) {
+                              el.style.height = 'auto';
+                              el.style.height = `${Math.max(38, el.scrollHeight)}px`;
+                            }
+                          }}
+                          className="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white font-medium resize-y min-h-[38px] leading-snug focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all shadow-2xs"
+                          title="Auto-adjusts height as you type, or drag bottom-right corner to expand"
                         />
                       </div>
 
-                      <div className="w-20">
+                      <div className="w-20 shrink-0">
                         <input
                           type="text"
                           placeholder="HSN/SAC"
                           value={item.hsn}
                           onChange={(e) => handleItemChange(idx, 'hsn', e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-center"
+                          className="w-full px-2 py-2 rounded-lg border border-slate-300 bg-white font-mono text-center h-[38px]"
                         />
                       </div>
 
-                      <div className="w-16">
+                      <div className="w-16 shrink-0">
                         <input
                           type="number"
                           min="1"
                           required
                           value={item.qty}
                           onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-center font-bold"
+                          className="w-full px-2 py-2 rounded-lg border border-slate-300 bg-white text-center font-bold h-[38px]"
                         />
                       </div>
 
-                      <div className="w-20">
+                      <div className="w-20 shrink-0">
                         <select
                           value={item.unit || 'Nos'}
                           onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
-                          className="w-full px-1.5 py-1.5 rounded-lg border border-slate-300 bg-white text-center"
+                          className="w-full px-1.5 py-2 rounded-lg border border-slate-300 bg-white text-center h-[38px]"
                         >
                           <option value="Nos">Nos</option>
                           <option value="Set">Set</option>
@@ -1066,7 +1108,7 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                         </select>
                       </div>
 
-                      <div className="w-24">
+                      <div className="w-24 shrink-0">
                         <input
                           type="number"
                           min="0"
@@ -1074,11 +1116,11 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                           placeholder="Rate ₹"
                           value={item.rate}
                           onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
-                          className="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-right font-mono font-bold"
+                          className="w-full px-2 py-2 rounded-lg border border-slate-300 bg-white text-right font-mono font-bold h-[38px]"
                         />
                       </div>
 
-                      <div className="w-24 text-right font-mono font-bold text-slate-800 text-xs">
+                      <div className="w-24 shrink-0 text-right font-mono font-bold text-slate-800 text-xs py-2.5">
                         ₹{((Number(item.qty) || 0) * (Number(item.rate) || 0)).toLocaleString('en-IN')}
                       </div>
 
@@ -1086,7 +1128,7 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                         type="button"
                         onClick={() => handleRemoveItemRow(idx)}
                         disabled={form.items.length <= 1}
-                        className={`p-1.5 rounded-lg transition ${
+                        className={`p-2 rounded-lg transition shrink-0 ${
                           form.items.length <= 1 ? 'opacity-30 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'
                         }`}
                         title="Remove Item"
@@ -1101,23 +1143,31 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
               {/* Commercial Terms & Notes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-600 mb-1">Commercial Terms & Conditions</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-semibold text-slate-600">Commercial Terms & Conditions</label>
+                    <span className="text-[10px] text-slate-400">Draggable corner</span>
+                  </div>
                   <textarea
                     rows={4}
                     value={form.terms}
                     onChange={(e) => setForm({ ...form, terms: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-[11px] leading-relaxed"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-[11px] leading-relaxed resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    title="Drag bottom corner to resize"
                   ></textarea>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-600 mb-1">Internal Notes / Tender Reference</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-semibold text-slate-600">Internal Notes / Tender Reference</label>
+                    <span className="text-[10px] text-slate-400">Draggable corner</span>
+                  </div>
                   <textarea
                     rows={4}
                     placeholder="e.g. Discussed with branch AGM. Follow up next Monday."
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs leading-relaxed"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs leading-relaxed resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    title="Drag bottom corner to resize"
                   ></textarea>
                 </div>
               </div>
