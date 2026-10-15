@@ -17,7 +17,11 @@ import {
   Tag,
   Lock,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Type,
+  SlidersHorizontal,
+  Check,
+  Sparkles
 } from 'lucide-react';
 
 function numberToIndianWords(num) {
@@ -45,6 +49,71 @@ const CATEGORIES = [
   'General Technical Services'
 ];
 
+const FONT_OPTIONS = [
+  { id: 'Inter', name: 'Inter (Modern Tech / Enterprise)', family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
+  { id: 'Segoe UI', name: 'Segoe UI (Corporate Standard)', family: "'Segoe UI', -apple-system, Tahoma, Geneva, Verdana, sans-serif" },
+  { id: 'Roboto', name: 'Roboto (Clean Precision)', family: "'Roboto', -apple-system, BlinkMacSystemFont, sans-serif" },
+  { id: 'Montserrat', name: 'Montserrat (Executive / Bold)', family: "'Montserrat', 'Segoe UI', sans-serif" },
+  { id: 'Arial', name: 'Arial / System Sans', family: "Arial, Helvetica, sans-serif" }
+];
+
+const FONT_SIZE_OPTIONS = [
+  { id: 'compact', name: 'Compact (9.5pt - Fit 1 Page Best)', baseSize: '9.5pt', lineHeight: '1.35', tablePadding: '4px 6px', headerPadding: '6px 8px' },
+  { id: 'standard', name: 'Standard (10.5pt - Balanced)', baseSize: '10.5pt', lineHeight: '1.45', tablePadding: '6px 8px', headerPadding: '8px 10px' },
+  { id: 'comfort', name: 'Comfort (12pt - Large & Relaxed)', baseSize: '12pt', lineHeight: '1.55', tablePadding: '8px 10px', headerPadding: '10px 12px' }
+];
+
+const THEME_OPTIONS = [
+  { 
+    id: 'tech_blue', 
+    name: 'Tech Indigo / Enterprise Blue', 
+    primary: '#1e40af', 
+    primaryLight: '#eff6ff', 
+    accent: '#2563eb', 
+    badgeBg: '#dbeafe', 
+    badgeText: '#1e40af',
+    tableHeaderBg: '#1e3a8a',
+    tableHeaderText: '#ffffff',
+    border: '#cbd5e1'
+  },
+  { 
+    id: 'modern_slate', 
+    name: 'Titanium Slate / Deep Dark', 
+    primary: '#0f172a', 
+    primaryLight: '#f8fafc', 
+    accent: '#334155', 
+    badgeBg: '#e2e8f0', 
+    badgeText: '#0f172a',
+    tableHeaderBg: '#0f172a',
+    tableHeaderText: '#ffffff',
+    border: '#cbd5e1'
+  },
+  { 
+    id: 'emerald_corp', 
+    name: 'Green Energy / Solar Emerald', 
+    primary: '#065f46', 
+    primaryLight: '#ecfdf5', 
+    accent: '#059669', 
+    badgeBg: '#d1fae5', 
+    badgeText: '#065f46',
+    tableHeaderBg: '#064e3b',
+    tableHeaderText: '#ffffff',
+    border: '#a7f3d0'
+  },
+  { 
+    id: 'classic_navy', 
+    name: 'Classic Banking Navy', 
+    primary: '#172554', 
+    primaryLight: '#f0f9ff', 
+    accent: '#0369a1', 
+    badgeBg: '#e0f2fe', 
+    badgeText: '#0369a1',
+    tableHeaderBg: '#172554',
+    tableHeaderText: '#ffffff',
+    border: '#bae6fd'
+  }
+];
+
 const DEFAULT_TERMS = 
 `1. Payment Terms: 50% mobilization advance along with formal purchase order, balance upon delivery / installation.
 2. Delivery & Execution: Within 7-10 working days from PO confirmation.
@@ -67,6 +136,36 @@ export default function QuotationModule({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingQuote, setEditingQuote] = useState(null);
   const [isModalMaximized, setIsModalMaximized] = useState(false);
+
+  // Print typography & layout preferences
+  const [printFontFamily, setPrintFontFamily] = useState(() => {
+    return localStorage.getItem('cp_quote_font_family') || 'Inter';
+  });
+  const [printFontSize, setPrintFontSize] = useState(() => {
+    return localStorage.getItem('cp_quote_font_size') || 'compact';
+  });
+  const [printTheme, setPrintTheme] = useState(() => {
+    return localStorage.getItem('cp_quote_theme') || 'tech_blue';
+  });
+  const [printFitOnePage, setPrintFitOnePage] = useState(() => {
+    return localStorage.getItem('cp_quote_fit_one_page') !== 'false';
+  });
+  const [showPrintConfigModal, setShowPrintConfigModal] = useState(false);
+
+  const handleUpdatePrintPrefs = (font, size, theme, fitOne) => {
+    setPrintFontFamily(font);
+    setPrintFontSize(size);
+    setPrintTheme(theme);
+    setPrintFitOnePage(fitOne);
+    try {
+      localStorage.setItem('cp_quote_font_family', font);
+      localStorage.setItem('cp_quote_font_size', size);
+      localStorage.setItem('cp_quote_theme', theme);
+      localStorage.setItem('cp_quote_fit_one_page', String(fitOne));
+    } catch {
+      // ignore storage failure
+    }
+  };
 
   // Form State
   const [form, setForm] = useState(() => ({
@@ -357,157 +456,418 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
     const { subtotal, grandTotal, isInterState, cgstRate, sgstRate, igstRate, cgstAmount, sgstAmount, igstAmount } = calculateQuoteTotals(quote);
     const words = numberToIndianWords(grandTotal);
 
+    const curFont = printFontFamily;
+    const curSize = printFontSize;
+    const curTheme = printTheme;
+    const curFitOnePage = printFitOnePage;
+
+    const fontObj = FONT_OPTIONS.find(f => f.id === curFont) || FONT_OPTIONS[0];
+    const sizeObj = FONT_SIZE_OPTIONS.find(s => s.id === curSize) || FONT_SIZE_OPTIONS[0];
+    const themeObj = THEME_OPTIONS.find(t => t.id === curTheme) || THEME_OPTIONS[0];
+
+    const formatItemDescHtml = (desc) => {
+      if (!desc) return '';
+      const lines = desc.split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length <= 1) {
+        return `<div style="font-weight: 600; color: #0f172a;">${escapeHtml(desc)}</div>`;
+      }
+      const title = lines[0];
+      const specs = lines.slice(1);
+      return `
+        <div style="font-weight: 700; color: #0f172a; margin-bottom: 2px;">${escapeHtml(title)}</div>
+        <div class="item-specs" style="font-size: 0.9em; color: #475569; line-height: 1.4; padding-left: 2px;">
+          ${specs.map(s => `<span style="display: block; margin-top: 1px;">• ${escapeHtml(s)}</span>`).join('')}
+        </div>
+      `;
+    };
+
     const printWin = window.open('', '_blank');
-    printWin.document.write(`
-      <html>
-        <head>
-          <title>Quotation ${quote.id} - ${quote.clientName} - M/S COMPUTER PLANET</title>
-          <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 28px; color: #0f172a; font-size: 12px; line-height: 1.45; }
-            .meta-grid { display: flex; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
-            .box { border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 6px; width: 48%; }
-            .box-title { font-size: 10px; text-transform: uppercase; font-weight: bold; color: #64748b; margin-bottom: 4px; }
-            table.items { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 15px; }
-            table.items th, table.items td { border: 1px solid #cbd5e1; padding: 7px 9px; text-align: left; }
-            table.items th { background: #f8fafc; font-weight: bold; font-size: 11px; }
-            .text-right { text-align: right; }
-            .text-center { text-align: center; }
-            .totals-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; }
-            .words-box { width: 50%; border: 1px dashed #cbd5e1; padding: 10px; border-radius: 6px; font-size: 11px; }
-            .totals-table { width: 45%; border-collapse: collapse; }
-            .totals-table td { padding: 5px 8px; font-size: 12px; }
-            .grand-total { font-weight: 900; font-size: 14px; border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a; background: #f0fdf4; color: #15803d; }
-            .terms-box { margin-top: 18px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 11px; }
-            .terms-title { font-weight: bold; text-transform: uppercase; color: #0f172a; margin-bottom: 5px; font-size: 11px; }
-            .footer-sig { margin-top: 35px; display: flex; justify-content: space-between; align-items: flex-end; }
-          </style>
-        </head>
-        <body>
-          ${getCompanyPrintHeaderHtml({
-            documentTitle: 'COMMERCIAL PROPOSAL & ESTIMATE',
-            rightBadgeText: quote.id,
-            rightBadgeSubtext: 'OFFICIAL QUOTATION'
-          })}
+    if (!printWin) {
+      alert('Popup blocker prevented print window from opening. Please allow popups for this site.');
+      return;
+    }
 
-          <div class="meta-grid">
-            <div class="box">
-              <div class="box-title">Client / Recipient Details</div>
-              <div style="font-weight: bold; font-size: 13px; color: #0f172a;">${escapeHtml(quote.clientName)}</div>
-              ${quote.contactPerson ? `<div><strong>Attn:</strong> ${escapeHtml(quote.contactPerson)}</div>` : ''}
-              <div style="margin-top: 2px;">${escapeHtml(quote.clientAddress || 'Silchar, Cachar, Assam')}</div>
-              ${quote.clientPhone ? `<div><strong>Phone:</strong> ${escapeHtml(quote.clientPhone)}</div>` : ''}
-              ${quote.clientEmail ? `<div><strong>Email:</strong> ${escapeHtml(quote.clientEmail)}</div>` : ''}
-              ${quote.clientGst ? `<div style="margin-top: 3px;"><strong>GSTIN:</strong> ${escapeHtml(quote.clientGst)}</div>` : ''}
-            </div>
-            <div class="box">
-              <div class="box-title">Proposal & Validity Particulars</div>
-              <div><strong>Quotation No:</strong> <span style="font-family: monospace; font-weight: bold;">${escapeHtml(quote.id)}</span></div>
-              <div><strong>Quotation Date:</strong> ${escapeHtml(quote.date)}</div>
-              <div><strong>Proposal Validity:</strong> <span style="color: #b45309; font-weight: bold;">Valid until ${escapeHtml(quote.validUntil)}</span></div>
-              <div><strong>Service Category:</strong> ${escapeHtml(quote.category)}</div>
-              <div><strong>Place of Supply:</strong> ${escapeHtml(quote.placeOfSupply || 'Assam (18)')}</div>
-              <div><strong>Tax Type:</strong> ${isInterState ? 'Inter-State (IGST Applicable)' : 'Intra-State (CGST + SGST Applicable)'}</div>
-            </div>
+    printWin.document.write(`<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Quotation ${quote.id} - ${quote.clientName} - M/S COMPUTER PLANET</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 0; /* Zero margin suppresses browser header timestamps and footer URLs */
+      }
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        --quote-font: ${fontObj.family};
+        --quote-font-size: ${sizeObj.baseSize};
+        --quote-line-height: ${sizeObj.lineHeight};
+        --quote-tbl-pad: ${sizeObj.tablePadding};
+        --quote-hdr-pad: ${sizeObj.headerPadding};
+        --quote-primary: ${themeObj.primary};
+        --quote-primary-light: ${themeObj.primaryLight};
+        --quote-accent: ${themeObj.accent};
+        --quote-border: ${themeObj.border};
+        --quote-th-bg: ${themeObj.tableHeaderBg};
+        --quote-th-color: ${themeObj.tableHeaderText};
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f1f5f9;
+        font-family: var(--quote-font);
+        font-size: var(--quote-font-size);
+        line-height: var(--quote-line-height);
+        color: #0f172a;
+        -webkit-font-smoothing: antialiased;
+      }
+      .no-print {
+        display: block;
+      }
+      @media screen {
+        .print-page {
+          max-width: 210mm;
+          margin: 20px auto 40px auto;
+          background: #ffffff;
+          padding: 8mm 10mm;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+      }
+      @media print {
+        body {
+          background: #ffffff !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .print-page {
+          box-shadow: none !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+          border: none !important;
+          max-width: 100% !important;
+          width: 100% !important;
+          padding: 7mm 9mm !important;
+        }
+        .avoid-break {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+        }
+      }
+      body.fit-one-page .print-page {
+        padding: 6mm 8mm !important;
+      }
+      body.fit-one-page .meta-grid {
+        margin-bottom: 8px !important;
+      }
+      body.fit-one-page .item-specs {
+        font-size: 8.5pt !important;
+      }
+      body.fit-one-page table.items th,
+      body.fit-one-page table.items td {
+        padding: 3.5px 5px !important;
+      }
+      body.fit-one-page .terms-box {
+        margin-top: 8px !important;
+        padding: 6px 10px !important;
+      }
+      body.fit-one-page .footer-sig {
+        margin-top: 18px !important;
+      }
+
+      .meta-grid { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+      .box { border: 1px solid var(--quote-border); padding: 8px 12px; border-radius: 6px; width: 49%; background: #ffffff; }
+      .box-title { font-size: 9.5px; text-transform: uppercase; font-weight: 800; color: var(--quote-primary); letter-spacing: 0.5px; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px; }
+      table.items { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
+      table.items th, table.items td { border: 1px solid var(--quote-border); padding: var(--quote-tbl-pad); text-align: left; vertical-align: top; }
+      table.items th { background: var(--quote-th-bg); color: var(--quote-th-color); font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px; }
+      table.items tbody tr:nth-child(even) { background: #f8fafc; }
+      .text-right { text-align: right; }
+      .text-center { text-align: center; }
+      .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .totals-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 8px; gap: 12px; }
+      .words-box { width: 50%; border: 1px solid var(--quote-border); padding: 10px; border-radius: 6px; background: #fafafa; }
+      .totals-table { width: 48%; border-collapse: collapse; }
+      .totals-table td { padding: 4px 8px; font-size: 11px; }
+      .grand-total { font-weight: 900; font-size: 13px; border-top: 2px solid var(--quote-primary); border-bottom: 2px solid var(--quote-primary); background: var(--quote-primary-light); color: var(--quote-primary); }
+      .terms-box { margin-top: 12px; border: 1px solid var(--quote-border); background: #f8fafc; padding: 10px 12px; border-radius: 6px; font-size: 10px; }
+      .terms-title { font-weight: 800; text-transform: uppercase; color: var(--quote-primary); margin-bottom: 4px; font-size: 10px; letter-spacing: 0.5px; }
+      .footer-sig { margin-top: 26px; display: flex; justify-content: space-between; align-items: flex-end; }
+    </style>
+  </head>
+  <body class="${curFitOnePage ? 'fit-one-page' : ''}">
+    
+    <!-- Top Interactive Toolbar (Hidden in Print) -->
+    <div class="no-print" style="position: sticky; top: 0; z-index: 10000; background: #0f172a; color: #f8fafc; padding: 10px 16px; border-bottom: 2px solid #3b82f6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <strong style="font-size: 12px; letter-spacing: 0.3px; color: #ffffff;">M/S COMPUTER PLANET</strong>
+          <span style="color: #64748b;">|</span>
+          <span style="font-size: 11px; color: #94a3b8; font-family: monospace; font-weight: bold;">${escapeHtml(quote.id)}</span>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <!-- Font Family Selector -->
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <label for="fontSelect" style="font-size: 11px; font-weight: bold; color: #94a3b8;">Font:</label>
+            <select id="fontSelect" style="background: #1e293b; color: #ffffff; border: 1px solid #475569; border-radius: 6px; padding: 3px 6px; font-size: 11px; cursor: pointer; outline: none;">
+              ${FONT_OPTIONS.map(f => `<option value="${f.id}" ${f.id === curFont ? 'selected' : ''}>${f.name.split(' (')[0]}</option>`).join('')}
+            </select>
           </div>
 
-          <table class="items">
-            <thead>
-              <tr>
-                <th style="width: 4%;" class="text-center">#</th>
-                <th>Description of Goods / Scope of Technical Work</th>
-                <th style="width: 10%;" class="text-center">HSN/SAC</th>
-                <th style="width: 8%;" class="text-right">Qty</th>
-                <th style="width: 9%;" class="text-center">Unit</th>
-                <th style="width: 14%;" class="text-right">Rate (₹)</th>
-                <th style="width: 16%;" class="text-right">Taxable Value (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${quote.items.map((it, idx) => `
-                <tr>
-                  <td class="text-center">${idx + 1}</td>
-                  <td><strong>${escapeHtml(it.desc)}</strong></td>
-                  <td class="text-center font-mono">${escapeHtml(it.hsn || '9987')}</td>
-                  <td class="text-right">${Number(it.qty) || 0}</td>
-                  <td class="text-center">${escapeHtml(it.unit || 'Nos')}</td>
-                  <td class="text-right">${Number(it.rate || 0).toLocaleString('en-IN')}</td>
-                  <td class="text-right">${((Number(it.qty) || 0) * (Number(it.rate) || 0)).toLocaleString('en-IN')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-
-          <div class="totals-container">
-            <div class="words-box">
-              <strong style="color: #64748b; font-size: 10px; text-transform: uppercase;">Total Estimate in Words:</strong>
-              <div style="font-weight: bold; color: #0f172a; margin-top: 3px; font-size: 11px;">${words}</div>
-              <div style="margin-top: 10px; font-size: 10.5px; color: #475569; line-height: 1.4;">
-                <strong>Bank Details for Settlement / Advance:</strong><br/>
-                Punjab National Bank, Silchar Branch<br/>
-                Account: M/S COMPUTER PLANET | IFSC: PUNB0074300<br/>
-                UPI VPA: 8638083712@okbizaxis
-                <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dotted #cbd5e1; font-size: 9.5px; color: #64748b;">
-                  <strong>1. Regd. Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007<br/>
-                  <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011 | <strong>Tel:</strong> +91-8638083712 / 9954493909<br/>
-                  <strong>Web:</strong> www.mscomputerplanet.com | <strong>Email:</strong> computerplanetpkd@gmail.com
-                </div>
-              </div>
-            </div>
-
-            <table class="totals-table">
-              <tr>
-                <td>Total Taxable Value:</td>
-                <td class="text-right font-mono font-bold">₹${subtotal.toLocaleString('en-IN')}</td>
-              </tr>
-              ${isInterState ? `
-                <tr>
-                  <td>IGST (${igstRate}%):</td>
-                  <td class="text-right font-mono">₹${igstAmount.toLocaleString('en-IN')}</td>
-                </tr>
-              ` : `
-                <tr>
-                  <td>Central GST - CGST (${cgstRate}%):</td>
-                  <td class="text-right font-mono">₹${cgstAmount.toLocaleString('en-IN')}</td>
-                </tr>
-                <tr>
-                  <td>State GST - SGST (${sgstRate}%):</td>
-                  <td class="text-right font-mono">₹${sgstAmount.toLocaleString('en-IN')}</td>
-                </tr>
-              `}
-              <tr class="grand-total">
-                <td>GRAND TOTAL (INCL. GST):</td>
-                <td class="text-right font-mono">₹${grandTotal.toLocaleString('en-IN')}</td>
-              </tr>
-            </table>
+          <!-- Font Size Selector -->
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <label for="sizeSelect" style="font-size: 11px; font-weight: bold; color: #94a3b8;">Size:</label>
+            <select id="sizeSelect" style="background: #1e293b; color: #ffffff; border: 1px solid #475569; border-radius: 6px; padding: 3px 6px; font-size: 11px; cursor: pointer; outline: none;">
+              ${FONT_SIZE_OPTIONS.map(s => `<option value="${s.id}" ${s.id === curSize ? 'selected' : ''}>${s.id === 'compact' ? 'Compact (9.5pt)' : s.id === 'standard' ? 'Standard (10.5pt)' : 'Comfort (12pt)'}</option>`).join('')}
+            </select>
           </div>
 
-          ${quote.terms ? `
-            <div class="terms-box">
-              <div class="terms-title">Commercial Terms & Conditions</div>
-              <div style="white-space: pre-line; color: #334155;">${escapeHtml(quote.terms)}</div>
-            </div>
-          ` : ''}
+          <!-- Theme Selector -->
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <label for="themeSelect" style="font-size: 11px; font-weight: bold; color: #94a3b8;">Theme:</label>
+            <select id="themeSelect" style="background: #1e293b; color: #ffffff; border: 1px solid #475569; border-radius: 6px; padding: 3px 6px; font-size: 11px; cursor: pointer; outline: none;">
+              ${THEME_OPTIONS.map(t => `<option value="${t.id}" ${t.id === curTheme ? 'selected' : ''}>${t.name.split(' / ')[0]}</option>`).join('')}
+            </select>
+          </div>
 
-          <div class="footer-sig">
-            <div style="font-size: 11px; color: #64748b;">
-              <div>Customer Acceptance / Seal & Signature</div>
-              <div style="margin-top: 40px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px;">
-                Authorized Representative Signature
-              </div>
-            </div>
-            <div style="text-align: right; font-size: 11px; color: #0f172a;">
-              <div style="font-weight: bold;">For M/S COMPUTER PLANET</div>
-              <div style="margin-top: 40px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px; display: inline-block;">
-                Authorized Signatory / Proprietor
-              </div>
+          <!-- Fit 1 Page Checkbox -->
+          <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #cbd5e1; cursor: pointer; background: #1e293b; padding: 3px 6px; border-radius: 6px; border: 1px solid #475569;">
+            <input type="checkbox" id="fitOnePageCheck" ${curFitOnePage ? 'checked' : ''} style="cursor: pointer; accent-color: #3b82f6;"/>
+            <span>Fit 1 Page</span>
+          </label>
+
+          <!-- Action buttons -->
+          <button onclick="window.print()" style="display: inline-flex; align-items: center; gap: 4px; background: #2563eb; color: #ffffff; border: none; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: bold; cursor: pointer;">
+            <span>🖨️ Print / PDF</span>
+          </button>
+
+          <button onclick="window.close()" style="background: #334155; color: #cbd5e1; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer;">
+            ✕ Close
+          </button>
+        </div>
+      </div>
+
+      <div style="max-width: 1200px; margin: 6px auto 0 auto; padding-top: 4px; border-top: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; color: #94a3b8;">
+        <span>✨ <strong>Clean Mode Active:</strong> Browser date/time headers and URL footers are removed via zero page margins.</span>
+        <span>💡 <em>Tip: If date or URL still appears, uncheck "Headers and footers" in print dialog settings.</em></span>
+      </div>
+    </div>
+
+    <!-- Printable Quotation Container -->
+    <div class="print-page">
+      ${getCompanyPrintHeaderHtml({
+        documentTitle: 'COMMERCIAL PROPOSAL & TECHNICAL ESTIMATE',
+        rightBadgeText: quote.id,
+        rightBadgeSubtext: 'OFFICIAL QUOTATION'
+      })}
+
+      <div class="meta-grid">
+        <div class="box">
+          <div class="box-title">Client / Recipient Particulars</div>
+          <div style="font-weight: 800; font-size: 13px; color: #0f172a;">${escapeHtml(quote.clientName)}</div>
+          ${quote.contactPerson ? `<div style="margin-top: 2px;"><strong>Attn:</strong> ${escapeHtml(quote.contactPerson)}</div>` : ''}
+          <div style="margin-top: 2px; color: #334155;">${escapeHtml(quote.clientAddress || 'Silchar, Cachar, Assam')}</div>
+          ${quote.clientPhone ? `<div style="margin-top: 2px;"><strong>Phone:</strong> ${escapeHtml(quote.clientPhone)}</div>` : ''}
+          ${quote.clientEmail ? `<div style="margin-top: 1px;"><strong>Email:</strong> ${escapeHtml(quote.clientEmail)}</div>` : ''}
+          ${quote.clientGst ? `<div style="margin-top: 3px; font-family: monospace;"><strong>GSTIN:</strong> ${escapeHtml(quote.clientGst)}</div>` : ''}
+        </div>
+        <div class="box">
+          <div class="box-title">Proposal & Validity Particulars</div>
+          <div><strong>Quotation No:</strong> <span class="font-mono" style="font-weight: 800; color: var(--quote-primary);">${escapeHtml(quote.id)}</span></div>
+          <div><strong>Quotation Date:</strong> ${escapeHtml(quote.date)}</div>
+          <div><strong>Proposal Validity:</strong> <span style="color: #b45309; font-weight: bold;">Valid until ${escapeHtml(quote.validUntil)}</span></div>
+          <div><strong>Service Category:</strong> ${escapeHtml(quote.category)}</div>
+          <div><strong>Place of Supply:</strong> ${escapeHtml(quote.placeOfSupply || 'Assam (18)')}</div>
+          <div><strong>Tax Classification:</strong> ${isInterState ? 'Inter-State (IGST Applicable)' : 'Intra-State (CGST + SGST Applicable)'}</div>
+        </div>
+      </div>
+
+      <table class="items">
+        <thead>
+          <tr>
+            <th style="width: 4%;" class="text-center">#</th>
+            <th>Description of Goods / Scope of Technical Work</th>
+            <th style="width: 10%;" class="text-center">HSN/SAC</th>
+            <th style="width: 8%;" class="text-right">Qty</th>
+            <th style="width: 9%;" class="text-center">Unit</th>
+            <th style="width: 14%;" class="text-right">Rate (₹)</th>
+            <th style="width: 16%;" class="text-right">Taxable Value (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${quote.items.map((it, idx) => `
+            <tr>
+              <td class="text-center font-mono" style="color: #64748b;">${idx + 1}</td>
+              <td>${formatItemDescHtml(it.desc)}</td>
+              <td class="text-center font-mono">${escapeHtml(it.hsn || '9987')}</td>
+              <td class="text-right font-mono" style="font-weight: 600;">${Number(it.qty) || 0}</td>
+              <td class="text-center">${escapeHtml(it.unit || 'Nos')}</td>
+              <td class="text-right font-mono">${Number(it.rate || 0).toLocaleString('en-IN')}</td>
+              <td class="text-right font-mono" style="font-weight: 700;">${((Number(it.qty) || 0) * (Number(it.rate) || 0)).toLocaleString('en-IN')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div class="totals-container avoid-break">
+        <div class="words-box">
+          <strong style="color: #64748b; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;">Total Estimate in Words:</strong>
+          <div style="font-weight: 800; color: #0f172a; margin-top: 3px; font-size: 11px;">${words}</div>
+          <div style="margin-top: 8px; font-size: 10px; color: #475569; line-height: 1.4; border-top: 1px dotted var(--quote-border); padding-top: 6px;">
+            <strong style="color: #0f172a;">Official Bank Details for Settlement / Advance:</strong><br/>
+            Punjab National Bank, Silchar Branch<br/>
+            A/C Name: <strong>M/S COMPUTER PLANET</strong> | IFSC: <span class="font-mono">PUNB0074300</span><br/>
+            UPI VPA: <span class="font-mono" style="font-weight: 700; color: var(--quote-primary);">8638083712@okbizaxis</span>
+            <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dotted var(--quote-border); font-size: 9px; color: #64748b; line-height: 1.35;">
+              <strong>1. Regd. Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007<br/>
+              <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011 | <strong>Tel:</strong> +91-8638083712 / 9954493909<br/>
+              <strong>Web:</strong> www.mscomputerplanet.com | <strong>Email:</strong> computerplanetpkd@gmail.com
             </div>
           </div>
-        </body>
-      </html>
-    `);
+        </div>
+
+        <table class="totals-table">
+          <tr>
+            <td>Total Taxable Value:</td>
+            <td class="text-right font-mono font-bold">₹${subtotal.toLocaleString('en-IN')}</td>
+          </tr>
+          ${isInterState ? `
+            <tr>
+              <td>IGST (${igstRate}%):</td>
+              <td class="text-right font-mono">₹${igstAmount.toLocaleString('en-IN')}</td>
+            </tr>
+          ` : `
+            <tr>
+              <td>Central GST - CGST (${cgstRate}%):</td>
+              <td class="text-right font-mono">₹${cgstAmount.toLocaleString('en-IN')}</td>
+            </tr>
+            <tr>
+              <td>State GST - SGST (${sgstRate}%):</td>
+              <td class="text-right font-mono">₹${sgstAmount.toLocaleString('en-IN')}</td>
+            </tr>
+          `}
+          <tr class="grand-total">
+            <td style="font-weight: 800;">GRAND TOTAL (INCL. GST):</td>
+            <td class="text-right font-mono" style="font-size: 14px;">₹${grandTotal.toLocaleString('en-IN')}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${quote.terms ? `
+        <div class="terms-box avoid-break">
+          <div class="terms-title">Commercial Terms & Conditions</div>
+          <div style="white-space: pre-line; color: #334155; line-height: 1.45;">${escapeHtml(quote.terms)}</div>
+        </div>
+      ` : ''}
+
+      <div class="footer-sig avoid-break">
+        <div style="font-size: 10.5px; color: #64748b;">
+          <div>Customer Acceptance / Seal & Signature</div>
+          <div style="margin-top: 36px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px;">
+            Authorized Representative Signature
+          </div>
+        </div>
+        <div style="text-align: right; font-size: 10.5px; color: #0f172a;">
+          <div style="font-weight: 800; color: var(--quote-primary);">For M/S COMPUTER PLANET</div>
+          <div style="margin-top: 36px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px; display: inline-block;">
+            Authorized Signatory / Enterprise Operations
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.onbeforeprint = function() {
+        window._origTitle = document.title;
+        document.title = '';
+      };
+      window.onafterprint = function() {
+        if (window._origTitle) document.title = window._origTitle;
+      };
+
+      const fontSelect = document.getElementById('fontSelect');
+      const sizeSelect = document.getElementById('sizeSelect');
+      const themeSelect = document.getElementById('themeSelect');
+      const fitOnePageCheck = document.getElementById('fitOnePageCheck');
+
+      const FONT_MAP = {
+        'Inter': "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        'Segoe UI': "'Segoe UI', -apple-system, Tahoma, Geneva, Verdana, sans-serif",
+        'Roboto': "'Roboto', -apple-system, BlinkMacSystemFont, sans-serif",
+        'Montserrat': "'Montserrat', 'Segoe UI', sans-serif",
+        'Arial': "Arial, Helvetica, sans-serif"
+      };
+
+      const SIZE_MAP = {
+        'compact': { baseSize: '9.5pt', lineHeight: '1.35', tblPad: '4px 6px', hdrPad: '6px 8px' },
+        'standard': { baseSize: '10.5pt', lineHeight: '1.45', tblPad: '6px 8px', hdrPad: '8px 10px' },
+        'comfort': { baseSize: '12pt', lineHeight: '1.55', tblPad: '8px 10px', hdrPad: '10px 12px' }
+      };
+
+      const THEME_MAP = {
+        'tech_blue': { primary: '#1e40af', light: '#eff6ff', accent: '#2563eb', border: '#cbd5e1', thBg: '#1e3a8a', thColor: '#ffffff' },
+        'modern_slate': { primary: '#0f172a', light: '#f8fafc', accent: '#334155', border: '#cbd5e1', thBg: '#0f172a', thColor: '#ffffff' },
+        'emerald_corp': { primary: '#065f46', light: '#ecfdf5', accent: '#059669', border: '#a7f3d0', thBg: '#064e3b', thColor: '#ffffff' },
+        'classic_navy': { primary: '#172554', light: '#f0f9ff', accent: '#0369a1', border: '#bae6fd', thBg: '#172554', thColor: '#ffffff' }
+      };
+
+      function applyPreferences() {
+        const fVal = fontSelect.value;
+        const sVal = sizeSelect.value;
+        const tVal = themeSelect.value;
+        const fitOne = fitOnePageCheck.checked;
+
+        document.documentElement.style.setProperty('--quote-font', FONT_MAP[fVal] || FONT_MAP['Inter']);
+
+        const sObj = SIZE_MAP[sVal] || SIZE_MAP['compact'];
+        document.documentElement.style.setProperty('--quote-font-size', sObj.baseSize);
+        document.documentElement.style.setProperty('--quote-line-height', sObj.lineHeight);
+        document.documentElement.style.setProperty('--quote-tbl-pad', sObj.tblPad);
+        document.documentElement.style.setProperty('--quote-hdr-pad', sObj.hdrPad);
+
+        const tObj = THEME_MAP[tVal] || THEME_MAP['tech_blue'];
+        document.documentElement.style.setProperty('--quote-primary', tObj.primary);
+        document.documentElement.style.setProperty('--quote-primary-light', tObj.light);
+        document.documentElement.style.setProperty('--quote-accent', tObj.accent);
+        document.documentElement.style.setProperty('--quote-border', tObj.border);
+        document.documentElement.style.setProperty('--quote-th-bg', tObj.thBg);
+        document.documentElement.style.setProperty('--quote-th-color', tObj.thColor);
+
+        if (fitOne) {
+          document.body.classList.add('fit-one-page');
+        } else {
+          document.body.classList.remove('fit-one-page');
+        }
+
+        try {
+          localStorage.setItem('cp_quote_font_family', fVal);
+          localStorage.setItem('cp_quote_font_size', sVal);
+          localStorage.setItem('cp_quote_theme', tVal);
+          localStorage.setItem('cp_quote_fit_one_page', String(fitOne));
+        } catch(e) {}
+      }
+
+      fontSelect.addEventListener('change', applyPreferences);
+      sizeSelect.addEventListener('change', applyPreferences);
+      themeSelect.addEventListener('change', applyPreferences);
+      fitOnePageCheck.addEventListener('change', applyPreferences);
+    </script>
+  </body>
+</html>`);
     printWin.document.close();
     printWin.focus();
-    printWin.print();
   };
 
   const getStatusBadgeClass = (status) => {
@@ -546,24 +906,35 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
           </div>
         </div>
 
-        {isAdmin ? (
+        <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={handleOpenCreateModal}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
+            onClick={() => setShowPrintConfigModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 shadow-sm transition"
+            title="Configure Quotation Font Family, Size, and Print Theme"
           >
-            <Plus className="w-4 h-4" />
-            <span>New Quotation</span>
+            <SlidersHorizontal className="w-4 h-4 text-slate-500" />
+            <span>Font & Print Style</span>
           </button>
-        ) : (
-          <button
-            onClick={() => alert("Access Denied: Creating quotations is restricted to Administrator accounts.")}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition shrink-0"
-            title="Quotation creation restricted to Administrator"
-          >
-            <Lock className="w-4 h-4 text-amber-600" />
-            <span>New Quotation (Admin Only)</span>
-          </button>
-        )}
+
+          {isAdmin ? (
+            <button
+              onClick={handleOpenCreateModal}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-xs sm:text-sm font-bold shadow transition shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Quotation</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => alert("Access Denied: Creating quotations is restricted to Administrator accounts.")}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-xl text-xs sm:text-sm font-semibold border border-slate-200 transition shrink-0"
+              title="Quotation creation restricted to Administrator"
+            >
+              <Lock className="w-4 h-4 text-amber-600" />
+              <span>New Quotation (Admin Only)</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -1229,6 +1600,170 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Quotation Font & Print Style Configuration Modal */}
+      {showPrintConfigModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-xl w-full p-6 animate-in fade-in duration-200">
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center">
+                  <SlidersHorizontal className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900">Quotation Typography & Print Theme</h3>
+                  <p className="text-xs text-slate-500">Configure font family, font size, and color accents for printed quotes</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPrintConfigModal(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 py-4 text-xs">
+              {/* Font Family */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Type className="w-4 h-4 text-blue-600" />
+                  <span>Font Family (Typography)</span>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {FONT_OPTIONS.map(f => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => handleUpdatePrintPrefs(f.id, printFontSize, printTheme, printFitOnePage)}
+                      className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition ${
+                        printFontFamily === f.id
+                          ? 'border-blue-600 bg-blue-50/50 text-blue-900 ring-2 ring-blue-500/20'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold text-xs">{f.name.split(' (')[0]}</div>
+                        <div className="text-[10px] text-slate-400">{f.name.includes('(') ? f.name.split('(')[1].replace(')', '') : 'Standard'}</div>
+                      </div>
+                      {printFontFamily === f.id && <Check className="w-4 h-4 text-blue-600" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font Size */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5">
+                  Document Font Size & Spacing
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {FONT_SIZE_OPTIONS.map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => handleUpdatePrintPrefs(printFontFamily, s.id, printTheme, printFitOnePage)}
+                      className={`p-2.5 rounded-xl border text-center transition ${
+                        printFontSize === s.id
+                          ? 'border-blue-600 bg-blue-50/50 text-blue-900 ring-2 ring-blue-500/20 font-bold'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <div className="text-xs">{s.id === 'compact' ? 'Compact' : s.id === 'standard' ? 'Standard' : 'Comfort'}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{s.baseSize}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Theme Colors */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span>Color Theme & Table Accent</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {THEME_OPTIONS.map(t => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => handleUpdatePrintPrefs(printFontFamily, printFontSize, t.id, printFitOnePage)}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition ${
+                        printTheme === t.id
+                          ? 'border-blue-600 bg-blue-50/50 text-blue-900 ring-2 ring-blue-500/20'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <span className="w-4 h-4 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: t.primary }}></span>
+                      <div className="min-w-0">
+                        <div className="font-bold text-xs truncate">{t.name.split(' / ')[0]}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{t.name.split(' / ')[1] || 'Corporate'}</div>
+                      </div>
+                      {printTheme === t.id && <Check className="w-4 h-4 text-blue-600 ml-auto shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Single Page Fit Toggle */}
+              <div className="pt-2">
+                <label className="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={printFitOnePage}
+                    onChange={(e) => handleUpdatePrintPrefs(printFontFamily, printFontSize, printTheme, e.target.checked)}
+                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 text-xs block">Always Optimize to Fit on 1 Page</span>
+                    <span className="text-[11px] text-slate-500">Applies compact row padding and suppresses orphaned page breaks for standard IT hardware quotes.</span>
+                  </div>
+                </label>
+              </div>
+
+              {/* Mini Sample Preview */}
+              <div className="p-3 bg-slate-100 rounded-2xl border border-slate-200">
+                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Live Style Preview</div>
+                <div
+                  className="bg-white p-3 rounded-xl border border-slate-300 shadow-xs"
+                  style={{
+                    fontFamily: (FONT_OPTIONS.find(f => f.id === printFontFamily) || FONT_OPTIONS[0]).family
+                  }}
+                >
+                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-200">
+                    <span className="font-bold text-slate-900 text-xs">M/S COMPUTER PLANET</span>
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: (THEME_OPTIONS.find(t => t.id === printTheme) || THEME_OPTIONS[0]).badgeBg,
+                        color: (THEME_OPTIONS.find(t => t.id === printTheme) || THEME_OPTIONS[0]).badgeText
+                      }}
+                    >
+                      QT-2026-921
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 mt-1">Intel Core i5 Desktop PC • 16GB DDR4 • 512GB NVMe SSD</div>
+                  <div className="flex justify-between items-center mt-2 pt-1 border-t border-slate-100 text-xs font-mono">
+                    <span className="text-slate-500">Total (incl. GST):</span>
+                    <span className="font-black text-slate-900">₹39,530</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowPrintConfigModal(false)}
+                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition flex items-center gap-1.5"
+              >
+                <Check className="w-4 h-4" />
+                <span>Save & Close</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
