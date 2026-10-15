@@ -187,7 +187,11 @@ export default function QuotationModule({
     ],
     gstRate: 18,
     terms: DEFAULT_TERMS,
-    notes: ''
+    notes: '',
+    fontFamily: printFontFamily || 'Inter',
+    fontSize: printFontSize || 'compact',
+    theme: printTheme || 'tech_blue',
+    fitOnePage: printFitOnePage !== false
   }));
 
   const calculateSubtotal = (items) => {
@@ -289,7 +293,11 @@ export default function QuotationModule({
       ],
       gstRate: 18,
       terms: DEFAULT_TERMS,
-      notes: ''
+      notes: '',
+      fontFamily: printFontFamily || 'Inter',
+      fontSize: printFontSize || 'compact',
+      theme: printTheme || 'tech_blue',
+      fitOnePage: printFitOnePage !== false
     });
   };
 
@@ -308,7 +316,13 @@ export default function QuotationModule({
       return;
     }
     setEditingQuote(quote);
-    setForm({ ...quote });
+    setForm({
+      ...quote,
+      fontFamily: quote.fontFamily || printFontFamily || 'Inter',
+      fontSize: quote.fontSize || printFontSize || 'compact',
+      theme: quote.theme || printTheme || 'tech_blue',
+      fitOnePage: quote.fitOnePage !== false
+    });
   };
 
   const handleSaveQuote = (e) => {
@@ -456,10 +470,10 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
     const { subtotal, grandTotal, isInterState, cgstRate, sgstRate, igstRate, cgstAmount, sgstAmount, igstAmount } = calculateQuoteTotals(quote);
     const words = numberToIndianWords(grandTotal);
 
-    const curFont = printFontFamily;
-    const curSize = printFontSize;
-    const curTheme = printTheme;
-    const curFitOnePage = printFitOnePage;
+    const curFont = quote.fontFamily || printFontFamily || 'Inter';
+    const curSize = quote.fontSize || printFontSize || 'compact';
+    const curTheme = quote.theme || printTheme || 'tech_blue';
+    const curFitOnePage = quote.fitOnePage !== false;
 
     const fontObj = FONT_OPTIONS.find(f => f.id === curFont) || FONT_OPTIONS[0];
     const sizeObj = FONT_SIZE_OPTIONS.find(s => s.id === curSize) || FONT_SIZE_OPTIONS[0];
@@ -467,15 +481,23 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
 
     const formatItemDescHtml = (desc) => {
       if (!desc) return '';
-      const lines = desc.split('\n').map(l => l.trim()).filter(Boolean);
+      let lines = desc.split('\n').map(l => l.trim()).filter(Boolean);
+      // Support common specifications like "Processor - ... Motherboard - ... RAM - ..."
+      if (lines.length === 1 && (desc.includes(' - ') || desc.includes(' • '))) {
+        const parts = desc.split(/(?=\s*(?:Processor|Motherboard|Ram|RAM|Hard Disk|SSD|Monitor|UPS|Keyboard|Cabinet|Graphics|Operating System|OS)\s*[-:])/i);
+        if (parts.length > 1) {
+          lines = parts.map(p => p.trim()).filter(Boolean);
+        }
+      }
+
       if (lines.length <= 1) {
-        return `<div style="font-weight: 600; color: #0f172a;">${escapeHtml(desc)}</div>`;
+        return `<div style="font-weight: 700; color: #0f172a; font-size: 8.5pt;">${escapeHtml(desc)}</div>`;
       }
       const title = lines[0];
       const specs = lines.slice(1);
       return `
-        <div style="font-weight: 700; color: #0f172a; margin-bottom: 2px;">${escapeHtml(title)}</div>
-        <div class="item-specs" style="font-size: 0.9em; color: #475569; line-height: 1.4; padding-left: 2px;">
+        <div style="font-weight: 700; color: #0f172a; font-size: 8.5pt; margin-bottom: 2px;">${escapeHtml(title)}</div>
+        <div class="item-specs" style="font-size: 7.5pt; color: #475569; line-height: 1.25; padding-left: 2px;">
           ${specs.map(s => `<span style="display: block; margin-top: 1px;">• ${escapeHtml(s)}</span>`).join('')}
         </div>
       `;
@@ -541,24 +563,36 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
         }
       }
       @media print {
-        body {
-          background: #ffffff !important;
-          padding: 0 !important;
+        html, body {
+          width: 210mm !important;
+          height: 297mm !important;
+          max-height: 297mm !important;
           margin: 0 !important;
+          padding: 0 !important;
+          background: #ffffff !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
+          overflow: hidden !important;
         }
         .no-print {
           display: none !important;
         }
         .print-page {
           box-shadow: none !important;
-          margin: 0 !important;
+          margin: 0 auto !important;
           border-radius: 0 !important;
           border: none !important;
-          max-width: 100% !important;
-          width: 100% !important;
-          padding: 7mm 9mm !important;
+          width: 210mm !important;
+          max-width: 210mm !important;
+          height: 297mm !important;
+          max-height: 297mm !important;
+          padding: 5mm 8mm !important;
+          box-sizing: border-box !important;
+          overflow: hidden !important;
+          page-break-after: avoid !important;
+          page-break-before: avoid !important;
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
         }
         .avoid-break {
           break-inside: avoid !important;
@@ -566,38 +600,76 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
         }
       }
       body.fit-one-page .print-page {
-        padding: 6mm 8mm !important;
+        padding: 4mm 7mm !important;
       }
       body.fit-one-page .meta-grid {
-        margin-bottom: 8px !important;
+        margin-bottom: 5px !important;
+        gap: 8px !important;
       }
-      body.fit-one-page .item-specs {
-        font-size: 8.5pt !important;
+      body.fit-one-page .box {
+        padding: 4px 7px !important;
+      }
+      body.fit-one-page .box-title {
+        font-size: 8pt !important;
+        margin-bottom: 2px !important;
+        padding-bottom: 2px !important;
+      }
+      body.fit-one-page table.items {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
       }
       body.fit-one-page table.items th,
       body.fit-one-page table.items td {
-        padding: 3.5px 5px !important;
+        padding: 2.5px 5px !important;
+        font-size: 8.5pt !important;
+      }
+      body.fit-one-page .item-specs {
+        font-size: 7.5pt !important;
+        line-height: 1.2 !important;
+      }
+      body.fit-one-page .totals-container {
+        margin-top: 4px !important;
+        gap: 6px !important;
+      }
+      body.fit-one-page .words-box {
+        padding: 4px 7px !important;
+        font-size: 8pt !important;
+      }
+      body.fit-one-page .totals-table td {
+        padding: 2px 5px !important;
+        font-size: 8.5pt !important;
       }
       body.fit-one-page .terms-box {
-        margin-top: 8px !important;
-        padding: 6px 10px !important;
+        margin-top: 4px !important;
+        padding: 4px 7px !important;
+        font-size: 7.5pt !important;
+        line-height: 1.25 !important;
+      }
+      body.fit-one-page .terms-title {
+        font-size: 8pt !important;
+        margin-bottom: 2px !important;
       }
       body.fit-one-page .footer-sig {
-        margin-top: 18px !important;
+        margin-top: 10px !important;
+        font-size: 8pt !important;
+      }
+      body.fit-one-page .sig-line {
+        margin-top: 16px !important;
+        width: 170px !important;
       }
 
-      .meta-grid { display: flex; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
-      .box { border: 1px solid var(--quote-border); padding: 8px 12px; border-radius: 6px; width: 49%; background: #ffffff; }
-      .box-title { font-size: 9.5px; text-transform: uppercase; font-weight: 800; color: var(--quote-primary); letter-spacing: 0.5px; margin-bottom: 5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px; }
-      table.items { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 12px; }
+      .meta-grid { display: flex; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+      .box { border: 1px solid var(--quote-border); padding: 6px 10px; border-radius: 6px; width: 49%; background: #ffffff; }
+      .box-title { font-size: 9px; text-transform: uppercase; font-weight: 800; color: var(--quote-primary); letter-spacing: 0.5px; margin-bottom: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; }
+      table.items { width: 100%; border-collapse: collapse; margin-top: 6px; margin-bottom: 8px; }
       table.items th, table.items td { border: 1px solid var(--quote-border); padding: var(--quote-tbl-pad); text-align: left; vertical-align: top; }
-      table.items th { background: var(--quote-th-bg); color: var(--quote-th-color); font-weight: 700; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px; }
+      table.items th { background: var(--quote-th-bg); color: var(--quote-th-color); font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px; }
       table.items tbody tr:nth-child(even) { background: #f8fafc; }
       .text-right { text-align: right; }
       .text-center { text-align: center; }
       .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-      .totals-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 8px; gap: 12px; }
-      .words-box { width: 50%; border: 1px solid var(--quote-border); padding: 10px; border-radius: 6px; background: #fafafa; }
+      .totals-container { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 6px; gap: 8px; }
+      .words-box { width: 50%; border: 1px solid var(--quote-border); padding: 8px 10px; border-radius: 6px; background: #fafafa; }
       .totals-table { width: 48%; border-collapse: collapse; }
       .totals-table td { padding: 4px 8px; font-size: 11px; }
       .grand-total { font-weight: 900; font-size: 13px; border-top: 2px solid var(--quote-primary); border-bottom: 2px solid var(--quote-primary); background: var(--quote-primary-light); color: var(--quote-primary); }
@@ -670,7 +742,8 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
       ${getCompanyPrintHeaderHtml({
         documentTitle: 'COMMERCIAL PROPOSAL & TECHNICAL ESTIMATE',
         rightBadgeText: quote.id,
-        rightBadgeSubtext: 'OFFICIAL QUOTATION'
+        rightBadgeSubtext: 'OFFICIAL QUOTATION',
+        compact: curFitOnePage
       })}
 
       <div class="meta-grid">
@@ -773,15 +846,15 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
       ` : ''}
 
       <div class="footer-sig avoid-break">
-        <div style="font-size: 10.5px; color: #64748b;">
+        <div style="font-size: 10px; color: #64748b;">
           <div>Customer Acceptance / Seal & Signature</div>
-          <div style="margin-top: 36px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px;">
+          <div class="sig-line" style="margin-top: 24px; border-top: 1px dashed #94a3b8; width: 200px; padding-top: 4px;">
             Authorized Representative Signature
           </div>
         </div>
-        <div style="text-align: right; font-size: 10.5px; color: #0f172a;">
+        <div style="text-align: right; font-size: 10px; color: #0f172a;">
           <div style="font-weight: 800; color: var(--quote-primary);">For M/S COMPUTER PLANET</div>
-          <div style="margin-top: 36px; border-top: 1px dashed #94a3b8; width: 220px; padding-top: 4px; display: inline-block;">
+          <div class="sig-line" style="margin-top: 24px; border-top: 1px dashed #94a3b8; width: 200px; padding-top: 4px; display: inline-block;">
             Authorized Signatory / Enterprise Operations
           </div>
         </div>
@@ -1409,6 +1482,110 @@ ${quote.terms || 'Standard payment terms apply. 1-year warranty on equipment.'}
                     <option value={18}>18% (Standard IT AMC & Services)</option>
                     <option value={28}>28% (Luxury / High Security)</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Quotation Typography & A4 Page Fit Control (Preparation Mode) */}
+              <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/60 to-slate-50 p-4 rounded-2xl border border-blue-200/90 shadow-xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
+                      A4
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                        <Type className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Print Typography & A4 Single-Page Lock</span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500">Configure font family and text scale to keep this quotation strictly under 1 A4 page.</p>
+                    </div>
+                  </div>
+
+                  <label className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-xs font-bold text-blue-900 cursor-pointer shadow-xs hover:border-blue-300 transition">
+                    <input
+                      type="checkbox"
+                      checked={form.fitOnePage !== false}
+                      onChange={(e) => setForm({ ...form, fitOnePage: e.target.checked })}
+                      className="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                    />
+                    <span>Strict 1-Page A4 Fit</span>
+                    <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      Active
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+                  {/* Font Type / Family */}
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                      <Type className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Font Type (Family)</span>
+                    </label>
+                    <select
+                      value={form.fontFamily || 'Inter'}
+                      onChange={(e) => setForm({ ...form, fontFamily: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    >
+                      {FONT_OPTIONS.map(f => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Font Size & Spacing */}
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Font Size (A4 Fit)</span>
+                    </label>
+                    <select
+                      value={form.fontSize || 'compact'}
+                      onChange={(e) => setForm({ ...form, fontSize: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    >
+                      {FONT_SIZE_OPTIONS.map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.id === 'compact' ? 'Compact (9.5pt) - Recommended for 1 Page A4' : s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Theme Accent */}
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1 flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Theme Accent</span>
+                    </label>
+                    <select
+                      value={form.theme || 'tech_blue'}
+                      onChange={(e) => setForm({ ...form, theme: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    >
+                      {THEME_OPTIONS.map(t => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Live Font & Scale Preview Ribbon */}
+                <div 
+                  className="p-2.5 rounded-xl bg-white border border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs transition"
+                  style={{
+                    fontFamily: (FONT_OPTIONS.find(f => f.id === (form.fontFamily || 'Inter')) || FONT_OPTIONS[0]).family
+                  }}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 shrink-0">Live Typography Preview:</span>
+                    <span className="font-bold text-slate-800 truncate">
+                      {form.clientName || 'M/S COMPUTER PLANET'} — Commercial Proposal & Estimate
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 shrink-0 font-mono">
+                    Font: <strong className="text-slate-800">{form.fontFamily || 'Inter'}</strong> • Size: <strong className="text-slate-800">{form.fontSize || 'compact'}</strong>
+                  </div>
                 </div>
               </div>
 

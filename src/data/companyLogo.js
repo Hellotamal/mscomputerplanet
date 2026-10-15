@@ -39,24 +39,29 @@ export function getCompanyPrintHeaderHtml({
   documentTitle = "",
   rightBadgeText = "",
   rightBadgeSubtext = "",
-  showBorder = true
+  showBorder = true,
+  compact = false
 } = {}) {
+  const logoSvg = compact 
+    ? COMPANY_LOGO_SVG.replace('width="60" height="60"', 'width="46" height="46"')
+    : COMPANY_LOGO_SVG;
+
   return `
-    <div style="display: flex; justify-content: space-between; align-items: center; ${showBorder ? 'border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 15px;' : ''}">
-      <div style="display: flex; align-items: center; gap: 14px;">
-        ${COMPANY_LOGO_SVG}
+    <div style="display: flex; justify-content: space-between; align-items: center; ${showBorder ? `border-bottom: 2px solid #0f172a; padding-bottom: ${compact ? '6px' : '12px'}; margin-bottom: ${compact ? '8px' : '15px'};` : ''}">
+      <div style="display: flex; align-items: center; gap: ${compact ? '10px' : '14px'};">
+        ${logoSvg}
         <div>
-          <div style="font-size: 21px; font-weight: 900; color: #0b3b60; letter-spacing: -0.5px; line-height: 1.15; margin: 0;">
+          <div style="font-size: ${compact ? '18px' : '21px'}; font-weight: 900; color: #0b3b60; letter-spacing: -0.5px; line-height: 1.15; margin: 0;">
             M/S COMPUTER PLANET
           </div>
-          <div style="font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;">
+          <div style="font-size: ${compact ? '9.5px' : '11px'}; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-top: ${compact ? '1px' : '2px'};">
             IT Solutions, Banking AMC & Renewable Energy
           </div>
-          <div style="font-size: 10px; color: #334155; margin-top: 3px; line-height: 1.4;">
+          <div style="font-size: ${compact ? '9px' : '10px'}; color: #334155; margin-top: ${compact ? '2px' : '3px'}; line-height: ${compact ? '1.3' : '1.4'};">
             <strong>1. Registered Office:</strong> West Kachudharam, Chincoorie, Silchar, Cachar, Assam - 788007<br/>
             <strong>2. Branch Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011 | <strong>Tel:</strong> +91-8638083712 / 9954493909
           </div>
-          <div style="font-size: 10px; font-weight: 600; color: #0f172a; margin-top: 2px; line-height: 1.4;">
+          <div style="font-size: ${compact ? '9px' : '10px'}; font-weight: 600; color: #0f172a; margin-top: ${compact ? '1px' : '2px'}; line-height: ${compact ? '1.3' : '1.4'};">
             MSME Reg: UDYAM-AS-05-0019941 | GSTIN: 18ASTPR6755J1Z0<br/>
             <span style="color: #0284c7;">Web: www.mscomputerplanet.com</span> | <span style="color: #475569;">Email: computerplanetpkd@gmail.com</span>
           </div>
@@ -64,13 +69,13 @@ export function getCompanyPrintHeaderHtml({
       </div>
       ${(rightBadgeText || rightBadgeSubtext) ? `
         <div style="text-align: right; shrink-0;">
-          ${rightBadgeSubtext ? `<div style="font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase;">${rightBadgeSubtext}</div>` : ''}
-          ${rightBadgeText ? `<div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-top: 3px;">${rightBadgeText}</div>` : ''}
+          ${rightBadgeSubtext ? `<div style="font-size: ${compact ? '9px' : '10px'}; color: #64748b; font-weight: 600; text-transform: uppercase;">${rightBadgeSubtext}</div>` : ''}
+          ${rightBadgeText ? `<div style="font-size: ${compact ? '11px' : '13px'}; font-weight: 800; color: #0f172a; margin-top: 2px;">${rightBadgeText}</div>` : ''}
         </div>
       ` : ''}
     </div>
     ${documentTitle ? `
-      <div style="text-align: center; margin: 12px 0 10px 0; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #0f172a; background: #f1f5f9; padding: 5px; border-radius: 4px;">
+      <div style="text-align: center; margin: ${compact ? '6px 0 6px 0' : '12px 0 10px 0'}; font-size: ${compact ? '11px' : '14px'}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a; background: #f1f5f9; padding: ${compact ? '3px 6px' : '5px'}; border-radius: 4px;">
         ${documentTitle}
       </div>
     ` : ''}
